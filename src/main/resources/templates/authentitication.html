@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentitication</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <main>
+        <h2>Authentitication</h2>
+        <form th:action="@{/auth}" th:object="${user}" method="post">
+            <label for="name">Name:</label>
+            <input type="text" id="name" th:field="*{name}" required>
+            <br>
+            <label for="surname">Surname:</label>
+            <input type="text" id="surname" th:field="*{surname}">
+            <br>
+            <label for="email">Email:</label>
+            <input type="text" id="email" th:field="*{email}"required>
+            <br>
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" th:field="*{phone}">
+            <br>
+            <label for="address">Address:</label>
+            <input type="text" id="address" th:field="*{address}">
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <button type="submit">Login</button>
+        </form>
+    </main>
+</body>
+</html>
