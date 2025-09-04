@@ -1,0 +1,174 @@
+:root { 
+    --bg:#0f1c2b; 
+    --bg-2:#111f30; 
+    --card:#ffffff; 
+    --muted:#6b7280; 
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    background: #f5f7fb;
+}
+
+.sidebar {
+    background: var(--bg);
+    color: #e5e7eb;
+    padding: 24px;
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 24px;
+}
+
+.nav a {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #e5e7eb;
+    text-decoration: none;
+}
+
+.nav a.active,
+.nav a:hover {
+    background: var(--bg-2);
+}
+
+.main {
+    padding: 28px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.card {
+    background: var(--card);
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.card h4 {
+    margin: 0 0 6px 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.card .value {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 4px 0 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.panel {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    overflow: hidden;
+}
+
+.panel h3 {
+    margin: 0;
+    padding: 16px 18px;
+    border-bottom: 1px solid #eef2f7;
+    font-size: 16px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 14px;
+    border-top: 1px solid #eef2f7;
+    font-size: 14px;
+    text-align: left;
+}
+
+th {
+    background: #fafbff;
+    color: #374151;
+    font-weight: 600;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.st-pending {
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.st-completed {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.st-shipped {
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.top-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn {
+    border: none;
+    background: #111827;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+}

@@ -1,8 +1,11 @@
 package com.bshop_jpa.demo.models;
 
+import java.beans.Transient;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,6 +44,9 @@ public class User implements UserDetails{
 
     private String address;
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
 
     @ManyToMany
     @JoinTable(
@@ -60,5 +66,10 @@ public class User implements UserDetails{
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Transient
+    public String getRoleNames() {
+        return roles.stream().map(Role::getName).collect(Collectors.joining(", "));
     }
 }
