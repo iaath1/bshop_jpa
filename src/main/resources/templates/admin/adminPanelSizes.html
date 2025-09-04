@@ -26,11 +26,10 @@
             <a th:href="@{/admin/roles}" th:classappend="${activePage}=='roles' ? ' active'">🛡️ Roles</a>
         </nav>
     </aside>
-
     <!-- Main -->
     <main class="main">
         <div class="topbar">
-            <h1 style="margin:0">Товары</h1>
+            <h1 style="margin:0">Размеры</h1>
             <div class="top-right">
                 <span class="muted">👤 <span sec:authentication="name">Admin</span></span>
                 <form th:action="@{/auth/logout}" method="post">
@@ -41,34 +40,20 @@
 
         <!-- Users Table -->
         <section class="panel">
-            <h3>Все товары</h3>
+            <h3>Все размеры</h3>
             <table>
                 <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Имя</th>
-                    <th>Описание</th>
-                    <th>Цена</th>
-                    <th>Количество</th>
-                    <th>Размер</th>
-                    <th>Категория</th>
-                    <th>Материал</th>
-                    <th>Цвет</th>
+                    <th>Общее количество товаров</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="product : ${products}">
-                    <td th:text="${product.id}">1</td>
-                    <td th:text="${product.name}"></td>
-                    <td th:text="${product.description}"></td>
-                    <td th:text="${product.price}"></td>
-                    <td th:text="${product.quantity}">0</td>
-                    <td th:text="${product.size}">0</td>
-                    <td th:text="${product.category}">0</td>
-                    <td th:text="${product.material}">0</td>
-                    <td th:text="${product.color}">0</td>
+                <tr th:each="size : ${sizes}">
+                    <td th:text="${size.name}"></td>
+                    <td th:text="${size.count}"></td>
                 </tr>
-                <tr th:if="${#lists.isEmpty(products)}">
+                <tr th:if="${#lists.isEmpty(sizes)}">
                     <td colspan="5" class="muted">Нет данных</td>
                 </tr>
                 </tbody>

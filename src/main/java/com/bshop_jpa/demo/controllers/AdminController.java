@@ -80,4 +80,41 @@ public class AdminController {
         model.addAttribute("orders", orderRepo.findAll());
         return "admin/adminPanelOrders";
     }
+
+    @GetMapping("/categories")
+    public String getAdminPanelCategories(Model model) {
+        model.addAttribute("categories", productRepo.countProductsByCategory());
+        return "admin/adminPanelCategories";
+    }
+
+    @GetMapping("/sizes")
+    public String getAdminPanelSizes(Model model) {
+        model.addAttribute("sizes", productRepo.countProductsBySize());
+        return "admin/adminPanelSizes";
+    }
+
+    @GetMapping("/colors")
+    public String getAdminPanelColors(Model model) {
+        model.addAttribute("colors", productRepo.countProductsByColor());
+        return "admin/adminPanelColors";
+    }
+
+    @GetMapping("/materials")
+    public String getAdminPageMaterials(Model model) {
+        model.addAttribute("materials", productRepo.countProductsByMaterial());
+        return "admin/adminPanelMaterials";
+    }
+
+    @GetMapping("/statuses")
+    public String getAdminPanelStatuses(Model model) {
+        model.addAttribute("statuses", orderRepo.countProductsByStatus());
+        return "admin/adminPanelStatuses";
+    }
+
+    @GetMapping("/roles")
+    public String getAdminPanelRoles(Model model) {
+        model.addAttribute("roles", userRepo.countUsersByRole());
+        return "admin/adminPanelRoles";
+    }
+
 }

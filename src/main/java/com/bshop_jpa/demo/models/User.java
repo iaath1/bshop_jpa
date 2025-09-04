@@ -3,7 +3,6 @@ package com.bshop_jpa.demo.models;
 import java.beans.Transient;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
