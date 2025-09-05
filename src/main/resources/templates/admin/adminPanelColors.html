@@ -41,6 +41,16 @@
         <!-- Users Table -->
         <section class="panel">
             <h3>Все цвета</h3>
+            <section class="panel" style="margin-top: 20px;">
+            <h3>➕ Создать новый цвет</h3>
+            <form th:action="@{/admin/colors/add}" th:object="${newColor}" method="post" class="form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="name">Название цвета:</label>
+                    <input type="text" id="name" th:field="*{name}" placeholder="Введите название..." required>
+                </div>
+                <button type="submit" class="btn">Создать</button>
+            </form>
+        </section>
             <table>
                 <thead>
                 <tr>

@@ -12,7 +12,8 @@ import com.bshop_jpa.demo.models.Order;
 public interface OrderRepository extends CrudRepository<Order, Long>{
     List<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
-    @Query("SELECT new com.bshop_jpa.demo.DTO.StatusCountDTO(o.status.name, COUNT(o))" +
-        "FROM Order o GROUP BY o.status.name")
+    @Query("SELECT new com.bshop_jpa.demo.DTO.StatusCountDTO(s.name, COUNT(o)) " +
+       "FROM Status s LEFT JOIN Order o ON o.status = s " +
+       "GROUP BY s.name")
     List<StatusCountDTO> countProductsByStatus();
 }

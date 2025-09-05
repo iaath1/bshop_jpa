@@ -7,5 +7,5 @@ import com.bshop_jpa.demo.models.Color;
 
 @Repository
 public interface ColorRepository extends CrudRepository<Color, Integer>{
-    
+    boolean existsByName(String name);
 }

@@ -6,8 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.bshop_jpa.demo.models.Category;
+import com.bshop_jpa.demo.models.Color;
+import com.bshop_jpa.demo.models.Material;
+import com.bshop_jpa.demo.models.Role;
+import com.bshop_jpa.demo.models.Size;
+import com.bshop_jpa.demo.models.Status;
 import com.bshop_jpa.demo.repositories.CategoryRepository;
 import com.bshop_jpa.demo.repositories.ColorRepository;
 import com.bshop_jpa.demo.repositories.MaterialRepository;
@@ -81,40 +89,125 @@ public class AdminController {
         return "admin/adminPanelOrders";
     }
 
+
+
     @GetMapping("/categories")
     public String getAdminPanelCategories(Model model) {
+        model.addAttribute("category", new Category());
         model.addAttribute("categories", productRepo.countProductsByCategory());
         return "admin/adminPanelCategories";
     }
 
+    @PostMapping("/categories/add")
+    public String postAdminPanelCategoriesAdd(Model model, @ModelAttribute Category category) {
+        if(categoryRepo.existsByName(category.getName())) {
+            model.addAttribute("error", "Category with this name already exists");
+            return "redirect:/admin/categories";
+        }
+
+        categoryRepo.save(category);
+        return "redirect:/admin/categories";
+    }
+
+
+
     @GetMapping("/sizes")
     public String getAdminPanelSizes(Model model) {
+        model.addAttribute("newSize", new Size());
         model.addAttribute("sizes", productRepo.countProductsBySize());
         return "admin/adminPanelSizes";
     }
 
+    @PostMapping("/sizes/add")
+    public String postAdminPanelSizesAdd(Model model, @ModelAttribute Size size) {
+        if(sizeRepo.existsByName(size.getName())) {
+            model.addAttribute("error", "Size with this name already exists");
+            return "redirect:/admin/sizes";
+        }
+
+        sizeRepo.save(size);
+        return "redirect:/admin/sizes";
+    }
+
+
+
     @GetMapping("/colors")
     public String getAdminPanelColors(Model model) {
+        model.addAttribute("newColor", new Color());
         model.addAttribute("colors", productRepo.countProductsByColor());
         return "admin/adminPanelColors";
     }
 
+    @PostMapping("/colors/add")
+    public String postAdminPanelColorsAdd(Model model, @ModelAttribute Color color) {
+        if(colorRepo.existsByName(color.getName())) {
+            model.addAttribute("error", "Color with this name already exists");
+            return "redirect:/admin/colors";
+        }
+
+        colorRepo.save(color);
+        return "redirect:/admin/colors";
+    }
+
+
+
     @GetMapping("/materials")
     public String getAdminPageMaterials(Model model) {
+        model.addAttribute("newMaterial", new Material());
         model.addAttribute("materials", productRepo.countProductsByMaterial());
         return "admin/adminPanelMaterials";
     }
 
+    @PostMapping("/materials/add")
+    public String postAdminPageMaterialAdd(Model model, @ModelAttribute Material material) {
+        if(materialRepo.existsByName(material.getName())) {
+            model.addAttribute("error", "Material with this name already exists");
+            return "redirect:/admin/materials";
+        }
+        
+        materialRepo.save(material);
+        return "redirect:/admin/materials";
+    }
+
+
+
     @GetMapping("/statuses")
     public String getAdminPanelStatuses(Model model) {
+        model.addAttribute("newStatus", new Status());
         model.addAttribute("statuses", orderRepo.countProductsByStatus());
         return "admin/adminPanelStatuses";
     }
 
+    @PostMapping("/statuses/add")
+    public String postAdminPanelStatusesAdd(Model model, @ModelAttribute Status status) {
+        if(statusRepo.existsByName(status.getName())) {
+            model.addAttribute("error", "Status with this name already exists");
+            return "redirect:/admin/statuses";
+        }
+
+        statusRepo.save(status);
+        return "redirect:/admin/statuses";
+    }
+
+
+
     @GetMapping("/roles")
     public String getAdminPanelRoles(Model model) {
+        model.addAttribute("newRole", new Role());
         model.addAttribute("roles", userRepo.countUsersByRole());
         return "admin/adminPanelRoles";
     }
+
+    @PostMapping("/roles/add")
+    public String postAdminPanelRolesAdd(Model model, @ModelAttribute Role role) {
+        if(roleRepo.existsByName(role.getName())) {
+            model.addAttribute("error", "Role with this name already exists");
+            return "redirect:/admin/roles";
+        }
+
+        roleRepo.save(role);
+        return "redirect:/admin/roles";
+    }
+
 
 }

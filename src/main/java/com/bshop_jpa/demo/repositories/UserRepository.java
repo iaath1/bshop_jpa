@@ -21,7 +21,7 @@ public interface UserRepository extends CrudRepository<User, Long>{
     List<User> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     @Query("SELECT new com.bshop_jpa.demo.DTO.RoleCountDTO(r.name, COUNT(u)) " +
-           "FROM User u JOIN u.roles r " +
+           "FROM User u RIGHT JOIN u.roles r " +
            "GROUP BY r.name")
     List<RoleCountDTO> countUsersByRole();
 }

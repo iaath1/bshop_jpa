@@ -8,4 +8,6 @@ import com.bshop_jpa.demo.models.Role;
 
 public interface RoleRepository extends CrudRepository<Role, Integer>{
     Optional<Role> findByName(String name);
+
+    boolean existsByName(String name);
 }

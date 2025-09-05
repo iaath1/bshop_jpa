@@ -41,11 +41,21 @@
         <!-- Users Table -->
         <section class="panel">
             <h3>Все статусы</h3>
+            <section class="panel" style="margin-top: 20px;">
+            <h3>➕ Создать новый статус</h3>
+            <form th:action="@{/admin/statuses/add}" th:object="${newStatus}" method="post" class="form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="name">Название статуса:</label>
+                    <input type="text" id="name" th:field="*{name}" placeholder="Введите название..." required>
+                </div>
+                <button type="submit" class="btn">Создать</button>
+            </form>
+        </section>
             <table>
                 <thead>
                 <tr>
                     <th>Имя</th>
-                    <th>Общее количество товаров</th>
+                    <th>Общее количество заказов</th>
                 </tr>
                 </thead>
                 <tbody>

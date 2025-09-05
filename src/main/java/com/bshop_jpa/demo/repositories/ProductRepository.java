@@ -15,19 +15,23 @@ import com.bshop_jpa.demo.models.Product;
 @Repository
 public interface ProductRepository extends CrudRepository<Product, Long> {
     
-    @Query("SELECT new com.bshop_jpa.demo.DTO.CategoryCountDTO(p.category.name, COUNT(p)) " +
-       "FROM Product p GROUP BY p.category.name")
+    @Query("SELECT new com.bshop_jpa.demo.DTO.CategoryCountDTO(c.name, COUNT(p)) " +
+       "FROM Category c LEFT JOIN Product p ON p.category = c " +
+       "GROUP BY c.name")
     List<CategoryCountDTO> countProductsByCategory();
 
-    @Query("SELECT new com.bshop_jpa.demo.DTO.SizeCountDTO(p.size.name, COUNT(p))" +
-        "FROM Product p GROUP BY p.size.name")
+    @Query("SELECT new com.bshop_jpa.demo.DTO.SizeCountDTO(s.name, COUNT(p)) " +
+       "FROM Size s LEFT JOIN Product p ON p.size = s " +
+       "GROUP BY s.name")
     List<SizeCountDTO> countProductsBySize();
 
-    @Query("SELECT new com.bshop_jpa.demo.DTO.ColorCountDTO(p.color.name, COUNT(p))" +
-        "FROM Product p GROUP BY p.color.name")
+    @Query("SELECT new com.bshop_jpa.demo.DTO.ColorCountDTO(c.name, COUNT(p)) " +
+       "FROM Color c LEFT JOIN Product p ON p.color = c " +
+       "GROUP BY c.name")
     List<ColorCountDTO> countProductsByColor();
 
-    @Query("SELECT new com.bshop_jpa.demo.DTO.MaterialCountDTO(p.material.name, COUNT(p))" +
-        "FROM Product p GROUP BY p.material.name")
+    @Query("SELECT new com.bshop_jpa.demo.DTO.MaterialCountDTO(m.name, COUNT(p)) " +
+       "FROM Material m LEFT JOIN Product p ON p.material = m " +
+       "GROUP BY m.name")
     List<MaterialCountDTO> countProductsByMaterial();
 }

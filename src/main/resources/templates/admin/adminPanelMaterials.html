@@ -41,6 +41,16 @@
         <!-- Users Table -->
         <section class="panel">
             <h3>Все материалы</h3>
+            <section class="panel" style="margin-top: 20px;">
+            <h3>➕ Создать новый материал</h3>
+            <form th:action="@{/admin/materials/add}" th:object="${newMaterial}" method="post" class="form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="name">Название материала:</label>
+                    <input type="text" id="name" th:field="*{name}" placeholder="Введите название..." required>
+                </div>
+                <button type="submit" class="btn">Создать</button>
+            </form>
+        </section>
             <table>
                 <thead>
                 <tr>

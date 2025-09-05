@@ -41,6 +41,16 @@
         <!-- Users Table -->
         <section class="panel">
             <h3>Все роли</h3>
+            <section class="panel" style="margin-top: 20px;">
+            <h3>➕ Создать новую роль</h3>
+            <form th:action="@{/admin/roles/add}" th:object="${newRole}" method="post" class="form">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="name">Название роли:</label>
+                    <input type="text" id="name" th:field="*{name}" placeholder="Введите название...">
+                </div>
+                <button type="submit" class="btn">Создать</button>
+            </form>
+        </section>
             <table>
                 <thead>
                 <tr>

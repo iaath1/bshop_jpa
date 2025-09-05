@@ -7,5 +7,5 @@ import com.bshop_jpa.demo.models.Material;
 
 @Repository
 public interface MaterialRepository extends CrudRepository<Material, Integer>{
-    
+    boolean existsByName(String name);
 }

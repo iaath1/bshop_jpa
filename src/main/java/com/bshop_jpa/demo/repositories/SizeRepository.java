@@ -7,5 +7,5 @@ import com.bshop_jpa.demo.models.Size;
 
 @Repository
 public interface SizeRepository extends CrudRepository<Size, Integer> {
-    
+    boolean existsByName(String name);   
 }
