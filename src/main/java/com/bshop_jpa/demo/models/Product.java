@@ -32,7 +32,7 @@ public class Product {
     private Double price;
 
     @Column(nullable = false)
-    private Integer queantity;
+    private Integer quantity;
 
     @ManyToOne
     @JoinColumn(name = "size_id")
@@ -50,6 +50,7 @@ public class Product {
     @JoinColumn(name = "color_id")
     private Color color;
 
-    private String image_url;
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
 
 }

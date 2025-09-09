@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Admin - Users</title>
+    <title>Admin - Products</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -39,41 +39,49 @@
             </div>
         </div>
 
-        <!-- Users Table -->
         <section class="panel">
-            <h3>Все товары</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Имя</th>
-                    <th>Описание</th>
-                    <th>Цена</th>
-                    <th>Количество</th>
-                    <th>Размер</th>
-                    <th>Категория</th>
-                    <th>Материал</th>
-                    <th>Цвет</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="product : ${products}">
-                    <td th:text="${product.id}">1</td>
-                    <td th:text="${product.name}"></td>
-                    <td th:text="${product.description}"></td>
-                    <td th:text="${product.price}"></td>
-                    <td th:text="${product.quantity}">0</td>
-                    <td th:text="${product.size}">0</td>
-                    <td th:text="${product.category}">0</td>
-                    <td th:text="${product.material}">0</td>
-                    <td th:text="${product.color}">0</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(products)}">
-                    <td colspan="5" class="muted">Нет данных</td>
-                </tr>
-                </tbody>
-            </table>
-        </section>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #eef2f7;">
+        <h3 style="margin:0;">Все товары</h3>
+        <a th:href="@{/admin/products/add}" class="btn">➕ Создать</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Фото</th>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Описание</th>
+            <th>Цена</th>
+            <th>Количество</th>
+            <th>Размер</th>
+            <th>Категория</th>
+            <th>Материал</th>
+            <th>Цвет</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${products}">
+            <td>
+                <img th:src="@{${product.imageUrl}}" alt="Фото товара" class="product-thumb">
+            </td>
+            <td th:text="${product.id}">1</td>
+            <td th:text="${product.name}"></td>
+            <td th:text="${product.description}"></td>
+            <td th:text="${product.price}"></td>
+            <td th:text="${product.quantity}">0</td>
+            <td th:text="${product.size?.name}">XL</td>
+            <td th:text="${product.category?.name}">Одежда</td>
+            <td th:text="${product.material?.name}">Хлопок</td>
+            <td th:text="${product.color?.name}">Красный</td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(products)}">
+            <td colspan="10" class="muted" style="text-align:center;">Нет данных</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
     </main>
 </div>
 </body>

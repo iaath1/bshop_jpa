@@ -2,6 +2,12 @@ package com.bshop_jpa.demo.controllers;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.UserService;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,10 +15,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Color;
 import com.bshop_jpa.demo.models.Material;
+import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.Role;
 import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.models.Status;
@@ -81,6 +90,41 @@ public class AdminController {
     public String getAdminPanelProducts(Model model) {
         model.addAttribute("products", productRepo.findAll());
         return "admin/adminPanelProducts";
+    }
+
+    @GetMapping("/products/add")
+    public String getAdminPanelProductAdd(Model model) {
+        model.addAttribute("product", new Product());
+        model.addAttribute("sizes", sizeRepo.findAll());
+        model.addAttribute("colors", colorRepo.findAll());
+        model.addAttribute("materials", materialRepo.findAll());
+        model.addAttribute("categories", categoryRepo.findAll());
+        return "admin/adminPanelProductsAdd";
+    }
+
+    @PostMapping("/products/add")
+    public String postAdminPanelProductAdd(Model model, @ModelAttribute Product product, @RequestParam MultipartFile imageFile) throws IOException {
+
+        if (!imageFile.isEmpty()) {
+        // Папка, где будут храниться картинки (рядом с pom.xml)
+        String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
+
+        // Создать папку, если её нет
+        Files.createDirectories(Paths.get(uploadDir));
+
+        // Уникальное имя файла
+        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+
+        // Полный путь до файла
+        Path filePath = Paths.get(uploadDir, fileName);
+        Files.write(filePath, imageFile.getBytes());
+
+        // В БД сохраняем только путь для web
+        product.setImageUrl("/uploads/products/" + fileName);
+    }
+
+    productRepo.save(product);
+    return "redirect:/admin/products";
     }
 
     @GetMapping("/orders")
