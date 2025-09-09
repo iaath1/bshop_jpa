@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +40,7 @@ import com.bshop_jpa.demo.repositories.UserRepository;
 @RequestMapping("/admin")
 public class AdminController {
 
+    private final String IMAGE_PATH = "/uploads/products/";
     private final OrderService orderService;
 
     @Autowired
@@ -126,6 +128,60 @@ public class AdminController {
     productRepo.save(product);
     return "redirect:/admin/products";
     }
+
+    @GetMapping("/products/update/{id}")
+    public String getAdminPanelProductsUpdate(@PathVariable Long id, Model model) {
+        Product product = productRepo.findById(id).get();
+        model.addAttribute("sizes", sizeRepo.findAll());
+        model.addAttribute("categories", categoryRepo.findAll());
+        model.addAttribute("materials", materialRepo.findAll());
+        model.addAttribute("colors", colorRepo.findAll());
+        model.addAttribute("product", product);
+        return "admin/adminPanelProductsUpdate";
+    }
+
+    @PostMapping("/products/update/{id}")
+    public String postAdminPanelProductsUpdate(Model model, @ModelAttribute Product product, @RequestParam(required = false) MultipartFile imageFile, @PathVariable Long id) throws IOException {
+        Product existing = productRepo.findById(product.getId()).get();
+
+        existing.setName(product.getName());
+        existing.setDescription(product.getDescription());
+        existing.setPrice(product.getPrice());
+        existing.setQuantity(product.getQuantity());
+        existing.setColor(product.getColor());
+        existing.setMaterial(product.getMaterial());
+        existing.setCategory(product.getCategory());
+        existing.setSize(product.getSize());
+
+        if (!imageFile.isEmpty()) {
+        // Папка, где будут храниться картинки (рядом с pom.xml)
+        String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
+
+        // Создать папку, если её нет
+        Files.createDirectories(Paths.get(uploadDir));
+
+        // Уникальное имя файла
+        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+
+        // Полный путь до файла
+        Path filePath = Paths.get(uploadDir, fileName);
+        Files.write(filePath, imageFile.getBytes());
+
+        // В БД сохраняем только путь для web
+        existing.setImageUrl("/uploads/products/" + fileName);
+    }
+
+        productRepo.save(existing);
+        return "redirect:/admin/products";
+    }
+
+    @PostMapping("/products/delete/{id}")
+    public String postAdminPanelProductsDelete(@PathVariable Long id) {
+        productRepo.deleteById(id);
+
+        return "redirect:/admin/products";
+    }
+
 
     @GetMapping("/orders")
     public String getAdminPanelOrders(Model model) {
@@ -254,4 +310,21 @@ public class AdminController {
     }
 
 
+
+    private String saveMultiPartFile(MultipartFile imageFile) throws IOException{
+        // Папка, где будут храниться картинки (рядом с pom.xml)
+        String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
+
+        // Создать папку, если её нет
+        Files.createDirectories(Paths.get(uploadDir));
+
+        // Уникальное имя файла
+        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
+
+        // Полный путь до файла
+        Path filePath = Paths.get(uploadDir, fileName);
+        Files.write(filePath, imageFile.getBytes());
+
+        return fileName;
+    }
 }

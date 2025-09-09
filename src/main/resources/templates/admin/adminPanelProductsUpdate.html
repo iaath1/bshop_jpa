@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Admin - Create Product</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">🧭 Admin</div>
+        <nav class="nav">
+            <a th:href="@{/admin}" th:classappend="${activePage}=='dashboard' ? ' active'">🏠 Dashboard</a>
+            <a th:href="@{/admin/users}" th:classappend="${activePage}=='users' ? ' active'">👤 Users</a>
+            <a th:href="@{/admin/products}" th:classappend="${activePage}=='products' ? ' active'">📦 Products</a>
+            <a th:href="@{/admin/orders}" th:classappend="${activePage}=='orders' ? ' active'">🧾 Orders</a>
+            <a th:href="@{/admin/categories}" th:classappend="${activePage}=='categories' ? ' active'">🏷️ Categories</a>
+            <a th:href="@{/admin/colors}" th:classappend="${activePage}=='colors' ? ' active'">🎨 Colors</a>
+            <a th:href="@{/admin/statuses}" th:classappend="${activePage}=='statuses' ? ' active'">📊 Statuses</a>
+            <a th:href="@{/admin/sizes}" th:classappend="${activePage}=='sizes' ? ' active'">📏 Sizes</a>
+            <a th:href="@{/admin/materials}" th:classappend="${activePage}=='materials' ? ' active'">🧵 Materials</a>
+            <a th:href="@{/admin/roles}" th:classappend="${activePage}=='roles' ? ' active'">🛡️ Roles</a>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="topbar">
+            <h1 style="margin:0">Создание товара</h1>
+            <div class="top-right">
+                <span class="muted">👤 <span sec:authentication="name">Admin</span></span>
+                <form th:action="@{/auth/logout}" method="post">
+                    <button class="btn" type="submit">Выйти</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel form-panel">
+    <h3>Изменить товар</h3>
+    <form th:action="@{/admin/products/update/{id}(id=${product.id})}" th:object="${product}" method="post" class="form-grid" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label>Текущее изображение:</label><br>
+            <img th:if="${product.imageUrl != null}"
+                th:src="@{${product.imageUrl}}"
+                alt="Фото товара"
+                style="max-width:150px; max-height:150px; object-fit:cover;">
+        </div>
+
+        <div class="form-group">
+            <label for="imageFile">Загрузить новое изображение:</label>
+            <input type="file" id="imageFile" name="imageFile" accept="image/*">
+        </div>
+
+        <!-- Name -->
+        <div class="form-group">
+            <label for="name">Название</label>
+            <input type="text" id="name" th:field="*{name}" class="input-lg" placeholder="Введите название..." required>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" th:field="*{description}" rows="5" class="input-lg" placeholder="Введите описание..."></textarea>
+        </div>
+
+        <!-- Price & Quantity -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="price">Цена</label>
+                <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Количество</label>
+                <input type="number" id="quantity" th:field="*{quantity}" class="input-lg" placeholder="0" required>
+            </div>
+        </div>
+
+        <!-- Size -->
+        <div class="form-group">
+            <label for="size">Размер</label>
+            <select id="size" th:field="*{size.id}" class="input-lg">
+                <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
+            </select>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+            <label for="category">Категория</label>
+            <select id="category" th:field="*{category.id}" class="input-lg">
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+            </select>
+        </div>
+
+        <!-- Material -->
+        <div class="form-group">
+            <label for="material">Материал</label>
+            <select id="material" th:field="*{material.id}" class="input-lg">
+                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
+            </select>
+        </div>
+
+        <!-- Color -->
+        <div class="form-group">
+            <label for="color">Цвет</label>
+            <select id="color" th:field="*{color.id}" class="input-lg">
+                <option th:each="cl : ${colors}" th:value="${cl.id}" th:text="${cl.name}"></option>
+            </select>
+        </div>
+
+        <!-- Save -->
+        <div style="text-align:right; margin-top:20px;">
+            <button type="submit" class="btn btn-lg">💾 Сохранить</button>
+        </div>
+    </form>
+</div>
+
+    </main>
+</div>
+</body>
+</html>
