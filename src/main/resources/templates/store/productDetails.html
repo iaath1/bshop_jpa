@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${product.name}">Товар</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/catalog}">Каталог</a>
+            <a th:href="@{/about}">О нас</a>
+            <a th:href="@{/contacts}">Контакты</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container product-page">
+    <div class="product-gallery">
+        <img th:if="${product.imageUrl != null}" th:src="@{${product.imageUrl}}" alt="Фото товара" class="product-main-img">
+    </div>
+
+    <div class="product-details">
+        <h1 th:text="${product.name}">Название товара</h1>
+        <p class="price" th:text="${product.price} + ' ₽'">0 ₽</p>
+
+        <p class="description" th:text="${product.description}">
+            Подробное описание товара. Его особенности, преимущества и характеристики.
+        </p>
+
+        <div class="product-actions">
+            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
+                <button type="submit" class="btn-buy">Добавить в корзину</button>
+            </form>
+            <a th:href="@{/catalog}" class="btn-back">← Вернуться в каталог</a>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
+
+</body>
+</html>

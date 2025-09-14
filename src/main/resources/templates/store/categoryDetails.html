@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${category.name} + ' - MyStore'">Категория</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/catalog}">Каталог</a>
+            <a th:href="@{/about}">О нас</a>
+            <a th:href="@{/contacts}">Контакты</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1 th:text="${category.name}">Название категории</h1>
+        <p th:text="'Найдено товаров: ' + ${#lists.size(products)}">Найдено товаров: 0</p>
+        <a th:href="@{/catalog}" class="btn">← Вернуться в каталог</a>
+    </div>
+</section>
+
+<section class="catalog container">
+    <h2 th:text="'Товары категории: ' + ${category.name}">Товары категории</h2>
+
+    <section class="products container">
+    <h2>Популярные товары</h2>
+    <div class="products-grid">
+        <div class="product-card" th:each="prod : ${products}">
+            <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
+                <img th:if="${prod.imageUrl != null}" th:src="@{${prod.imageUrl}}" alt="Фото" class="product-thumb-lg">
+                <div class="product-info">
+                    <h3 th:text="${prod.name}">Название товара</h3>
+                    <p class="price" th:text="${prod.price} + ' ₽'">0 ₽</p>
+                </div>
+            </a>
+            <div class="card-actions">
+                <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
+                <form th:action="@{/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-small btn-buy">В корзину</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    <p th:if="${#lists.isEmpty(products)}" class="muted center">
+        В этой категории пока нет товаров.
+    </p>
+</section>
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
+</body>
+</html>

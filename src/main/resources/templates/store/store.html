@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Каталог - MyStore</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/catalog}" class="active">Каталог</a>
+            <a th:href="@{/about}">О нас</a>
+            <a th:href="@{/contacts}">Контакты</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1>Каталог товаров</h1>
+        <p>Выберите категорию или просмотрите весь ассортимент</p>
+        <a th:href="@{/catalog}" class="btn">Посмотреть всё</a>
+    </div>
+</section>
+
+<!-- Блок категорий -->
+<section class="categories container">
+    <h2>Категории</h2>
+
+    <!-- вариант: горизонтальная прокручиваемая полоса -->
+    <div class="categories-row">
+        <a th:each="cat : ${categories}"
+           class="category-pill"
+           th:href="@{/store/category/{id}(id=${cat.id})}"
+           th:classappend="${activeCategoryId} == ${cat.id} ? ' active'">
+            <span class="cat-name" th:text="${cat.name}">Название</span>
+            <span class="cat-count" th:text="${cat.count}">0</span>
+        </a>
+    </div>
+</section>
+
+<!-- Сетка товаров -->
+<section class="products container">
+    <h2>Популярные товары</h2>
+    <div class="products-grid">
+        <div class="product-card" th:each="prod : ${products}">
+            <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
+                <img th:if="${prod.imageUrl != null}" th:src="@{${prod.imageUrl}}" alt="Фото" class="product-thumb-lg">
+                <div class="product-info">
+                    <h3 th:text="${prod.name}">Название товара</h3>
+                    <p class="price" th:text="${prod.price} + ' ₽'">0 ₽</p>
+                </div>
+            </a>
+            <div class="card-actions">
+                <a th:href="@{store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
+                <form th:action="@{/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn-small btn-buy">В корзину</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
+</body>
+</html>
