@@ -22,15 +22,19 @@
 
         <label for="email">Email:</label>
         <input type="email" id="email" th:field="*{email}" required>
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></div>
 
         <label for="phone">Телефон:</label>
         <input type="text" id="phone" th:field="*{phone}">
 
         <label for="address">Адрес:</label>
         <input type="text" id="address" th:field="*{address}">
+        
 
         <label for="password">Пароль:</label>
         <input type="password" id="password" th:field="*{password}" required>
+        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error"></div>
 
         <button type="submit" class="btn-auth">Войти</button>
     </form>

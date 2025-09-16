@@ -21,4 +21,8 @@ public class UserService {
         return userRepo.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit));
     }
 
+    public User findByEmail(String email) {
+        return userRepo.findByEmail(email).orElse(null);
+    }
+
 }

@@ -12,6 +12,7 @@
 <div class="auth-container">
     <h2>Вход</h2>
 
+    <p th:if="${error}" th:text="${error}" class="error"></p>
     <form th:action="@{/login}" method="post" class="auth-form">
         <input type="text" name="username" placeholder="Логин" required>
         <input type="password" name="password" placeholder="Пароль" required>
