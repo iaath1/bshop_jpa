@@ -1,32 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Вход</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Вход - MyStore</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
 </head>
-<body>
-<h2>Вход в систему</h2>
+<body class="auth-body">
 
-<!-- сообщение об ошибке -->
-<div th:if="${param.error}">
-    <p style="color: red;">Неверный email или пароль</p>
+<div class="auth-container">
+    <h2>Вход</h2>
+
+    <form th:action="@{/login}" method="post" class="auth-form">
+        <input type="text" name="username" placeholder="Логин" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+
+        <button type="submit" class="btn-auth">Войти</button>
+    </form>
+
+    <p class="auth-text">
+        Нет аккаунта? <a th:href="@{/auth}">Зарегистрироваться</a>
+    </p>
 </div>
 
-<!-- сообщение о выходе -->
-<div th:if="${param.logout}">
-    <p style="color: green;">Вы вышли из системы</p>
-</div>
-
-<form th:action="@{/login}" method="post">
-    <label>Email:</label>
-    <input type="text" name="username" required/><br/>
-
-    <label>Пароль:</label>
-    <input type="password" name="password" required/><br/>
-
-    <button type="submit">Войти</button>
-</form>
-
-<p>Нет аккаунта? <a th:href="@{/auth/register}">Зарегистрироваться</a></p>
 </body>
 </html>
