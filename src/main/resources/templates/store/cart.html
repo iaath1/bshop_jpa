@@ -20,54 +20,53 @@
     </div>
 </header>
 
-<main class="container">
-    <h2>Ваша корзина</h2>
+<main class="container cart-page">
+    <h2 class="page-title">🛒 Ваша корзина</h2>
 
-    <div th:if="${#lists.isEmpty(cartItems)}">
+    <!-- Если корзина пуста -->
+    <div th:if="${#lists.isEmpty(cartItems)}" class="cart-empty">
         <p>Корзина пуста 😔</p>
         <a th:href="@{/catalog}" class="btn">Перейти в каталог</a>
     </div>
 
-    <div th:if="${!#lists.isEmpty(cartItems)}" class="cart">
-        <table class="cart-table">
-            <thead>
-            <tr>
-                <th>Товар</th>
-                <th>Цена</th>
-                <th>Кол-во</th>
-                <th>Сумма</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${cartItems}">
-                <td class="cart-product">
+    <!-- Если корзина не пуста -->
+    <div th:if="${!#lists.isEmpty(cartItems)}" class="cart-content">
+        <div class="cart-items">
+            <div class="cart-item" th:each="item : ${cartItems}">
+                <div class="cart-item-info">
                     <img th:src="@{${item.product.imageUrl}}" alt="Фото" class="cart-thumb">
-                    <span th:text="${item.product.name}"></span>
-                </td>
-                <td th:text="${item.product.price} + ' ₽'"></td>
-                <td>
-                    <form th:action="@{/store/cart/update}" method="post" class="qty-form">
-                        <input type="hidden" name="cartItemId" th:value="${item.id}">
-                        <input type="hidden" name="productId" th:value="${item.product.id}">
-                        <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="qty-input">
-                        <button type="submit" class="btn-small">Обновить</button>
-                    </form>
-                </td>
-                <td th:text="${item.product.price * item.quantity} + ' ₽'"></td>
-                <td>
-                    <form th:action="@{/store/cart/delete/{id}(id=${item.id})}" method="post">
-                        <button type="submit" class="btn-small danger">Удалить</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                    <div class="cart-item-details">
+                        <h3 th:text="${item.product.name}" class="cart-item-name"></h3>
+                        <p class="cart-item-price" th:text="${item.product.price} + ' ₽'"></p>
+                    </div>
+                </div>
 
-        <div class="cart-summary">
-            <h3>Итого: <span th:text="${total} + ' ₽'"></span></h3>
-            <a th:href="@{/checkout}" class="btn">Оформить заказ</a>
+                <form th:action="@{/store/cart/update}" method="post" class="cart-item-actions">
+                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                    <input type="hidden" name="productId" th:value="${item.product.id}">
+                    <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="qty-input">
+                    <button type="submit" class="btn-small">Обновить</button>
+                </form>
+
+                <div class="cart-item-sum">
+                    <span th:text="${item.product.price * item.quantity} + ' ₽'"></span>
+                </div>
+
+                <form th:action="@{/store/cart/delete/{id}(id=${item.id})}" method="post" class="cart-item-remove">
+                    <button type="submit" class="btn-small danger">✖</button>
+                </form>
+            </div>
         </div>
+
+        <!-- Блок итога -->
+        <aside class="cart-summary">
+            <h3>Итого</h3>
+            <p class="cart-total">
+                <span th:text="${total} + ' ₽'"></span>
+            </p>
+            <a th:href="@{/checkout}" class="btn btn-primary">Оформить заказ</a>
+            <a th:href="@{/catalog}" class="btn btn-secondary">Продолжить покупки</a>
+        </aside>
     </div>
 </main>
 

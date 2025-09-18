@@ -1,6 +1,8 @@
 package com.bshop_jpa.demo.controllers;
 
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +17,6 @@ import com.bshop_jpa.demo.models.CartItem;
 import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.User;
-import com.bshop_jpa.demo.repositories.ProductRepository;
 import com.bshop_jpa.demo.repositories.CategoryRepository;
 import com.bshop_jpa.demo.services.CartItemService;
 import com.bshop_jpa.demo.services.CartService;
@@ -24,18 +25,16 @@ import com.bshop_jpa.demo.services.ProductService;
 @Controller
 @RequestMapping("/store")
 public class StoreController {
-    private final ProductRepository productRepository;
-
 
     private final ProductService productService;
     private final CategoryRepository categoryRepo;
-    private final CartService cartService;
     private final CartItemService cartItemService;
-    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService, ProductRepository productRepository)  {
-        this.productService = productService;
+    private final CartService cartService;
+
+    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService)  {
         this.categoryRepo = categoryRepo;
         this.cartService = cartService;
-        this.productRepository = productRepository;
+        this.productService = productService;
         this.cartItemService = cartItemService;
     }
 
@@ -69,7 +68,17 @@ public class StoreController {
     public String getCart(Model model, @AuthenticationPrincipal User user) {
         Cart cart = cartService.findCartByUser(user);
 
+        Double total = 0d;
+
+
+        if(!cart.getItems().isEmpty()) {
+            for(CartItem item : cart.getItems()) {
+                total += item.getQuantity() * item.getProduct().getPrice();
+            }
+        }
+
         model.addAttribute("cartItems", cart.getItems());
+        model.addAttribute("total", total);
         return "store/cart";
     }
 
@@ -81,6 +90,14 @@ public class StoreController {
 
         if(product == null) {
             return "redirect:/";
+        }
+
+        List<CartItem> cartItems = cart.getItems();
+
+        for(CartItem item : cartItems) {
+            if(item.getProduct().getId() == id) {
+                return "redirect:/store";
+            };
         }
 
         cartService.addProductToCart(cart, product);
