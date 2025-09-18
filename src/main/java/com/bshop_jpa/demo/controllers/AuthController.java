@@ -50,7 +50,7 @@ public class AuthController {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Set.of(roleRepo.findByName("ADMIN").get()));
+        user.setRoles(Set.of(roleRepo.findByName("ROLE_ADMIN").get()));
         userRepo.save(user);
 
         return "redirect:/login";

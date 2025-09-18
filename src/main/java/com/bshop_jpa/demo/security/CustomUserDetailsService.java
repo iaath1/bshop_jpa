@@ -17,12 +17,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepo = userRepo;
     }
 
+    // need to be fixed
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User dbUser = userRepo.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User was not found: " + email));
 
-        return new CustomUserDetails(dbUser);
+        return dbUser;
     }
     
 }

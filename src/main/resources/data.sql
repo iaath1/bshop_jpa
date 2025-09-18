@@ -1,4 +1,4 @@
-INSERT INTO roles(name) VALUES ('CUSTOMER'), ('ADMIN');
+INSERT INTO roles(name) VALUES ('ROLE_CUSTOMER'), ('ROLE_ADMIN');
 INSERT INTO categories(name) VALUES ('Слипы'), ('Трусы-брифы'), ('Танга'), ('Боксеры'), ('Шорты'), ('Пижамы'), ('Халаты'), ('Домашняя одежда'), ('Купальники');
 INSERT INTO sizes(name) VALUES ('S'), ('XS'), ('M'), ('L'), ('XL');
 INSERT INTO colors(name) VALUES ('Белый'), ('Красный'), ('Черный'), ('Синий'), ('Зеленый'), ('Желтый'), ('Розовый'), ('Фиолетовый'), ('Оранжевый'), ('Серый');
