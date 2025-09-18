@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Корзина - MyStore</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/catalog}">Каталог</a>
+            <a th:href="@{/cart}" class="active">Корзина</a>
+            <a th:href="@{/contacts}">Контакты</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <h2>Ваша корзина</h2>
+
+    <div th:if="${#lists.isEmpty(cartItems)}">
+        <p>Корзина пуста 😔</p>
+        <a th:href="@{/catalog}" class="btn">Перейти в каталог</a>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(cartItems)}" class="cart">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Кол-во</th>
+                <th>Сумма</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${cartItems}">
+                <td class="cart-product">
+                    <img th:src="@{${item.product.imageUrl}}" alt="Фото" class="cart-thumb">
+                    <span th:text="${item.product.name}"></span>
+                </td>
+                <td th:text="${item.product.price} + ' ₽'"></td>
+                <td>
+                    <form th:action="@{/store/cart/update}" method="post" class="qty-form">
+                        <input type="hidden" name="cartItemId" th:value="${item.id}">
+                        <input type="hidden" name="productId" th:value="${item.product.id}">
+                        <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="qty-input">
+                        <button type="submit" class="btn-small">Обновить</button>
+                    </form>
+                </td>
+                <td th:text="${item.product.price * item.quantity} + ' ₽'"></td>
+                <td>
+                    <form th:action="@{/store/cart/delete/{id}(id=${item.id})}" method="post">
+                        <button type="submit" class="btn-small danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <h3>Итого: <span th:text="${total} + ' ₽'"></span></h3>
+            <a th:href="@{/checkout}" class="btn">Оформить заказ</a>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
+</body>
+</html>

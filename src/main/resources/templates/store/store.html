@@ -58,7 +58,7 @@
             </a>
             <div class="card-actions">
                 <a th:href="@{store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
-                <form th:action="@{/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
+                <form th:action="@{/store/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
                     <button type="submit" class="btn-small btn-buy">В корзину</button>
                 </form>
             </div>

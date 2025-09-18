@@ -35,7 +35,7 @@
         </p>
 
         <div class="product-actions">
-            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
+            <form th:action="@{/store/cart/add/{id}(id=${product.id})}" method="post">
                 <button type="submit" class="btn-buy">Добавить в корзину</button>
             </form>
             <a th:href="@{/catalog}" class="btn-back">← Вернуться в каталог</a>
