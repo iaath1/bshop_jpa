@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Редактирование профиля - MyStore</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <style>
+        /* Аватарка с рамкой и эффектом hover */
+        .avatar-wrapper {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .avatar-wrapper:hover {
+            transform: scale(1.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Поля ввода */
+        .profile-info label {
+            display: block;
+            font-weight: 600;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        .profile-info input[type="text"],
+        .profile-info input[type="email"],
+        .profile-info input[type="tel"],
+        .profile-info input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .profile-info input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(212,163,115,0.3);
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/catalog}">Каталог</a>
+            <a th:href="@{/cart}">Корзина</a>
+            <a th:href="@{/contacts}">Контакты</a>
+            <a th:href="@{/user/profile}" class="profile-link active">👤</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container profile-page">
+    <h2>Редактирование профиля</h2>
+
+    <form th:action="@{/user/profile/update}" method="post" th:object="${user}" enctype="multipart/form-data" class="profile-edit-form">
+        <div class="profile-card">
+            <div class="avatar-wrapper">
+                <img th:src="${user.avatarUrl}" alt="Аватар" class="avatar-preview">
+            </div>
+            <div class="profile-info">
+                <label for="avatar">Сменить аватар:</label>
+                <input type="file" id="avatar" name="imageFile" accept="image/*">
+
+                <label for="name">Имя:</label>
+                <input type="text" id="name" name="name" th:value="${user.name}" required>
+
+                <label for="surname">Фамилия:</label>
+                <input type="text" id="surname" name="surname" th:value="${user.surname}" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" th:value="${user.email}" required>
+
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone" th:value="${user.phone}">
+
+                <label for="address">Адрес:</label>
+                <input type="text" id="address" name="address" th:value="${user.address}">
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <button type="submit" class="btn">Сохранить изменения</button>
+            <a th:href="@{/user/profile}" class="btn-secondary">Отмена</a>
+        </div>
+    </form>
+</main>
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
+
+<script>
+    // Превью аватара перед загрузкой
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreview = document.querySelector('.avatar-preview');
+
+    avatarInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = () => avatarPreview.src = reader.result;
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+</body>
+</html>

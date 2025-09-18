@@ -1,6 +1,6 @@
 package com.bshop_jpa.demo.models;
 
-import java.beans.Transient;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
@@ -63,6 +63,9 @@ public class User implements UserDetails{
     )
     private Set<Role> roles;
 
+    @Column(name = "avatar_url", length = 255, nullable = true)
+    private String avatarUrl;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -79,4 +82,25 @@ public class User implements UserDetails{
     public String getRoleNames() {
         return roles.stream().map(Role::getName).collect(Collectors.joining(", "));
     }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

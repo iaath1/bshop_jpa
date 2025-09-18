@@ -25,4 +25,8 @@ public class UserService {
         return userRepo.findByEmail(email).orElse(null);
     }
 
+    public void saveUser(User user) {
+        userRepo.save(user);
+    }
+
 }

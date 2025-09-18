@@ -18,11 +18,12 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    // ✅ правильная конфигурация DaoAuthenticationProvider
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-
         return authProvider;
     }
 
@@ -30,7 +31,7 @@ public class SecurityConfig {
     public AuthenticationManager authManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -38,16 +39,22 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/store/**").hasAnyRole("ADMIN", "CUSTOMER")
-                .requestMatchers("/**").permitAll())
-
+                .requestMatchers("/user/**").hasAnyRole("ADMIN", "CUSTOMER")
+                .requestMatchers("/**").permitAll()
+            )
             .formLogin(form -> form
-                .loginPage("/login")        // своя страница логина
-                .loginProcessingUrl("/login") // куда отправляется POST
-                .defaultSuccessUrl("/", true)      // куда перекидывать после успеха
-                .failureUrl("/login?error=true") // при ошибке
-                .permitAll());
+                .loginPage("/login")              // твоя кастомная страница логина
+                .loginProcessingUrl("/login")     // URL куда отправляется POST из формы
+                .defaultSuccessUrl("/", true)     // после успеха -> главная
+                .failureUrl("/login?error=true")  // при ошибке -> обратно с ?error
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .permitAll()
+            );
 
-        
         return http.build();
     }
 
@@ -55,5 +62,4 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
