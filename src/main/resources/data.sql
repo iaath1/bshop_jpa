@@ -3,3 +3,4 @@ INSERT INTO categories(name) VALUES ('Слипы'), ('Трусы-брифы'), (
 INSERT INTO sizes(name) VALUES ('S'), ('XS'), ('M'), ('L'), ('XL');
 INSERT INTO colors(name) VALUES ('Белый'), ('Красный'), ('Черный'), ('Синий'), ('Зеленый'), ('Желтый'), ('Розовый'), ('Фиолетовый'), ('Оранжевый'), ('Серый');
 INSERT INTO materials(name) VALUES ('Шелк'), ('Хлопок'), ('Полиэстер'), ('Шифон'), ('Атлас'), ('Кружево'), ('Трикотаж'), ('Вискоза'), ('Джинс'), ('Кожа');
+INSERT INTO statuses(name) VALUES ('NEW');

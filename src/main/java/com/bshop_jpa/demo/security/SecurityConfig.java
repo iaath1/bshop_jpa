@@ -37,7 +37,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/store/**").hasAnyRole("ADMIN", "CUSTOMER")
+                .requestMatchers("/store/cart/**").hasAnyRole("CUSTOMER", "ADMIN")
+                .requestMatchers("/store").permitAll()
+                .requestMatchers("/store/order/**").permitAll()
                 .requestMatchers("/**").permitAll())
 
             .formLogin(form -> form

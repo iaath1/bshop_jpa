@@ -31,4 +31,6 @@ public class OrderItem {
 
     @Column(nullable = false)
     private Double price;
+
+    public OrderItem() {};
 }

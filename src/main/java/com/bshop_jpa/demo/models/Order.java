@@ -1,6 +1,7 @@
 package com.bshop_jpa.demo.models;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -24,7 +25,7 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @ManyToOne
@@ -38,8 +39,14 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @Column(name = "total_amount", nullable = false)
-    private Integer totalAmount;
+    private Double totalAmount;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>();
+
+    @Column(name = "guest_email", nullable = true)
+    private String guestEmail;
+
+    @Column(name = "delivery_address", nullable = true)
+    private String deliveryAddress;
 }

@@ -51,4 +51,10 @@ public class CartService {
         cartRepo.save(cart);
     }
 
+    public void clearCartByUser(User user) {
+        Cart cart = findCartByUser(user);
+        cart.setItems(new ArrayList<>());
+        cartRepo.save(cart);
+    }
+
 }

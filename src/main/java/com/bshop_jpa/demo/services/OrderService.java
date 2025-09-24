@@ -19,4 +19,8 @@ public class OrderService {
     public List<Order> findRecentOrders(int limit) {
         return orderRepo.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit));
     }
+
+    public void saveOrder(Order order) {
+        orderRepo.save(order);
+    }
 }

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -31,8 +32,6 @@
 <!-- Блок категорий -->
 <section class="categories container">
     <h2>Категории</h2>
-
-    <!-- вариант: горизонтальная прокручиваемая полоса -->
     <div class="categories-row">
         <a th:each="cat : ${categories}"
            class="category-pill"
@@ -57,15 +56,23 @@
                 </div>
             </a>
             <div class="card-actions">
-                <a th:href="@{store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
-                <form th:action="@{/store/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn-small btn-buy">В корзину</button>
-                </form>
+                <!-- Если пользователь авторизован -->
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
+                    <form th:action="@{/store/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-small btn-buy">В корзину</button>
+                    </form>
+                </div>
+
+                <!-- Если пользователь не авторизован -->
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
+                    <a th:href="@{/order/{id}(id=${prod.id})}" class="btn-small btn-buy">Оформить заказ</a>
+                </div>
             </div>
         </div>
     </div>
 </section>
-
 
 <footer class="footer">
     <p>© 2025 MyStore. Все права защищены.</p>

@@ -108,11 +108,7 @@
                         <td th:text="${#temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
                         <td>
                             <span class="status"
-                                  th:text="${o.status != null ? o.status.name : '—'}"
-                                  th:classappend="${o.status != null} ? (${#strings.equalsIgnoreCase(o.status.name,'pending')} ? ' st-pending' :
-                                                   ${#strings.equalsIgnoreCase(o.status.name,'completed')} ? ' st-completed' :
-                                                   ${#strings.equalsIgnoreCase(o.status.name,'shipped')} ? ' st-shipped' : '') : ''">
-                                Pending
+                                  th:text="${o.status != null ? o.status.name : '—'}">
                             </span>
                         </td>
                     </tr>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Оформление заказа - MyStore</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/catalog}">Каталог</a>
+            <a th:href="@{/about}">О нас</a>
+            <a th:href="@{/contacts}">Контакты</a>
+        </nav>
+    </div>
+</header>
+
+<section class="container">
+    <h1>Оформление заказа</h1>
+
+    <form th:action="@{/order/{id}(id=${product.id})}" method="post" class="order-form">
+
+        <!-- Если пользователь авторизован -->
+        <div sec:authorize="isAuthenticated()">
+            <label>Ваш адрес доставки:</label>
+            <input type="text" name="address"
+                   th:value="${#authentication.principal.address}"
+                   placeholder="Введите адрес доставки" required>
+        </div>
+
+        <!-- Если пользователь не авторизован -->
+        <div sec:authorize="isAnonymous()">
+            <label>Ваш адрес доставки:</label>
+            <input type="text" name="address"
+                   placeholder="Введите адрес доставки" required>
+
+            <label>Ваш email для связи:</label>
+            <input type="email" name="email" placeholder="Введите email" required>
+        </div>
+
+        <button type="submit" class="btn">Подтвердить заказ</button>
+    </form>
+</section>
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
+</body>
+</html>
