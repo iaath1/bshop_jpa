@@ -39,52 +39,37 @@ public class OrderController {
         this.cartService = cartService;
         this.statusService = statusService;
     }
-    
-    @GetMapping("/{id}")
-    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user) {
-        Product product = productService.findProductById(id);
 
-        if(product == null) {
-            return "redirect:/store";
+    @GetMapping("/cart")
+    public String getOrderPage(Model model, @AuthenticationPrincipal User user) {
+
+        if(user == null) {
+            return "redirect:/login";
         }
 
-        if(user != null) {
-            model.addAttribute("user", user);
+        Double total = 0d;
+        List<CartItem> cartItems = cartService.findCartByUser(user).getItems();
+
+        for(CartItem item : cartItems) {
+            total += item.getProduct().getPrice() * item.getQuantity();
         }
 
-        model.addAttribute("order", new Order());
-        model.addAttribute("product", product);
+        model.addAttribute("user", user);
+        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("totalQuantity", cartService.findCartByUser(user).getItems().size());
+        model.addAttribute("totalAmount", total);
         return "order/order";
     }
-
-    @PostMapping("/{id}")
-    public String postOrderPageUnathorized(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestParam String address,
+    
+    @PostMapping("/cart")
+    public String postOrderPage(@AuthenticationPrincipal User user, @RequestParam String address,
                                             @RequestParam(required = false) String email) {
-
-        Product product = productService.findProductById(id);
         Order order = new Order();
 
         if(user != null) {
             order.setUser(user);
             order.setDeliveryAddress(address);
             
-        } else {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(product);
-            orderItem.setPrice(product.getPrice());
-            orderItem.setQuantity(1);
-            orderItem.setOrder(order);
-
-            order.setGuestEmail(email);
-            order.setDeliveryAddress(address);
-            order.setStatus(statusService.findStatusByName("NEW"));
-            order.getItems().add(orderItem);
-            order.setTotalAmount(product.getPrice());
-            
-
-            orderService.saveOrder(order);
-            return "redirect:/payment";
-
         }
 
         List<CartItem> cartItems = cartService.findCartByUser(user).getItems();
@@ -110,4 +95,50 @@ public class OrderController {
         cartService.clearCartByUser(user);
         return "redirect:/payment";
     }
+
+
+
+    
+    @GetMapping("/{id}")
+    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user) {
+        Product product = productService.findProductById(id);
+
+        if(product == null) {
+            return "redirect:/store";
+        }
+
+        if(user != null) {
+            model.addAttribute("user", user);
+        }
+
+        model.addAttribute("product", product);
+        return "order/order";
+    }
+
+    @PostMapping("/{id}")
+    public String postOrderPageUnathorized(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestParam String address,
+                                            @RequestParam(required = false) String email) {
+
+        Product product = productService.findProductById(id);
+        Order order = new Order();
+
+        OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setPrice(product.getPrice());
+            orderItem.setQuantity(1);
+            orderItem.setOrder(order);
+
+            order.setGuestEmail(email);
+            order.setDeliveryAddress(address);
+            order.setStatus(statusService.findStatusByName("NEW"));
+            order.getItems().add(orderItem);
+            order.setTotalAmount(product.getPrice());
+            
+
+            orderService.saveOrder(order);
+            return "redirect:/payment";
+    }
+
+
+    
 }

@@ -7,6 +7,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Оформление заказа - MyStore</title>
     <link rel="stylesheet" th:href="@{/css/store.css}">
+    <style>
+        .order-summary {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .order-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .order-summary th, .order-summary td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        .order-summary th {
+            background: #f2f2f2;
+        }
+        .order-summary .total {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: right;
+            padding-top: 10px;
+        }
+    </style>
 </head>
 <body>
 <header class="header">
@@ -24,26 +52,75 @@
 <section class="container">
     <h1>Оформление заказа</h1>
 
-    <form th:action="@{/order/{id}(id=${product.id})}" method="post" class="order-form">
+    <!-- Авторизованный пользователь (корзина) -->
+    <div sec:authorize="isAuthenticated()" class="order-summary">
+        <h3>Ваш заказ</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Кол-во</th>
+                <th>Итого</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${cartItems}">
+                <td th:text="${item.product.name}">Товар</td>
+                <td th:text="${item.product.price} + ' ₽'">100₽</td>
+                <td th:text="${item.quantity}">1</td>
+                <td th:text="${item.product.price * item.quantity} + ' ₽'">100₽</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="total">
+            Всего товаров: <span th:text="${totalQuantity}">0</span><br>
+            Общая сумма: <span th:text="${totalAmount} + ' ₽'">0₽</span>
+        </p>
+    </div>
 
-        <!-- Если пользователь авторизован -->
-        <div sec:authorize="isAuthenticated()">
-            <label>Ваш адрес доставки:</label>
-            <input type="text" name="address"
-                   th:value="${#authentication.principal.address}"
-                   placeholder="Введите адрес доставки" required>
-        </div>
+    <!-- Гость (один продукт) -->
+    <div sec:authorize="isAnonymous()" class="order-summary">
+        <h3>Ваш заказ</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Кол-во</th>
+                <th>Итого</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td th:text="${product.name}">Товар</td>
+                <td th:text="${product.price} + ' ₽'">100₽</td>
+                <td>1</td>
+                <td th:text="${product.price} + ' ₽'">100₽</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="total">
+            Всего товаров: 1<br>
+            Общая сумма: <span th:text="${product.price} + ' ₽'">100₽</span>
+        </p>
+    </div>
 
-        <!-- Если пользователь не авторизован -->
-        <div sec:authorize="isAnonymous()">
-            <label>Ваш адрес доставки:</label>
-            <input type="text" name="address"
-                   placeholder="Введите адрес доставки" required>
+    <!-- Авторизованный -->
+    <form sec:authorize="isAuthenticated()" th:action="@{/order/cart}" method="post" class="order-form">
+        <label>Ваш адрес доставки:</label>
+        <input type="text" name="address"
+               th:value="${#authentication.principal.address}"
+               placeholder="Введите адрес доставки" required>
+        <button type="submit" class="btn">Подтвердить заказ</button>
+    </form>
 
-            <label>Ваш email для связи:</label>
-            <input type="email" name="email" placeholder="Введите email" required>
-        </div>
-
+    <!-- Гость -->
+    <form sec:authorize="isAnonymous()" th:action="@{/order/{id}(id=${product.id})}" method="post" class="order-form">
+        <label>Ваш адрес доставки:</label>
+        <input type="text" name="address" placeholder="Введите адрес доставки" required>
+        <label>Ваш email для связи:</label>
+        <input type="email" name="email" placeholder="Введите email" required>
         <button type="submit" class="btn">Подтвердить заказ</button>
     </form>
 </section>
