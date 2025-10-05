@@ -56,7 +56,7 @@
         <div class="cart-items">
             <div class="cart-item" th:each="item : ${cartItems}">
                 <div class="cart-item-info">
-                    <img th:src="@{${item.product.imageUrl}}" alt="Фото" class="cart-thumb">
+                    <img th:src="@{${item.product.previewImageUrl}}" alt="Фото" class="cart-thumb">
                     <div class="cart-item-details">
                         <h3 th:text="${item.product.name}" class="cart-item-name"></h3>
                         <p class="cart-item-price" th:text="${item.product.price} + ' zł'"></p>

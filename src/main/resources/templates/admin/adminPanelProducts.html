@@ -65,8 +65,8 @@
         <tbody>
         <tr th:each="prod : ${products}">
             <td>
-                <img th:if="${prod.imageUrl != null}"
-                     th:src="@{${prod.imageUrl}}"
+                <img th:if="${prod.previewImageUrl != null}"
+                     th:src="@{${prod.previewImageUrl}}"
                      alt="Фото товара"
                      style="max-width:60px; max-height:60px; object-fit:cover;">
             </td>

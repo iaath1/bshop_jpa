@@ -125,7 +125,7 @@
         <tr th:each="item : ${cartItems}">
             <td>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img th:src="@{${item.product.imageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+                    <img th:src="@{${item.product.previewImageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
                     <div>
                         <span th:text="${item.product.name}">Товар</span><br>
                         <small th:if="${item.product.size != null}" th:text="#{page.sizeText} + ${item.product.size.name}">Размер: M</small>
@@ -160,7 +160,7 @@
         <tr>
             <td>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img th:src="@{${product.imageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+                    <img th:src="@{${product.previewImageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
                     <div>
                         <span th:text="${product.name}">Товар</span><br>
                         <small th:if="${product.size != null}" th:text="#{page.sizeText} + ${product.size.name}">Размер: M</small>

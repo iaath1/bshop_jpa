@@ -14,14 +14,52 @@
             gap: 30px;
             margin-top: 30px;
         }
+
+        /* Галерея */
         .product-gallery {
             flex: 1 1 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
+
         .product-main-img {
             max-width: 100%;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
+
+        .product-main-img:hover {
+            transform: scale(1.02);
+        }
+
+        .thumbnails {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            opacity: 1;
+            border-color: #e6007e;
+        }
+
+        /* Описание */
         .product-details {
             flex: 1 1 50%;
             background: #fff;
@@ -29,32 +67,36 @@
             border-radius: 12px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
+
         .product-details h1 {
             margin-bottom: 15px;
         }
+
         .price {
             font-size: 24px;
             font-weight: bold;
             color: #e6007e;
             margin-bottom: 15px;
         }
+
         .product-meta {
             margin: 15px 0;
             font-size: 15px;
             color: #555;
         }
-        .product-meta p {
-            margin: 5px 0;
-        }
+
         .description {
             margin: 20px 0;
             line-height: 1.6;
         }
+
         .product-actions {
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
+
         .btn-buy {
             background: #e6007e;
             color: #fff;
@@ -65,9 +107,11 @@
             font-weight: bold;
             transition: background 0.3s ease;
         }
+
         .btn-buy:hover {
             background: #c40069;
         }
+
         .btn-back {
             color: #333;
             text-decoration: none;
@@ -76,6 +120,7 @@
             border-radius: 8px;
             transition: background 0.3s ease;
         }
+
         .btn-back:hover {
             background: #f5f5f5;
         }
@@ -88,45 +133,52 @@
         <div class="logo">🛍 MyStore</div>
         <nav class="nav">
             <div class="lang-switcher">
-            <div class="dropdown">
-                <button class="dropbtn">
-                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
-                </button>
-                <div class="dropdown-content">
-                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
-                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                        <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                    </div>
                 </div>
             </div>
-            </div>
-
 
             <a th:href="@{/}" th:text="#{page.home}">Главная</a>
             <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
             <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
             <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
 
-            <!-- Если пользователь вошёл -->
             <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
             <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
                 <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
             </form>
 
-            <!-- Если гость -->
             <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
         </nav>
     </div>
 </header>
 
 <main class="container product-page">
+
+    <!-- Галерея товара -->
     <div class="product-gallery">
-        <img th:if="${product.imageUrl != null}" th:src="@{${product.imageUrl}}" alt="Фото товара" class="product-main-img">
+        <img th:src="@{${product.previewImageUrl}}" alt="Фото товара" id="mainImage" class="product-main-img">
+
+        <div class="thumbnails">
+            <img th:each="img : ${product.images}"
+                 th:src="@{${img.imageUrl}}"
+                 alt="Фото"
+                 class="thumbnail"
+                 th:onclick="'document.getElementById(\'mainImage\').src=\'' + @{${img.imageUrl}} + '\'; this.parentNode.querySelectorAll(\'.thumbnail\').forEach(t=>t.classList.remove(\'active\')); this.classList.add(\'active\');'">
+        </div>
     </div>
 
+    <!-- Описание товара -->
     <div class="product-details">
         <h1 th:text="${product.name}">Название товара</h1>
         <p class="price" th:text="${product.price} + ' zł'">0 zł</p>
 
-        <!-- Метаданные о товаре -->
         <div class="product-meta">
             <p th:if="${product.size != null}" th:text="#{page.sizeText} + ${product.size.name}">Размер: M</p>
             <p th:if="${product.color != null}" th:text="#{page.colorText} + ${product.color.name}">Цвет: Черный</p>

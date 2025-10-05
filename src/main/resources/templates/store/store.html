@@ -63,7 +63,7 @@
             <!-- Верхняя часть карточки -->
             <div class="product-content">
                 <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
-                    <img th:if="${prod.imageUrl != null}" th:src="@{${prod.imageUrl}}" alt="Фото" class="product-thumb-lg">
+                    <img th:if="${prod.previewImageUrl != null}" th:src="@{${prod.previewImageUrl}}" alt="Фото" class="product-thumb-lg">
                 </a>
                 <div class="product-info">
                     <h3 th:text="${prod.name}">Название товара</h3>

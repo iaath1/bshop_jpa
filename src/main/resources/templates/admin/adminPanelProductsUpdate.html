@@ -5,12 +5,66 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Admin - Create Product</title>
+    <title>Admin - Edit Product</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .image-gallery, .preview-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-card {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-card button {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(255, 0, 0, 0.7);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 18px;
+        }
+        .image-card button:hover {
+            background: red;
+        }
+        .file-upload {
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .file-label {
+            display: inline-block;
+            padding: 10px 16px;
+            background-color: #1976d2;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .file-label:hover {
+            background-color: #0d47a1;
+        }
+    </style>
 </head>
 <body>
 <div class="layout">
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="brand">🧭 Admin</div>
         <nav class="nav">
@@ -27,99 +81,148 @@
         </nav>
     </aside>
 
-    <!-- Main -->
     <main class="main">
         <div class="topbar">
-            <h1 style="margin:0">Создание товара</h1>
-            <div class="top-right">
-                <span class="muted">👤 <span sec:authentication="name">Admin</span></span>
-                <form th:action="@{/auth/logout}" method="post">
-                    <button class="btn" type="submit">Выйти</button>
-                </form>
-            </div>
+            <h1>Редактирование товара</h1>
         </div>
 
         <div class="panel form-panel">
-    <h3>Изменить товар</h3>
-    <form th:action="@{/admin/products/update/{id}(id=${product.id})}" th:object="${product}" method="post" class="form-grid" enctype="multipart/form-data">
+            <form th:action="@{/admin/products/update/{id}(id=${product.id})}"
+                  th:object="${product}"
+                  method="post" enctype="multipart/form-data"
+                  class="form-grid">
 
-        <div class="form-group">
-            <label>Текущее изображение:</label><br>
-            <img th:if="${product.imageUrl != null}"
-                th:src="@{${product.imageUrl}}"
-                alt="Фото товара"
-                style="max-width:150px; max-height:150px; object-fit:cover;">
+                <!-- Текущие изображения -->
+                <div class="form-group">
+                    <label>Текущие изображения:</label>
+                    <div class="image-gallery">
+                        <div class="image-card"
+                             th:each="img : ${product.images}"
+                             th:if="${img.imageUrl != null and !#strings.isEmpty(img.imageUrl)}">
+                            <img th:src="@{${img.imageUrl}}" alt="Фото товара">
+                            <button type="button" th:attr="data-id=${img.id}" onclick="removeImage(this)">×</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Новые изображения -->
+                <div class="form-group">
+                    <label>Добавить новые изображения:</label>
+                    <div class="file-upload">
+                        <input type="file" id="files" name="files" multiple accept="image/*" onchange="previewFiles(event)" hidden>
+                        <label for="files" class="file-label">📸 Выбрать файлы</label>
+                    </div>
+                    <div class="preview-gallery" id="preview"></div>
+                </div>
+
+                <!-- Остальные поля -->
+                <div class="form-group">
+                    <label for="name">Название</label>
+                    <input type="text" id="name" th:field="*{name}" class="input-lg" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <textarea id="description" th:field="*{description}" rows="5" class="input-lg"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Цена</label>
+                        <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Количество</label>
+                        <input type="number" id="quantity" th:field="*{quantity}" class="input-lg" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="size">Размер</label>
+                    <select id="size" th:field="*{size.id}" class="input-lg">
+                        <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Категория</label>
+                    <select id="category" th:field="*{category.id}" class="input-lg">
+                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="material">Материал</label>
+                    <select id="material" th:field="*{material.id}" class="input-lg">
+                        <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="color">Цвет</label>
+                    <select id="color" th:field="*{color.id}" class="input-lg">
+                        <option th:each="cl : ${colors}" th:value="${cl.id}" th:text="${cl.name}"></option>
+                    </select>
+                </div>
+
+                <div style="text-align:right; margin-top:20px;">
+                    <button type="submit" class="btn btn-lg">💾 Сохранить</button>
+                </div>
+            </form>
         </div>
-
-        <div class="form-group">
-            <label for="imageFile">Загрузить новое изображение:</label>
-            <input type="file" id="imageFile" name="imageFile" accept="image/*">
-        </div>
-
-        <!-- Name -->
-        <div class="form-group">
-            <label for="name">Название</label>
-            <input type="text" id="name" th:field="*{name}" class="input-lg" placeholder="Введите название..." required>
-        </div>
-
-        <!-- Description -->
-        <div class="form-group">
-            <label for="description">Описание</label>
-            <textarea id="description" th:field="*{description}" rows="5" class="input-lg" placeholder="Введите описание..."></textarea>
-        </div>
-
-        <!-- Price & Quantity -->
-        <div class="form-row">
-            <div class="form-group">
-                <label for="price">Цена</label>
-                <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" placeholder="0.00" required>
-            </div>
-            <div class="form-group">
-                <label for="quantity">Количество</label>
-                <input type="number" id="quantity" th:field="*{quantity}" class="input-lg" placeholder="0" required>
-            </div>
-        </div>
-
-        <!-- Size -->
-        <div class="form-group">
-            <label for="size">Размер</label>
-            <select id="size" th:field="*{size.id}" class="input-lg">
-                <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
-            </select>
-        </div>
-
-        <!-- Category -->
-        <div class="form-group">
-            <label for="category">Категория</label>
-            <select id="category" th:field="*{category.id}" class="input-lg">
-                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
-            </select>
-        </div>
-
-        <!-- Material -->
-        <div class="form-group">
-            <label for="material">Материал</label>
-            <select id="material" th:field="*{material.id}" class="input-lg">
-                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
-            </select>
-        </div>
-
-        <!-- Color -->
-        <div class="form-group">
-            <label for="color">Цвет</label>
-            <select id="color" th:field="*{color.id}" class="input-lg">
-                <option th:each="cl : ${colors}" th:value="${cl.id}" th:text="${cl.name}"></option>
-            </select>
-        </div>
-
-        <!-- Save -->
-        <div style="text-align:right; margin-top:20px;">
-            <button type="submit" class="btn btn-lg">💾 Сохранить</button>
-        </div>
-    </form>
-</div>
-
     </main>
 </div>
+
+<script>
+    // 🖼 Предпросмотр выбранных новых изображений
+    function previewFiles(event) {
+        const preview = document.getElementById('preview');
+        preview.innerHTML = '';
+        const input = event.target;
+        const dt = new DataTransfer();
+
+        Array.from(input.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const card = document.createElement('div');
+                card.classList.add('image-card');
+                card.innerHTML = `
+                    <img src="${e.target.result}" alt="preview">
+                    <button type="button" onclick="removeNewImage(${index})">×</button>
+                `;
+                preview.appendChild(card);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Сохраняем файлы для удаления позже
+        window.currentFiles = input.files;
+    }
+
+    // ❌ Удалить новое изображение до загрузки
+    function removeNewImage(index) {
+        const input = document.getElementById('files');
+        const dt = new DataTransfer();
+
+        Array.from(window.currentFiles || input.files)
+            .filter((_, i) => i !== index)
+            .forEach(f => dt.items.add(f));
+
+        input.files = dt.files;
+        previewFiles({ target: input });
+    }
+
+    // 🗑 Удаление старого изображения с сервера
+    function removeImage(button) {
+        const imageId = button.getAttribute('data-id');
+        if (confirm('Удалить это изображение?')) {
+            fetch(`/admin/products/image/delete/${imageId}`, { method: 'DELETE' })
+                .then(res => {
+                    if (res.ok) button.parentElement.remove();
+                    else alert('Ошибка при удалении изображения');
+                });
+        }
+    }
+</script>
 </body>
 </html>

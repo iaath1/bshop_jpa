@@ -2,6 +2,10 @@ package com.bshop_jpa.demo.models;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +13,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Entity
@@ -49,7 +55,16 @@ public class Product {
     @JoinColumn(name = "color_id")
     private Color color;
 
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
+    @Column(name = "images_url", length = 255)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Image> images = new ArrayList<>();
+
+    @Transient
+    public String getPreviewImageUrl() {
+        if (images != null && !images.isEmpty()) {
+            return images.get(0).getImageUrl();
+        }
+        return "/uploads/products/no-image.png"; // путь к дефолтной картинке
+    }
 
 }
