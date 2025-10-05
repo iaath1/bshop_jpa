@@ -22,6 +22,8 @@ import com.bshop_jpa.demo.services.CartItemService;
 import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.ProductService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Controller
 @RequestMapping("/store")
 public class StoreController {
@@ -39,27 +41,33 @@ public class StoreController {
     }
 
     @GetMapping
-    public String getStore(Model model) {
+    public String getStore(Model model, HttpServletRequest request) {
+
+        //везде добавить
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("categories", productService.countProductsByCategory());
         model.addAttribute("products", productService.findAllProducts());
         return "store/store";
     }
 
     @GetMapping("/category/{id}")
-    public String getStoreCategoryDetails(@PathVariable Integer id, Model model) {
+    public String getStoreCategoryDetails(@PathVariable Integer id, Model model, HttpServletRequest request) {
         Category category = categoryRepo.findById(id).orElseThrow(() -> new RuntimeException());
+
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("category", category);
         model.addAttribute("products", productService.findProductsByCategory(category));
         return "store/categoryDetails";
     }
 
     @GetMapping("/product/{id}")
-    public String getStoreProductDetails(@PathVariable Long id, Model model) {
+    public String getStoreProductDetails(@PathVariable Long id, Model model, HttpServletRequest request) {
         Product product = productService.findProductById(id);
         if(product == null) {
-            return "redirect:/";
+            return "redirect:/store";
         }
 
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("product", product);
         return "store/productDetails";
     }
@@ -89,7 +97,7 @@ public class StoreController {
         Cart cart = cartService.findCartByUser(user);
 
         if(product == null) {
-            return "redirect:/";
+            return "redirect:/store";
         }
 
         List<CartItem> cartItems = cart.getItems();
@@ -114,7 +122,7 @@ public class StoreController {
 
         CartItem cartItemFromDb = cartItemService.findCartItemById(cartItemId);
         if(cartItemFromDb == null) {
-            return "redirect:/";
+            return "redirect:/store";
         }
 
         cartItemFromDb.setQuantity(quantity);

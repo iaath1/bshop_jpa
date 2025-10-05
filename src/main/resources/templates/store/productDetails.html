@@ -1,11 +1,85 @@
 <!DOCTYPE html>
 <html lang="ru"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title th:text="${product.name}">Товар</title>
     <link rel="stylesheet" th:href="@{/css/store.css}">
+    <style>
+        .product-page {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .product-gallery {
+            flex: 1 1 40%;
+        }
+        .product-main-img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .product-details {
+            flex: 1 1 50%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .product-details h1 {
+            margin-bottom: 15px;
+        }
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e6007e;
+            margin-bottom: 15px;
+        }
+        .product-meta {
+            margin: 15px 0;
+            font-size: 15px;
+            color: #555;
+        }
+        .product-meta p {
+            margin: 5px 0;
+        }
+        .description {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .product-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-buy {
+            background: #e6007e;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .btn-buy:hover {
+            background: #c40069;
+        }
+        .btn-back {
+            color: #333;
+            text-decoration: none;
+            padding: 10px 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        .btn-back:hover {
+            background: #f5f5f5;
+        }
+    </style>
 </head>
 <body>
 
@@ -13,10 +87,32 @@
     <div class="container header-inner">
         <div class="logo">🛍 MyStore</div>
         <nav class="nav">
-            <a th:href="@{/}">Главная</a>
-            <a th:href="@{/catalog}">Каталог</a>
-            <a th:href="@{/about}">О нас</a>
-            <a th:href="@{/contacts}">Контакты</a>
+            <div class="lang-switcher">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                </div>
+            </div>
+            </div>
+
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <!-- Если пользователь вошёл -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <!-- Если гость -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
         </nav>
     </div>
 </header>
@@ -28,17 +124,26 @@
 
     <div class="product-details">
         <h1 th:text="${product.name}">Название товара</h1>
-        <p class="price" th:text="${product.price} + ' ₽'">0 ₽</p>
+        <p class="price" th:text="${product.price} + ' zł'">0 zł</p>
+
+        <!-- Метаданные о товаре -->
+        <div class="product-meta">
+            <p th:if="${product.size != null}" th:text="#{page.sizeText} + ${product.size.name}">Размер: M</p>
+            <p th:if="${product.color != null}" th:text="#{page.colorText} + ${product.color.name}">Цвет: Черный</p>
+            <p th:if="${product.material != null}" th:text="#{page.materialText} + ${product.material.name}">Материал: Хлопок</p>
+            <p th:text="#{page.quantityText} + ${product.quantity}">В наличии: 10</p>
+        </div>
 
         <p class="description" th:text="${product.description}">
             Подробное описание товара. Его особенности, преимущества и характеристики.
         </p>
 
         <div class="product-actions">
-            <form th:action="@{/store/cart/add/{id}(id=${product.id})}" method="post">
-                <button type="submit" class="btn-buy">Добавить в корзину</button>
+            <form th:action="@{/store/cart/add/{id}(id=${product.id})}" method="post" sec:authorize="isAuthenticated()">
+                <button type="submit" class="btn-buy" th:text="#{page.cartText}">Добавить в корзину</button>
             </form>
-            <a th:href="@{/catalog}" class="btn-back">← Вернуться в каталог</a>
+            <a th:href="@{/order/{id}(id=${product.id})}" class="btn-buy" sec:authorize="isAnonymous()" th:text="#{page.orderText}">Купить сейчас</a>
+            <a th:href="@{/store}" class="btn-back" th:text="#{page.backToCatalogText}">← Вернуться в каталог</a>
         </div>
     </div>
 </main>

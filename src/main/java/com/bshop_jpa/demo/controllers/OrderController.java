@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +21,8 @@ import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.StatusService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Controller
@@ -41,7 +42,7 @@ public class OrderController {
     }
 
     @GetMapping("/cart")
-    public String getOrderPage(Model model, @AuthenticationPrincipal User user) {
+    public String getOrderPage(Model model, @AuthenticationPrincipal User user, HttpServletRequest request) {
 
         if(user == null) {
             return "redirect:/login";
@@ -54,8 +55,11 @@ public class OrderController {
             total += item.getProduct().getPrice() * item.getQuantity();
         }
 
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("user", user);
         model.addAttribute("cartItems", cartItems);
+
+        //надо улучшить, считаются только разные товары не учитывая количество каждого
         model.addAttribute("totalQuantity", cartService.findCartByUser(user).getItems().size());
         model.addAttribute("totalAmount", total);
         return "order/order";
@@ -93,6 +97,7 @@ public class OrderController {
 
         orderService.saveOrder(order);
         cartService.clearCartByUser(user);
+        
         return "redirect:/payment";
     }
 
@@ -100,7 +105,7 @@ public class OrderController {
 
     
     @GetMapping("/{id}")
-    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user) {
+    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user, HttpServletRequest request) {
         Product product = productService.findProductById(id);
 
         if(product == null) {
@@ -111,6 +116,7 @@ public class OrderController {
             model.addAttribute("user", user);
         }
 
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("product", product);
         return "order/order";
     }

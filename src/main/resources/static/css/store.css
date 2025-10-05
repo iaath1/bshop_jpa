@@ -662,5 +662,53 @@ body {
     background: #e5e7eb;
 }
 
+.lang-switcher {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.dropbtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background: #fff;
+    min-width: 160px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 10px 14px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background: #f3f4f6;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
 
 

@@ -1,29 +1,71 @@
 <!DOCTYPE html>
 <html lang="ru"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Вход - MyStore</title>
     <link rel="stylesheet" th:href="@{/css/store.css}">
 </head>
-<body class="auth-body">
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <div class="lang-switcher">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                </div>
+            </div>
+            </div>
 
-<div class="auth-container">
-    <h2>Вход</h2>
 
-    <p th:if="${error}" th:text="${error}" class="error"></p>
-    <form th:action="@{/login}" method="post" class="auth-form">
-        <input type="text" name="username" placeholder="Логин" required>
-        <input type="password" name="password" placeholder="Пароль" required>
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
 
-        <button type="submit" class="btn-auth">Войти</button>
-    </form>
+            <!-- Если пользователь вошёл -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
 
-    <p class="auth-text">
-        Нет аккаунта? <a th:href="@{/auth}">Зарегистрироваться</a>
-    </p>
-</div>
+            <!-- Если гость -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
 
+<main class="auth-body">
+    <div class="auth-container">
+        <h2 th:text="#{login.loginText}">Вход в аккаунт</h2>
+
+        <!-- Ошибка входа -->
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+
+        <form th:action="@{/login}" method="post" class="auth-form">
+            <input type="text" name="username" th:placeholder="#{login.emailText}" required>
+            <input type="password" name="password" th:placeholder="#{login.passwordText}" required>
+
+            <button type="submit" class="btn" th:text="#{login.submitText}">Войти</button>
+        </form>
+
+        <p class="auth-text">
+            <span th:text="#{login.authText}"></span>
+            <a th:href="@{/auth}" th:text="#{login.authLinkText}"></a>
+        </p>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
 </body>
 </html>

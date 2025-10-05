@@ -12,10 +12,32 @@
     <div class="container header-inner">
         <div class="logo">🛍 MyStore</div>
         <nav class="nav">
-            <a th:href="@{/}">Главная</a>
-            <a th:href="@{/catalog}">Каталог</a>
-            <a th:href="@{/about}">О нас</a>
-            <a th:href="@{/contacts}">Контакты</a>
+            <div class="lang-switcher">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                </div>
+            </div>
+            </div>
+
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <!-- Если пользователь вошёл -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <!-- Если гость -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
         </nav>
     </div>
 </header>
@@ -23,39 +45,104 @@
 <section class="hero">
     <div class="container">
         <h1 th:text="${category.name}">Название категории</h1>
-        <p th:text="'Найдено товаров: ' + ${#lists.size(products)}">Найдено товаров: 0</p>
-        <a th:href="@{/catalog}" class="btn">← Вернуться в каталог</a>
+        <p th:text="#{categoryDetails.findedProductsText} + ${#lists.size(products)}">Найдено товаров: 0</p>
+        <a th:href="@{/store}" class="btn" th:text="#{page.backToCatalogText}">← Вернуться в каталог</a>
     </div>
 </section>
 
 <section class="catalog container">
-    <h2 th:text="'Товары категории: ' + ${category.name}">Товары категории</h2>
+    <h2 th:text="#{categoryDetails.categoryProductsText} + ${category.name}">Товары категории</h2>
 
     <section class="products container">
-    <h2>Популярные товары</h2>
     <div class="products-grid">
         <div class="product-card" th:each="prod : ${products}">
-            <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
-                <img th:if="${prod.imageUrl != null}" th:src="@{${prod.imageUrl}}" alt="Фото" class="product-thumb-lg">
+            <!-- Верхняя часть карточки -->
+            <div class="product-content">
+                <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
+                    <img th:if="${prod.imageUrl != null}" th:src="@{${prod.imageUrl}}" alt="Фото" class="product-thumb-lg">
+                </a>
                 <div class="product-info">
                     <h3 th:text="${prod.name}">Название товара</h3>
-                    <p class="price" th:text="${prod.price} + ' ₽'">0 ₽</p>
+                    <p class="price" th:text="${prod.price} + ' zł'">0 zł</p>
+                    <p class="stock" th:text="#{page.quantityText} + ${prod.quantity}">В наличии: 0</p>
+                    <p class="size" th:if="${prod.size != null}" th:text="#{page.sizeText} + ${prod.size.name}">Размер: M</p>
                 </div>
-            </a>
+            </div>
+
+            <!-- Нижняя часть карточки: кнопки -->
             <div class="card-actions">
-                <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-small">Подробнее</a>
-                <form th:action="@{/store/cart/add/{id}(id=${prod.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn-small btn-buy">В корзину</button>
-                </form>
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-action btn-detail" th:text="#{page.productDetailsText}">Подробнее</a>
+                    <form th:action="@{/store/cart/add/{id}(id=${prod.id})}" method="post">
+                        <button type="submit" class="btn-action btn-buy" th:text="#{page.cartText}">В корзину</button>
+                    </form>
+                </div>
+                    <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-action btn-detail" th:text="#{page.productDetailsText}">Подробнее</a>
+                    <a th:href="@{/order/{id}(id=${prod.id})}" class="btn-action btn-buy" th:text="#{page.orderText}">Оформить заказ</a>
+                </div>
             </div>
         </div>
     </div>
-</section>
+    </section>
 
-
-    <p th:if="${#lists.isEmpty(products)}" class="muted center">
+    <p th:if="${#lists.isEmpty(products)}" class="muted center" th:text="#{categoryDetails.emptyCategoryText}">
         В этой категории пока нет товаров.
     </p>
+</section>
+
+<style>
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* промежуток между кнопками */
+}
+
+.btn-action {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 14px;
+}
+
+.btn-detail {
+    background: #f3f4f6;
+    color: #333;
+}
+
+.btn-detail:hover {
+    background: #e5e7eb;
+}
+
+.btn-buy {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn-buy:hover {
+    background: var(--dark);
+}
+
+/* Чтобы кнопки были одинаковой высоты */
+.btn-action, .btn-buy, .btn-detail {
+    min-height: 40px;
+    line-height: 1.2;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 720px) {
+    .btn-action {
+        font-size: 13px;
+        padding: 8px 0;
+    }
+}
+</style>
 </section>
 
 <footer class="footer">

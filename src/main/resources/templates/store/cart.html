@@ -12,21 +12,43 @@
     <div class="container header-inner">
         <div class="logo">🛍 MyStore</div>
         <nav class="nav">
-            <a th:href="@{/}">Главная</a>
-            <a th:href="@{/catalog}">Каталог</a>
-            <a th:href="@{/cart}" class="active">Корзина</a>
-            <a th:href="@{/contacts}">Контакты</a>
+            <div class="lang-switcher">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                </div>
+            </div>
+            </div>
+
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <!-- Если пользователь вошёл -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <!-- Если гость -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
         </nav>
     </div>
 </header>
 
 <main class="container cart-page">
-    <h2 class="page-title">🛒 Ваша корзина</h2>
+    <h2 class="page-title" th:text="#{cart.cartText}">🛒 Ваша корзина</h2>
 
     <!-- Если корзина пуста -->
     <div th:if="${#lists.isEmpty(cartItems)}" class="cart-empty">
-        <p>Корзина пуста 😔</p>
-        <a th:href="@{/catalog}" class="btn">Перейти в каталог</a>
+        <p th:text="#{cart.emptyCartText}">Корзина пуста 😔</p>
+        <a th:href="@{/store}" class="btn" th:text="#{page.backToCatalogText}">Перейти в каталог</a>
     </div>
 
     <!-- Если корзина не пуста -->
@@ -37,7 +59,16 @@
                     <img th:src="@{${item.product.imageUrl}}" alt="Фото" class="cart-thumb">
                     <div class="cart-item-details">
                         <h3 th:text="${item.product.name}" class="cart-item-name"></h3>
-                        <p class="cart-item-price" th:text="${item.product.price} + ' ₽'"></p>
+                        <p class="cart-item-price" th:text="${item.product.price} + ' zł'"></p>
+
+                        <!-- Количество товара на складе -->
+                        <p class="cart-item-stock"
+                           th:text="#{page.quantityText} + ${item.product.quantity}">В наличии: 0</p>
+
+                        <!-- Размер -->
+                        <p class="cart-item-size"
+                           th:if="${item.product.size != null}"
+                           th:text="#{page.sizeText} + ${item.product.size.name}">Размер: M</p>
                     </div>
                 </div>
 
@@ -45,11 +76,11 @@
                     <input type="hidden" name="cartItemId" th:value="${item.id}">
                     <input type="hidden" name="productId" th:value="${item.product.id}">
                     <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="qty-input">
-                    <button type="submit" class="btn-small">Обновить</button>
+                    <button type="submit" class="btn-small" th:text="#{cart.updateText}">Обновить</button>
                 </form>
 
                 <div class="cart-item-sum">
-                    <span th:text="${item.product.price * item.quantity} + ' ₽'"></span>
+                    <span th:text="${item.product.price * item.quantity} + ' zł'"></span>
                 </div>
 
                 <form th:action="@{/store/cart/delete/{id}(id=${item.id})}" method="post" class="cart-item-remove">
@@ -60,15 +91,16 @@
 
         <!-- Блок итога -->
         <aside class="cart-summary">
-            <h3>Итого</h3>
+            <h3 th:text="#{order.sumText}">Итого</h3>
             <p class="cart-total">
-                <span th:text="${total} + ' ₽'"></span>
+                <span th:text="${total} + ' zł'"></span>
             </p>
-            <a th:href="@{/order/cart}" class="btn btn-primary">Оформить заказ</a>
-            <a th:href="@{/catalog}" class="btn btn-secondary">Продолжить покупки</a>
+            <a th:href="@{/order/cart}" class="btn btn-primary" th:text="#{page.orderText}">Оформить заказ</a>
+            <a th:href="@{/store}" class="btn btn-secondary" th:text="#{page.backToCatalogText}">Продолжить покупки</a>
         </aside>
     </div>
 </main>
+
 
 <footer class="footer">
     <p>© 2025 MyStore. Все права защищены.</p>

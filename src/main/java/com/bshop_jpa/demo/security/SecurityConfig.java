@@ -45,7 +45,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")        // своя страница логина
                 .loginProcessingUrl("/login") // куда отправляется POST
-                .defaultSuccessUrl("/", true)      // куда перекидывать после успеха
+                .defaultSuccessUrl("/store", true)      // куда перекидывать после успеха
                 .failureUrl("/login?error=true") // при ошибке
                 .permitAll());
 

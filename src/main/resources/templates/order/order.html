@@ -11,9 +11,10 @@
         .order-summary {
             background: #fff;
             padding: 20px;
-            margin-bottom: 30px;
+            margin: 20px auto;
             border-radius: 12px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
         }
         .order-summary table {
             width: 100%;
@@ -22,17 +23,51 @@
         }
         .order-summary th, .order-summary td {
             padding: 12px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
             text-align: left;
         }
         .order-summary th {
-            background: #f2f2f2;
+            background: #f9f9f9;
         }
         .order-summary .total {
             font-weight: bold;
             font-size: 18px;
             text-align: right;
             padding-top: 10px;
+            color: #333;
+        }
+        .order-form {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .order-form label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: 600;
+        }
+        .order-form input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            background: #4cafef;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #3da7dc;
         }
     </style>
 </head>
@@ -41,87 +76,126 @@
     <div class="container header-inner">
         <div class="logo">🛍 MyStore</div>
         <nav class="nav">
-            <a th:href="@{/}">Главная</a>
-            <a th:href="@{/catalog}">Каталог</a>
-            <a th:href="@{/about}">О нас</a>
-            <a th:href="@{/contacts}">Контакты</a>
+            <div class="lang-switcher">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                </div>
+            </div>
+            </div>
+
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <!-- Если пользователь вошёл -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <!-- Если гость -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
         </nav>
     </div>
 </header>
 
 <section class="container">
-    <h1>Оформление заказа</h1>
+    <h1 th:text="#{order.orderText}">Оформление заказа</h1>
 
     <!-- Авторизованный пользователь (корзина) -->
-    <div sec:authorize="isAuthenticated()" class="order-summary">
-        <h3>Ваш заказ</h3>
-        <table>
-            <thead>
-            <tr>
-                <th>Товар</th>
-                <th>Цена</th>
-                <th>Кол-во</th>
-                <th>Итого</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${cartItems}">
-                <td th:text="${item.product.name}">Товар</td>
-                <td th:text="${item.product.price} + ' ₽'">100₽</td>
-                <td th:text="${item.quantity}">1</td>
-                <td th:text="${item.product.price * item.quantity} + ' ₽'">100₽</td>
-            </tr>
-            </tbody>
-        </table>
-        <p class="total">
-            Всего товаров: <span th:text="${totalQuantity}">0</span><br>
-            Общая сумма: <span th:text="${totalAmount} + ' ₽'">0₽</span>
-        </p>
-    </div>
+<div sec:authorize="isAuthenticated()" class="order-summary">
+    <h3>Ваш заказ</h3>
+    <table>
+        <thead>
+        <tr>
+            <th th:text="#{order.productText}">Товар</th>
+            <th th:text="#{order.priceText}">Цена</th>
+            <th th:text="#{order.quantityText}">Кол-во</th>
+            <th th:text="#{order.sumText}">Итого</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${cartItems}">
+            <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img th:src="@{${item.product.imageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+                    <div>
+                        <span th:text="${item.product.name}">Товар</span><br>
+                        <small th:if="${item.product.size != null}" th:text="#{page.sizeText} + ${item.product.size.name}">Размер: M</small>
+                    </div>
+                </div>
+            </td>
+            <td th:text="${item.product.price} + ' zł'">100₽</td>
+            <td th:text="${item.quantity}">1</td>
+            <td th:text="${item.product.price * item.quantity} + ' zł'">100₽</td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="total"
+        th:utext="#{order.countText} + ${totalQuantity} + '<br>' + #{order.totalPriceText} + ${totalAmount} + ' zł'">
+        Всего товаров: 0<br>Общая сумма: 0 zł
+    </p>
+</div>
 
-    <!-- Гость (один продукт) -->
-    <div sec:authorize="isAnonymous()" class="order-summary">
-        <h3>Ваш заказ</h3>
-        <table>
-            <thead>
-            <tr>
-                <th>Товар</th>
-                <th>Цена</th>
-                <th>Кол-во</th>
-                <th>Итого</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td th:text="${product.name}">Товар</td>
-                <td th:text="${product.price} + ' ₽'">100₽</td>
-                <td>1</td>
-                <td th:text="${product.price} + ' ₽'">100₽</td>
-            </tr>
-            </tbody>
-        </table>
-        <p class="total">
-            Всего товаров: 1<br>
-            Общая сумма: <span th:text="${product.price} + ' ₽'">100₽</span>
-        </p>
-    </div>
+<!-- Гость (один продукт) -->
+<div sec:authorize="isAnonymous()" class="order-summary">
+    <h3>Ваш заказ</h3>
+    <table>
+        <thead>
+        <tr>
+            <th th:text="#{order.productText}">Товар</th>
+            <th th:text="#{order.priceText}">Цена</th>
+            <th th:text="#{order.quantityText}">Кол-во</th>
+            <th th:text="#{order.sumText}">Итого</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <img th:src="@{${product.imageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+                    <div>
+                        <span th:text="${product.name}">Товар</span><br>
+                        <small th:if="${product.size != null}" th:text="#{page.sizeText} + ${product.size.name}">Размер: M</small>
+                    </div>
+                </div>
+            </td>
+            <td th:text="${product.price} + ' zł'">100₽</td>
+            <td>1</td>
+            <td th:text="${product.price} + ' zł'">100₽</td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="total"
+        th:utext="#{order.countText} + 1 + '<br>' + #{order.totalPriceText} + ${product.price} + ' zł'">
+        Всего товаров: 0<br>Общая сумма: 0 zł
+    </p>
+</div>
+
 
     <!-- Авторизованный -->
     <form sec:authorize="isAuthenticated()" th:action="@{/order/cart}" method="post" class="order-form">
-        <label>Ваш адрес доставки:</label>
+        <label th:text="#{order.addressText}">Ваш адрес доставки:</label>
         <input type="text" name="address"
                th:value="${#authentication.principal.address}"
-               placeholder="Введите адрес доставки" required>
-        <button type="submit" class="btn">Подтвердить заказ</button>
+               th:placeholder="#{order.addressInputText}" required>
+        <button type="submit" class="btn" th:text="#{order.submitText}">Подтвердить заказ</button>
     </form>
 
     <!-- Гость -->
     <form sec:authorize="isAnonymous()" th:action="@{/order/{id}(id=${product.id})}" method="post" class="order-form">
-        <label>Ваш адрес доставки:</label>
-        <input type="text" name="address" placeholder="Введите адрес доставки" required>
-        <label>Ваш email для связи:</label>
-        <input type="email" name="email" placeholder="Введите email" required>
-        <button type="submit" class="btn">Подтвердить заказ</button>
+        <label th:text="#{order.addressText}">Ваш адрес доставки:</label>
+        <input type="text" name="address" th:placeholder="#{order.addressInputText}" required>
+        <label th:text="#{order.emailText}">Ваш email для связи:</label>
+        <input type="email" name="email" th:placeholder="#{order.emailInputText}" required>
+        <button type="submit" class="btn" th:text="#{order.submitText}">Подтвердить заказ</button>
     </form>
 </section>
 

@@ -1,44 +1,87 @@
 <!DOCTYPE html>
 <html lang="ru"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Авторизация - MyStore</title>
+    <title>Регистрация - MyStore</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/store.css}">
 </head>
-<body class="auth-body">
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+        <nav class="nav">
+            <div class="lang-switcher">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                </button>
+                <div class="dropdown-content">
+                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                </div>
+            </div>
+            </div>
 
-<main class="auth-container">
-    <h2>Авторизация</h2>
 
-    <form th:action="@{/auth}" th:object="${user}" method="post" class="auth-form">
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" class="active" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
 
-        <label for="name">Имя:</label>
-        <input type="text" id="name" th:field="*{name}" required>
+            <!-- Если пользователь вошёл -->
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
 
-        <label for="surname">Фамилия:</label>
-        <input type="text" id="surname" th:field="*{surname}">
+            <!-- Если гость -->
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" th:field="*{email}" required>
-        <p th:if="${error}" th:text="${error}" class="error"></p>
-        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></div>
+<main class="auth-body">
+    <div class="auth-container">
+        <h2 th:text="#{auth.authText}">Регистрация</h2>
 
-        <label for="phone">Телефон:</label>
-        <input type="text" id="phone" th:field="*{phone}">
+        <form th:action="@{/auth}" th:object="${user}" method="post" class="auth-form">
 
-        <label for="address">Адрес:</label>
-        <input type="text" id="address" th:field="*{address}">
-        
+            <label for="name" th:text="#{auth.nameText}">Имя:</label>
+            <input type="text" id="name" th:field="*{name}" required>
 
-        <label for="password">Пароль:</label>
-        <input type="password" id="password" th:field="*{password}" required>
-        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error"></div>
+            <label for="surname" th:text="#{auth.surnameText}">Фамилия:</label>
+            <input type="text" id="surname" th:field="*{surname}">
 
-        <button type="submit" class="btn-auth">Войти</button>
-    </form>
+            <label for="email" th:text="#{auth.emailText}">Email:</label>
+            <input type="email" id="email" th:field="*{email}" required>
+            <p th:if="${error}" th:text="${error}" class="error"></p>
+            <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></div>
+
+            <label for="phone" th:text="#{auth.phoneText}">Телефон:</label>
+            <input type="text" id="phone" th:field="*{phone}">
+
+            <label for="address" th:text="#{auth.addressText}">Адрес:</label>
+            <input type="text" id="address" th:field="*{address}">
+
+            <label for="password" th:text="#{auth.passwordText}">Пароль:</label>
+            <input type="password" id="password" th:field="*{password}" required>
+            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error"></div>
+
+            <button type="submit" class="btn" th:text="#{auth.submitText}">Зарегистрироваться</button>
+        </form>
+
+        <p class="auth-text">
+            <span th:text="#{auth.loginText}"></span>
+            <a th:href="@{/login}" th:text="#{auth.loginLinkText}">Войти</a>
+        </p>
+    </div>
 </main>
 
+<footer class="footer">
+    <p>© 2025 MyStore. Все права защищены.</p>
+</footer>
 </body>
 </html>

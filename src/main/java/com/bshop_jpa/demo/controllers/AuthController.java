@@ -16,6 +16,7 @@ import com.bshop_jpa.demo.models.User;
 import com.bshop_jpa.demo.repositories.RoleRepository;
 import com.bshop_jpa.demo.repositories.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @Controller
@@ -33,7 +34,8 @@ public class AuthController {
     }
 
     @GetMapping
-    public String getAuth(Model model) {
+    public String getAuth(Model model, HttpServletRequest request) {
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("user", new User());
         return "authentitication";
     }

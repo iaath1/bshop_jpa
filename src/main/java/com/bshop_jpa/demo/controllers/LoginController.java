@@ -4,6 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.ui.Model;
 
 @Controller
@@ -11,11 +14,13 @@ import org.springframework.ui.Model;
 public class LoginController {
 
     @GetMapping
-    public String getLogin(@RequestParam(value = "error", required = false) String error, Model model) {
+    public String getLogin(@RequestParam(value = "error", required = false) String error, Model model, HttpServletRequest request) {
+
         if(error != null) {
             model.addAttribute("error", "Incorrect email or password.");
         }
 
+        model.addAttribute("currentUrl", request.getRequestURI());
         return "login";
     }
 
