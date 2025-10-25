@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import com.bshop_jpa.demo.DTO.CategoryCountDTO;
 import com.bshop_jpa.demo.DTO.ColorCountDTO;
 import com.bshop_jpa.demo.DTO.MaterialCountDTO;
-import com.bshop_jpa.demo.DTO.SizeCountDTO;
 import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Product;
 
@@ -21,10 +20,10 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
        "GROUP BY c.name, c.id")
     List<CategoryCountDTO> countProductsByCategory();
 
-    @Query("SELECT new com.bshop_jpa.demo.DTO.SizeCountDTO(s.name, s.id, COUNT(p)) " +
-       "FROM Size s LEFT JOIN Product p ON p.size = s " +
-       "GROUP BY s.name, s.id")
-    List<SizeCountDTO> countProductsBySize();
+   //  @Query("SELECT new com.bshop_jpa.demo.DTO.SizeCountDTO(s.name, s.id, COUNT(p)) " +
+   //     "FROM Size s LEFT JOIN Product p ON p.size = s " +
+   //     "GROUP BY s.name, s.id")
+   //  List<SizeCountDTO> countProductsBySize();
 
     @Query("SELECT new com.bshop_jpa.demo.DTO.ColorCountDTO(c.name, COUNT(p)) " +
        "FROM Color c LEFT JOIN Product p ON p.color = c " +

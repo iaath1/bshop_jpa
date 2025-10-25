@@ -82,8 +82,8 @@
                     🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
                 </button>
                 <div class="dropdown-content">
-                    <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
-                    <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                    <a th:href="@{${currentUrl}(lang='uk')}" type="submit">UA</a>
+                    <a th:href="@{${currentUrl}(lang='pl')}" type="submit">PL</a>
                 </div>
             </div>
             </div>
@@ -128,7 +128,7 @@
                     <img th:src="@{${item.product.previewImageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
                     <div>
                         <span th:text="${item.product.name}">Товар</span><br>
-                        <small th:if="${item.product.size != null}" th:text="#{page.sizeText} + ${item.product.size.name}">Размер: M</small>
+                        <small th:if="${item.size != null}" th:text="#{page.sizeText} + ${item.size.name}">Размер: M</small>
                     </div>
                 </div>
             </td>
@@ -160,21 +160,21 @@
         <tr>
             <td>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <img th:src="@{${product.previewImageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+                    <img th:src="@{${productForOrder.previewImageUrl}}" alt="Фото товара" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
                     <div>
-                        <span th:text="${product.name}">Товар</span><br>
-                        <small th:if="${product.size != null}" th:text="#{page.sizeText} + ${product.size.name}">Размер: M</small>
+                        <span th:text="${productForOrder.name}">Товар</span><br>
+                        <small th:if="${productForOrder.size != null}" th:text="#{order.sizeText} + ${productForOrder.size.name}">Размер: M</small>
                     </div>
                 </div>
             </td>
-            <td th:text="${product.price} + ' zł'">100₽</td>
+            <td th:text="${productForOrder.price} + ' zł'">100₽</td>
             <td>1</td>
-            <td th:text="${product.price} + ' zł'">100₽</td>
+            <td th:text="${productForOrder.price} + ' zł'">100₽</td>
         </tr>
         </tbody>
     </table>
     <p class="total"
-        th:utext="#{order.countText} + 1 + '<br>' + #{order.totalPriceText} + ${product.price} + ' zł'">
+        th:utext="#{order.countText} + 1 + '<br>' + #{order.totalPriceText} + ${productForOrder.price} + ' zł'">
         Всего товаров: 0<br>Общая сумма: 0 zł
     </p>
 </div>
@@ -190,7 +190,7 @@
     </form>
 
     <!-- Гость -->
-    <form sec:authorize="isAnonymous()" th:action="@{/order/{id}(id=${product.id})}" method="post" class="order-form">
+    <form sec:authorize="isAnonymous()" th:action="@{/order/{id}(id=${productForOrder.productId})}" method="post" class="order-form">
         <label th:text="#{order.addressText}">Ваш адрес доставки:</label>
         <input type="text" name="address" th:placeholder="#{order.addressInputText}" required>
         <label th:text="#{order.emailText}">Ваш email для связи:</label>

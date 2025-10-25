@@ -1,5 +1,6 @@
 package com.bshop_jpa.demo.controllers;
 import com.bshop_jpa.demo.services.OrderService;
+import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.UserService;
 
 import java.io.IOException;
@@ -38,7 +39,6 @@ import com.bshop_jpa.demo.repositories.ColorRepository;
 import com.bshop_jpa.demo.repositories.ImageRepository;
 import com.bshop_jpa.demo.repositories.MaterialRepository;
 import com.bshop_jpa.demo.repositories.OrderRepository;
-import com.bshop_jpa.demo.repositories.ProductRepository;
 import com.bshop_jpa.demo.repositories.RoleRepository;
 import com.bshop_jpa.demo.repositories.SizeRepository;
 import com.bshop_jpa.demo.repositories.StatusRepository;
@@ -55,7 +55,7 @@ public class AdminController {
     private final UserService userService;
     
     private final UserRepository userRepo;
-    private final ProductRepository productRepo;
+    private final ProductService productService;
     private final ColorRepository colorRepo;
     private final MaterialRepository materialRepo;
     private final RoleRepository roleRepo;
@@ -65,12 +65,12 @@ public class AdminController {
     private final OrderRepository orderRepo;
     private final ImageRepository imageRepo;
 
-    public AdminController(UserRepository userRepo, ProductRepository productRepo, ColorRepository colorRepo, MaterialRepository materialRepo, 
+    public AdminController(UserRepository userRepo, ProductService productService, ColorRepository colorRepo, MaterialRepository materialRepo, 
                             RoleRepository roleRepo, SizeRepository sizeRepo, StatusRepository statusRepo, CategoryRepository categoryRepo,
                             OrderRepository orderRepo, UserService userService, OrderService orderService, ImageRepository imageRepo) {
 
         this.userRepo = userRepo;
-        this.productRepo = productRepo;
+        this.productService = productService;
         this.colorRepo = colorRepo;
         this.materialRepo = materialRepo;
         this.roleRepo = roleRepo;
@@ -83,10 +83,13 @@ public class AdminController {
         this.imageRepo = imageRepo;
     }
 
+
+
+
     @GetMapping
     public String getAdminPanel(Model model) {
         model.addAttribute("totalUsers", userRepo.count());
-        model.addAttribute("totalProducts", productRepo.count());
+        model.addAttribute("totalProducts", productService.countAllProduct());
         model.addAttribute("totalOrders", orderRepo.count());
         model.addAttribute("recentUsers", userService.findRecentUsers(5));
         model.addAttribute("recentOrders", orderService.findRecentOrders(5));
@@ -101,14 +104,16 @@ public class AdminController {
 
     @GetMapping("/products")
     public String getAdminPanelProducts(Model model) {
-        model.addAttribute("products", productRepo.findAll());
+        model.addAttribute("products", productService.findAllProducts());
         return "admin/adminPanelProducts";
     }
 
     @GetMapping("/products/add")
     public String getAdminPanelProductAdd(Model model) {
-        model.addAttribute("product", new Product());
-        model.addAttribute("sizes", sizeRepo.findAll());
+        Product product = new Product();
+        product.setSizes(productService.setBlankSizes(product));
+
+        model.addAttribute("product", product);
         model.addAttribute("colors", colorRepo.findAll());
         model.addAttribute("materials", materialRepo.findAll());
         model.addAttribute("categories", categoryRepo.findAll());
@@ -140,18 +145,16 @@ public class AdminController {
                 images.add(new Image(product, "/uploads/products/" + fileName));
             }
         }
-
         product.setImages(images);
-        productRepo.save(product);
+        productService.saveNewProduct(product);
         return "redirect:/admin/products";
     }
 
     @GetMapping("/products/update/{id}")
     public String getAdminPanelProductsUpdate(@PathVariable Long id, Model model) {
-        Product product = productRepo.findById(id).get();
+        Product product = productService.findProductById(id);
         product.getImages().removeIf(img -> img.getImageUrl() == null || img.getImageUrl().isBlank());
 
-        model.addAttribute("sizes", sizeRepo.findAll());
         model.addAttribute("categories", categoryRepo.findAll());
         model.addAttribute("materials", materialRepo.findAll());
         model.addAttribute("colors", colorRepo.findAll());
@@ -166,8 +169,10 @@ public class AdminController {
         @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
         @PathVariable Long id) throws IOException {
 
-        Product existing = productRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + id));
+        Product existing = productService.findProductById(id);
+
+        if(existing == null) {throw new RuntimeException("Product with id: " + id + " Does not exists.");}
+                
 
         // Обновляем основные поля
         existing.setName(product.getName());
@@ -177,7 +182,6 @@ public class AdminController {
         existing.setColor(product.getColor());
         existing.setMaterial(product.getMaterial());
         existing.setCategory(product.getCategory());
-        existing.setSize(product.getSize());
 
         // Папка для загрузки
         String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
@@ -208,8 +212,7 @@ public class AdminController {
             }
         }
 
-        // Сохраняем изменения
-        productRepo.save(existing);
+        productService.saveProduct(productService.updateProductSizesQuantity(existing, product.getSizes()));
         return "redirect:/admin/products";
     }
 
@@ -225,7 +228,7 @@ public class AdminController {
 
     @PostMapping("/products/delete/{id}")
     public String postAdminPanelProductsDelete(@PathVariable Long id) {
-        productRepo.deleteById(id);
+        productService.deleteProductById(id);
 
         return "redirect:/admin/products";
     }
@@ -242,7 +245,7 @@ public class AdminController {
     @GetMapping("/categories")
     public String getAdminPanelCategories(Model model) {
         model.addAttribute("category", new Category());
-        model.addAttribute("categories", productRepo.countProductsByCategory());
+        model.addAttribute("categories", productService.countProductsByCategory());
         return "admin/adminPanelCategories";
     }
 
@@ -259,30 +262,30 @@ public class AdminController {
 
 
 
-    @GetMapping("/sizes")
-    public String getAdminPanelSizes(Model model) {
-        model.addAttribute("newSize", new Size());
-        model.addAttribute("sizes", productRepo.countProductsBySize());
-        return "admin/adminPanelSizes";
-    }
+    // @GetMapping("/sizes")
+    // public String getAdminPanelSizes(Model model) {
+    //     model.addAttribute("newSize", new Size());
+    //     model.addAttribute("sizes", productService.countProductsBySize());
+    //     return "admin/adminPanelSizes";
+    // }
 
-    @PostMapping("/sizes/add")
-    public String postAdminPanelSizesAdd(Model model, @ModelAttribute Size size) {
-        if(sizeRepo.existsByName(size.getName())) {
-            model.addAttribute("error", "Size with this name already exists");
-            return "redirect:/admin/sizes";
-        }
+    // @PostMapping("/sizes/add")
+    // public String postAdminPanelSizesAdd(Model model, @ModelAttribute Size size) {
+    //     if(sizeRepo.existsByName(size.getName())) {
+    //         model.addAttribute("error", "Size with this name already exists");
+    //         return "redirect:/admin/sizes";
+    //     }
 
-        sizeRepo.save(size);
-        return "redirect:/admin/sizes";
-    }
+    //     sizeRepo.save(size);
+    //     return "redirect:/admin/sizes";
+    // }
 
 
 
     @GetMapping("/colors")
     public String getAdminPanelColors(Model model) {
         model.addAttribute("newColor", new Color());
-        model.addAttribute("colors", productRepo.countProductsByColor());
+        model.addAttribute("colors", productService.countProductsByColor());
         return "admin/adminPanelColors";
     }
 
@@ -302,7 +305,7 @@ public class AdminController {
     @GetMapping("/materials")
     public String getAdminPageMaterials(Model model) {
         model.addAttribute("newMaterial", new Material());
-        model.addAttribute("materials", productRepo.countProductsByMaterial());
+        model.addAttribute("materials", productService.countProductsByMaterial());
         return "admin/adminPanelMaterials";
     }
 

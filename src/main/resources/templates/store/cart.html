@@ -63,18 +63,18 @@
 
                         <!-- Количество товара на складе -->
                         <p class="cart-item-stock"
-                           th:text="#{page.quantityText} + ${item.product.quantity}">В наличии: 0</p>
+                           th:text="#{page.quantityText} + ${item.size.quantity}">В наличии: 0</p>
 
                         <!-- Размер -->
                         <p class="cart-item-size"
-                           th:if="${item.product.size != null}"
-                           th:text="#{page.sizeText} + ${item.product.size.name}">Размер: M</p>
+                           th:if="${item.size != null}"
+                           th:text="#{page.sizeText} + ${item.size.name}">Размер: M</p>
                     </div>
                 </div>
 
                 <form th:action="@{/store/cart/update}" method="post" class="cart-item-actions">
                     <input type="hidden" name="cartItemId" th:value="${item.id}">
-                    <input type="hidden" name="productId" th:value="${item.product.id}">
+                    <input type="hidden" name="sizeId" th:value="${item.size.id}">
                     <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="qty-input">
                     <button type="submit" class="btn-small" th:text="#{cart.updateText}">Обновить</button>
                 </form>

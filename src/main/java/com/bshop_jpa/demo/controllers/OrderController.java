@@ -1,5 +1,6 @@
 package com.bshop_jpa.demo.controllers;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +17,13 @@ import com.bshop_jpa.demo.models.CartItem;
 import com.bshop_jpa.demo.models.Order;
 import com.bshop_jpa.demo.models.OrderItem;
 import com.bshop_jpa.demo.models.Product;
+import com.bshop_jpa.demo.models.ProductForOrder;
 import com.bshop_jpa.demo.models.User;
+import com.bshop_jpa.demo.repositories.SizeRepository;
 import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.ProductService;
+import com.bshop_jpa.demo.services.SizeService;
 import com.bshop_jpa.demo.services.StatusService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,12 +37,14 @@ public class OrderController {
     private final OrderService orderService;
     private final CartService cartService;
     private final StatusService statusService;
+    private final SizeService sizeService;
 
-    public OrderController(ProductService productService, OrderService orderService, CartService cartService, StatusService statusService) {
+    public OrderController(ProductService productService, OrderService orderService, CartService cartService, StatusService statusService, SizeService sizeService) {
         this.productService = productService;
         this.orderService = orderService;
         this.cartService = cartService;
         this.statusService = statusService;
+        this.sizeService = sizeService;
     }
 
     @GetMapping("/cart")
@@ -48,11 +54,11 @@ public class OrderController {
             return "redirect:/login";
         }
 
-        Double total = 0d;
+        BigDecimal total = BigDecimal.ZERO;
         List<CartItem> cartItems = cartService.findCartByUser(user).getItems();
 
         for(CartItem item : cartItems) {
-            total += item.getProduct().getPrice() * item.getQuantity();
+            total = total.add(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         }
 
         model.addAttribute("currentUrl", request.getRequestURI());
@@ -78,7 +84,7 @@ public class OrderController {
 
         List<CartItem> cartItems = cartService.findCartByUser(user).getItems();
         List<OrderItem> orderItems = new ArrayList<>();
-        Double total = 0d;
+        BigDecimal total = BigDecimal.ZERO;
 
         for(CartItem item : cartItems) {
             OrderItem orderItem = new OrderItem();
@@ -87,11 +93,11 @@ public class OrderController {
             orderItem.setPrice(item.getProduct().getPrice());
             orderItem.setQuantity(item.getQuantity());
             
-            total += orderItem.getPrice() * orderItem.getQuantity();
+            total = total.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
             orderItems.add(orderItem);
         }
 
-        order.setTotalAmount(total);
+        order.setTotalPrice(total);
         order.setItems(orderItems);
         order.setStatus(statusService.findStatusByName("NEW"));
 
@@ -105,7 +111,9 @@ public class OrderController {
 
     
     @GetMapping("/{id}")
-    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user, HttpServletRequest request) {
+    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user, HttpServletRequest request,
+     @RequestParam(required = true, name = "sizeId") Integer sizeId) {
+
         Product product = productService.findProductById(id);
 
         if(product == null) {
@@ -116,8 +124,18 @@ public class OrderController {
             model.addAttribute("user", user);
         }
 
+        ProductForOrder productForOrder = new ProductForOrder();
+        productForOrder.setName(product.getName());
+        productForOrder.setPrice(product.getPrice());
+        productForOrder.setProductId(id);
+        productForOrder.setQuantity(1);
+        productForOrder.setSize(sizeService.getSizeById(sizeId));
+        productForOrder.setColor(product.getColor());
+        productForOrder.setMaterial(product.getMaterial());
+        productForOrder.setPreviewImageUrl(product.getPreviewImageUrl());
+
         model.addAttribute("currentUrl", request.getRequestURI());
-        model.addAttribute("product", product);
+        model.addAttribute("productForOrder", productForOrder);
         return "order/order";
     }
 
@@ -138,7 +156,7 @@ public class OrderController {
             order.setDeliveryAddress(address);
             order.setStatus(statusService.findStatusByName("NEW"));
             order.getItems().add(orderItem);
-            order.setTotalAmount(product.getPrice());
+            order.setTotalPrice(product.getPrice());
             
 
             orderService.saveOrder(order);

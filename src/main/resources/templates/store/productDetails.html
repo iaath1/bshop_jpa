@@ -176,28 +176,86 @@
 
     <!-- Описание товара -->
     <div class="product-details">
-        <h1 th:text="${product.name}">Название товара</h1>
-        <p class="price" th:text="${product.price} + ' zł'">0 zł</p>
+    <h1 th:text="${product.name}">Название товара</h1>
+    <p class="price" th:text="${product.price} + ' zł'">0 zł</p>
 
-        <div class="product-meta">
-            <p th:if="${product.size != null}" th:text="#{page.sizeText} + ${product.size.name}">Размер: M</p>
-            <p th:if="${product.color != null}" th:text="#{page.colorText} + ${product.color.name}">Цвет: Черный</p>
-            <p th:if="${product.material != null}" th:text="#{page.materialText} + ${product.material.name}">Материал: Хлопок</p>
-            <p th:text="#{page.quantityText} + ${product.quantity}">В наличии: 10</p>
-        </div>
+    <div class="product-meta">
 
-        <p class="description" th:text="${product.description}">
-            Подробное описание товара. Его особенности, преимущества и характеристики.
-        </p>
+        <!-- ✅ Форма выбора размера -->
+        <form sec:authorize="isAuthenticated()"
+            th:action="@{/store/cart/add/{id}(id=${product.id})}"
+            method="post">
 
-        <div class="product-actions">
-            <form th:action="@{/store/cart/add/{id}(id=${product.id})}" method="post" sec:authorize="isAuthenticated()">
-                <button type="submit" class="btn-buy" th:text="#{page.cartText}">Добавить в корзину</button>
-            </form>
-            <a th:href="@{/order/{id}(id=${product.id})}" class="btn-buy" sec:authorize="isAnonymous()" th:text="#{page.orderText}">Купить сейчас</a>
-            <a th:href="@{/store}" class="btn-back" th:text="#{page.backToCatalogText}">← Вернуться в каталог</a>
+    <!-- Блок размеров -->
+    <div class="sizes">
+        <span class="size-label" th:text="#{page.sizesText}">Размеры:</span>
+        <div class="size-list">
+            <label th:each="s : ${product.sizes}"
+                   class="size-pill"
+                   th:classappend="${s.quantity == 0} ? ' disabled' : ''">
+                <input type="radio" name="sizeId"
+                       th:value="${s.id}"
+                       th:disabled="${s.quantity == 0}"
+                       required>
+                <span th:text="${s.name}">S</span>
+            </label>
         </div>
     </div>
+    <br>
+
+    <button type="submit" class="btn-buy"
+            th:text="${#authorization.expression('isAuthenticated()')} ?
+                     #{page.cartText} :
+                     #{page.orderText}">
+        Добавить в корзину
+    </button>
+</form>
+
+
+<form sec:authorize="isAnonymous()"
+      th:action="@{/order/{id}(id=${product.id})}"
+      method="get">
+
+    <!-- Блок размеров -->
+    <div class="sizes">
+        <span class="size-label" th:text="#{page.sizesText}">Размеры:</span>
+        <div class="size-list">
+            <label th:each="s : ${product.sizes}"
+                   class="size-pill"
+                   th:classappend="${s.quantity == 0} ? ' disabled' : ''">
+                <input type="radio" name="sizeId"
+                       th:value="${s.id}"
+                       th:disabled="${s.quantity == 0}"
+                       required>
+                <span th:text="${s.name}">S</span>
+            </label>
+        </div>
+    </div>
+    <br>
+
+    <button type="submit" class="btn-buy"
+            th:text="${#authorization.expression('isAuthenticated()')} ?
+                     #{page.cartText} :
+                     #{page.orderText}">
+        Добавить в корзину
+    </button>
+</form>
+
+        <p th:if="${product.color != null}" th:text="#{page.colorText} + ${product.color.name}">Цвет: Черный</p>
+        <p th:if="${product.material != null}" th:text="#{page.materialText} + ${product.material.name}">Материал: Хлопок</p>
+    </div>
+
+    <p class="description" th:text="${product.description}">
+        Подробное описание товара. Его особенности, преимущества и характеристики.
+    </p>
+
+    <div class="product-actions">
+        <a th:href="@{/store}" class="btn-back" th:text="#{page.backToCatalogText}">← Вернуться в каталог</a>
+    </div>
+</div>
+
+
+
 </main>
 
 <footer class="footer">

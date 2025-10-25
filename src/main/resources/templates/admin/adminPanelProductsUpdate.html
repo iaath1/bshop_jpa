@@ -87,89 +87,103 @@
         </div>
 
         <div class="panel form-panel">
-            <form th:action="@{/admin/products/update/{id}(id=${product.id})}"
-                  th:object="${product}"
-                  method="post" enctype="multipart/form-data"
-                  class="form-grid">
+    <form th:action="@{/admin/products/update/{id}(id=${product.id})}"
+          th:object="${product}"
+          method="post" enctype="multipart/form-data"
+          class="form-grid">
 
-                <!-- Текущие изображения -->
-                <div class="form-group">
-                    <label>Текущие изображения:</label>
-                    <div class="image-gallery">
-                        <div class="image-card"
-                             th:each="img : ${product.images}"
-                             th:if="${img.imageUrl != null and !#strings.isEmpty(img.imageUrl)}">
-                            <img th:src="@{${img.imageUrl}}" alt="Фото товара">
-                            <button type="button" th:attr="data-id=${img.id}" onclick="removeImage(this)">×</button>
-                        </div>
-                    </div>
+        <!-- Текущие изображения -->
+        <div class="form-group">
+            <label>Текущие изображения:</label>
+            <div class="image-gallery">
+                <div class="image-card"
+                     th:each="img : ${product.images}"
+                     th:if="${img.imageUrl != null and !#strings.isEmpty(img.imageUrl)}">
+                    <img th:src="@{${img.imageUrl}}" alt="Фото товара">
+                    <button type="button" th:attr="data-id=${img.id}" onclick="removeImage(this)">×</button>
                 </div>
-
-                <!-- Новые изображения -->
-                <div class="form-group">
-                    <label>Добавить новые изображения:</label>
-                    <div class="file-upload">
-                        <input type="file" id="files" name="files" multiple accept="image/*" onchange="previewFiles(event)" hidden>
-                        <label for="files" class="file-label">📸 Выбрать файлы</label>
-                    </div>
-                    <div class="preview-gallery" id="preview"></div>
-                </div>
-
-                <!-- Остальные поля -->
-                <div class="form-group">
-                    <label for="name">Название</label>
-                    <input type="text" id="name" th:field="*{name}" class="input-lg" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Описание</label>
-                    <textarea id="description" th:field="*{description}" rows="5" class="input-lg"></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="price">Цена</label>
-                        <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity">Количество</label>
-                        <input type="number" id="quantity" th:field="*{quantity}" class="input-lg" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="size">Размер</label>
-                    <select id="size" th:field="*{size.id}" class="input-lg">
-                        <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Категория</label>
-                    <select id="category" th:field="*{category.id}" class="input-lg">
-                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="material">Материал</label>
-                    <select id="material" th:field="*{material.id}" class="input-lg">
-                        <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="color">Цвет</label>
-                    <select id="color" th:field="*{color.id}" class="input-lg">
-                        <option th:each="cl : ${colors}" th:value="${cl.id}" th:text="${cl.name}"></option>
-                    </select>
-                </div>
-
-                <div style="text-align:right; margin-top:20px;">
-                    <button type="submit" class="btn btn-lg">💾 Сохранить</button>
-                </div>
-            </form>
+            </div>
         </div>
+
+        <!-- Новые изображения -->
+        <div class="form-group">
+            <label>Добавить новые изображения:</label>
+            <div class="file-upload">
+                <input type="file" id="files" name="files" multiple accept="image/*" onchange="previewFiles(event)" hidden>
+                <label for="files" class="file-label">📸 Выбрать файлы</label>
+            </div>
+            <div class="preview-gallery" id="preview"></div>
+        </div>
+
+        <!-- Остальные поля -->
+        <div class="form-group">
+            <label for="name">Название</label>
+            <input type="text" id="name" th:field="*{name}" class="input-lg" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" th:field="*{description}" rows="5" class="input-lg"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="price">Цена</label>
+                <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" required>
+            </div>
+        </div>
+
+        <!-- ✅ Размеры с количеством -->
+        <div class="form-group">
+            <label>Размеры и количество</label>
+            <table class="size-table">
+                <thead>
+                    <tr>
+                        <th>Размер</th>
+                        <th>Количество</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="size, iStat : ${product.sizes}">
+                        <td>
+                            <input type="hidden" th:field="*{sizes[__${iStat.index}__].id}">
+                            <input type="text" th:field="*{sizes[__${iStat.index}__].name}" readonly class="input-sm">
+                        </td>
+                        <td>
+                            <input type="number" min="0" th:field="*{sizes[__${iStat.index}__].quantity}" class="input-sm">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Категория</label>
+            <select id="category" th:field="*{category.id}" class="input-lg">
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="material">Материал</label>
+            <select id="material" th:field="*{material.id}" class="input-lg">
+                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="color">Цвет</label>
+            <select id="color" th:field="*{color.id}" class="input-lg">
+                <option th:each="cl : ${colors}" th:value="${cl.id}" th:text="${cl.name}"></option>
+            </select>
+        </div>
+
+        <div style="text-align:right; margin-top:20px;">
+            <button type="submit" class="btn btn-lg">💾 Сохранить</button>
+        </div>
+    </form>
+</div>
+
     </main>
 </div>
 

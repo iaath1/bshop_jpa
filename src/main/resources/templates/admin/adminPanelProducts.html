@@ -45,7 +45,7 @@
         <a th:href="@{/admin/products/add}" class="btn">➕ Создать</a>
     </div>
 
-    <section class="panel">
+<section class="panel">
     <h3>Все товары</h3>
     <table>
         <thead>
@@ -54,8 +54,7 @@
             <th>Имя</th>
             <th>Описание</th>
             <th>Цена</th>
-            <th>Количество</th>
-            <th>Размер</th>
+            <th>Размеры (и наличие)</th>
             <th>Категория</th>
             <th>Материал</th>
             <th>Цвет</th>
@@ -72,27 +71,37 @@
             </td>
             <td th:text="${prod.name}"></td>
             <td th:text="${prod.description}"></td>
-            <td th:text="${prod.price}"></td>
-            <td th:text="${prod.quantity}"></td>
-            <td th:text="${prod.size != null ? prod.size.name : '—'}"></td>
+            <td th:text="${#numbers.formatDecimal(prod.price, 1, 2)} + ' zł'"></td>
+
+            <!-- ✅ Все размеры товара -->
+            <td>
+                <div th:if="${#lists.isEmpty(prod.sizes)}" class="muted">—</div>
+                <div th:each="size : ${prod.sizes}">
+                    <span th:text="${size.name}"></span>
+                    (<span th:text="${size.quantity}"></span>)
+                </div>
+            </td>
+
             <td th:text="${prod.category != null ? prod.category.name : '—'}"></td>
             <td th:text="${prod.material != null ? prod.material.name : '—'}"></td>
             <td th:text="${prod.color != null ? prod.color.name : '—'}"></td>
+
             <td>
                 <a th:href="@{/admin/products/update/{id}(id=${prod.id})}" class="btn btn-small">
                     ✏️ Изменить
                 </a>
-                <form th:action="@{/admin/products/delete/{id}(id=${prod.id})}" 
-                    method="post" style="display:inline;">
+                <form th:action="@{/admin/products/delete/{id}(id=${prod.id})}"
+                      method="post" style="display:inline;">
                     <button type="submit" class="btn btn-small btn-danger"
-                        onclick="return confirm('Удалить этот товар?');">
+                            onclick="return confirm('Удалить этот товар?');">
                         ❌ Удалить
                     </button>
                 </form>
             </td>
         </tr>
+
         <tr th:if="${#lists.isEmpty(products)}">
-            <td colspan="10" class="muted">Нет данных</td>
+            <td colspan="9" class="muted">Нет данных</td>
         </tr>
         </tbody>
     </table>

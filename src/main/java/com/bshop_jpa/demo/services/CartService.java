@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.bshop_jpa.demo.models.Cart;
 import com.bshop_jpa.demo.models.CartItem;
 import com.bshop_jpa.demo.models.Product;
+import com.bshop_jpa.demo.models.ProductForOrder;
+import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.models.User;
 import com.bshop_jpa.demo.repositories.CartRepository;
 
@@ -44,8 +46,8 @@ public class CartService {
         cartRepo.save(cart);
     }
 
-    public void addProductToCart(Cart cart, Product product) {
-        CartItem cartItem = new CartItem(cart, product, 1);
+    public void addProductToCart(Cart cart, Product product, Size size) {
+        CartItem cartItem = new CartItem(cart, product, 1, size);
         cart.getItems().add(cartItem);
         cartItemService.saveCartItem(cartItem);
         cartRepo.save(cart);

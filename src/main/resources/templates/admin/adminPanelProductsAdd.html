@@ -81,12 +81,27 @@
             </div>
         </div>
 
-        <!-- Size -->
         <div class="form-group">
-            <label for="size">Размер</label>
-            <select id="size" th:field="*{size}" class="input-lg">
-                <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
-            </select>
+            <label>Размеры и количество</label>
+            <table class="size-table">
+                <thead>
+                    <tr>
+                        <th>Размер</th>
+                        <th>Количество</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="size, iStat : ${product.sizes}">
+                        <td>
+                            <input type="hidden" th:field="*{sizes[__${iStat.index}__].id}">
+                            <input type="text" th:field="*{sizes[__${iStat.index}__].name}" readonly class="input-sm">
+                        </td>
+                        <td>
+                            <input type="number" min="0" th:field="*{sizes[__${iStat.index}__].quantity}" class="input-sm">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Category -->

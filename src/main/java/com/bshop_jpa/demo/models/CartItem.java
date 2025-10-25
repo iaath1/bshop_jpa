@@ -26,13 +26,18 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "size_id", nullable = false)
+    private Size size;
+
     @Column(nullable = false)
     private Integer quantity;
     
-    public CartItem(Cart cart, Product product, Integer quantity) {
+    public CartItem(Cart cart, Product product, Integer quantity, Size size) {
         this.cart = cart;
         this.product = product;
         this.quantity = quantity;
+        this.size = size;
     }
 
     public CartItem() {};

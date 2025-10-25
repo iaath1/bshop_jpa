@@ -1,6 +1,8 @@
 package com.bshop_jpa.demo.controllers;
 
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,11 +18,13 @@ import com.bshop_jpa.demo.models.Cart;
 import com.bshop_jpa.demo.models.CartItem;
 import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Product;
+import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.models.User;
 import com.bshop_jpa.demo.repositories.CategoryRepository;
 import com.bshop_jpa.demo.services.CartItemService;
 import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.ProductService;
+import com.bshop_jpa.demo.services.SizeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -32,12 +36,14 @@ public class StoreController {
     private final CategoryRepository categoryRepo;
     private final CartItemService cartItemService;
     private final CartService cartService;
+    private final SizeService sizeService;
 
-    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService)  {
+    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService, SizeService sizeService)  {
         this.categoryRepo = categoryRepo;
         this.cartService = cartService;
         this.productService = productService;
         this.cartItemService = cartItemService;
+        this.sizeService = sizeService;
     }
 
     @GetMapping
@@ -46,7 +52,7 @@ public class StoreController {
         //везде добавить
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("categories", productService.countProductsByCategory());
-        model.addAttribute("products", productService.findAllProducts());
+        model.addAttribute("products",  productService.findAllProducts());
         return "store/store";
     }
 
@@ -73,18 +79,19 @@ public class StoreController {
     }
 
     @GetMapping("/cart")
-    public String getCart(Model model, @AuthenticationPrincipal User user) {
+    public String getCart(Model model, @AuthenticationPrincipal User user, HttpServletRequest request) {
         Cart cart = cartService.findCartByUser(user);
 
-        Double total = 0d;
+        BigDecimal total = BigDecimal.ZERO;
 
 
         if(!cart.getItems().isEmpty()) {
             for(CartItem item : cart.getItems()) {
-                total += item.getQuantity() * item.getProduct().getPrice();
+                total = total.add(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
         }
 
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("cartItems", cart.getItems());
         model.addAttribute("total", total);
         return "store/cart";
@@ -92,9 +99,10 @@ public class StoreController {
 
 
     @PostMapping("/cart/add/{id}")
-    public String cartAddProduct(@PathVariable Long id, @AuthenticationPrincipal User user) {
+    public String cartAddProduct(@PathVariable Long id, @AuthenticationPrincipal User user, @RequestParam(required = true) Integer sizeId) {
         Product product = productService.findProductById(id);
         Cart cart = cartService.findCartByUser(user);
+        Size size = sizeService.findSizeById(sizeId);
 
         if(product == null) {
             return "redirect:/store";
@@ -108,14 +116,14 @@ public class StoreController {
             };
         }
 
-        cartService.addProductToCart(cart, product);
+        cartService.addProductToCart(cart, product, size);
         return "redirect:/store/cart";
 
     }
 
     @PostMapping("/cart/update")
-    public String cartUpdateProduct(@RequestParam Long cartItemId, @RequestParam Integer quantity, @RequestParam Long productId, Model model) {
-        if(productService.findProductById(productId).getQuantity() < quantity) {
+    public String cartUpdateProduct(@RequestParam Long cartItemId, @RequestParam Integer quantity, @RequestParam Integer sizeId, Model model) {
+        if(sizeService.findSizeById(sizeId).getQuantity() < quantity) {
             model.addAttribute("error", "You cant order more products than exists.");
             return "redirect:/store/cart";
         }
