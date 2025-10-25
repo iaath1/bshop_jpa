@@ -68,7 +68,6 @@
                 <div class="product-info">
                     <h3 th:text="${prod.name}">Название товара</h3>
                     <p class="price" th:text="${prod.price} + ' zł'">0 zł</p>
-                    <p class="stock" th:text="#{page.quantityText} + ${prod.quantity}">В наличии: 0</p>
                     <div class="sizes">
                         <span class="size-label" th:text="#{page.sizesText}">Размеры:</span>
                         <div class="size-list">
@@ -77,7 +76,15 @@
                                 th:classappend="${s.quantity > 0} ? ' size-available' : ' size-unavailable'">
                             </span>
                         </div>
-            </div>
+                    </div>
+                    <div class="color-section" th:if="${prod.color != null}">
+        <span class="color-label">Цвет:</span>
+        <div class="color-display">
+            <div class="color-circle"
+                 th:style="'background-color:' + ${prod.color.hexValue}"></div>
+            <span class="color-name" th:text="${prod.color.name}">Цвет</span>
+        </div>
+    </div>
 
                 </div>
             </div>

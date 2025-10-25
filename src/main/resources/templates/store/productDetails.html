@@ -124,6 +124,34 @@
         .btn-back:hover {
             background: #f5f5f5;
         }
+
+        .color-section {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+.color-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+
+.color-name {
+    color: #444;
+    font-weight: 500;
+}
+
     </style>
 </head>
 <body>
@@ -241,7 +269,16 @@
     </button>
 </form>
 
-        <p th:if="${product.color != null}" th:text="#{page.colorText} + ${product.color.name}">Цвет: Черный</p>
+        <!-- 🎨 Цвет товара -->
+<div class="color-section" th:if="${product.color != null}">
+    <span class="color-label" th:text="#{page.colorText}">Цвет:</span>
+    <div class="color-display" title="Цвет">
+        <div class="color-circle"
+             th:style="'background-color:' + ${product.color.hexValue}"></div>
+        <span class="color-name" th:text="${product.color.name}">Цвет</span>
+    </div>
+</div>
+
         <p th:if="${product.material != null}" th:text="#{page.materialText} + ${product.material.name}">Материал: Хлопок</p>
     </div>
 

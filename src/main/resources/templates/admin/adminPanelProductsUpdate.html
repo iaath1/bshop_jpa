@@ -171,12 +171,24 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="color">Цвет</label>
-            <select id="color" th:field="*{color.id}" class="input-lg">
-                <option th:each="cl : ${colors}" th:value="${cl.id}" th:text="${cl.name}"></option>
-            </select>
-        </div>
+        <!-- Color -->
+<div class="form-group">
+    <label for="color">Цвет</label>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
+            <option th:each="cl : ${colors}"
+                    th:value="${cl.id}"
+                    th:text="${cl.name}"
+                    th:data-hex="${cl.hexValue}">
+            </option>
+        </select>
+
+        <!-- Кружок предпросмотра цвета -->
+        <div id="color-preview"
+             style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc;"></div>
+    </div>
+</div>
+
 
         <div style="text-align:right; margin-top:20px;">
             <button type="submit" class="btn btn-lg">💾 Сохранить</button>
@@ -237,6 +249,18 @@
                 });
         }
     }
+
+    function updateColorPreview() {
+    const select = document.getElementById("color");
+    const preview = document.getElementById("color-preview");
+    const selectedOption = select.options[select.selectedIndex];
+    const hex = selectedOption.getAttribute("data-hex");
+
+    preview.style.backgroundColor = hex || "#ffffff";
+}
+
+// при загрузке страницы сразу показываем цвет первого элемента
+document.addEventListener("DOMContentLoaded", updateColorPreview);
 </script>
 </body>
 </html>

@@ -62,6 +62,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Image> images = new ArrayList<>();
 
+
+
     @Transient
     public String getPreviewImageUrl() {
         if (images != null && !images.isEmpty()) {

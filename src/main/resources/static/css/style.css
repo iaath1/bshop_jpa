@@ -283,3 +283,33 @@ th {
     background: #f9fafb;
 }
 
+.color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.color-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.color-option input {
+    display: none;
+}
+
+.color-circle {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    transition: transform 0.2s;
+}
+
+.color-option input:checked + .color-circle {
+    border: 2px solid #000;
+    transform: scale(1.1);
+}
+

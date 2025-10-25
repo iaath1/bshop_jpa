@@ -5,8 +5,18 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Admin - Users</title>
+    <title>Admin - Colors</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* добавим лёгкий стиль для отображения цвета */
+        .color-box {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 2px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
 <div class="layout">
@@ -26,6 +36,7 @@
             <a th:href="@{/admin/roles}" th:classappend="${activePage}=='roles' ? ' active'">🛡️ Roles</a>
         </nav>
     </aside>
+
     <!-- Main -->
     <main class="main">
         <div class="topbar">
@@ -38,33 +49,63 @@
             </div>
         </div>
 
-        <!-- Users Table -->
-        <section class="panel">
-            <h3>Все цвета</h3>
-            <section class="panel" style="margin-top: 20px;">
-            <h3>➕ Создать новый цвет</h3>
-            <form th:action="@{/admin/colors/add}" th:object="${newColor}" method="post" class="form">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="name">Название цвета:</label>
-                    <input type="text" id="name" th:field="*{name}" placeholder="Введите название..." required>
+        <!-- Create Color -->
+        <section class="panel" style="margin-top: 20px;">
+    <h3>➕ Создать новый цвет</h3>
+    <form th:action="@{/admin/colors/add}" method="post" class="form">
+        <div class="form-group">
+            <label for="name">Название цвета:</label>
+            <input type="text" id="name" name="name" placeholder="Введите название..." required>
+        </div>
+
+        <div class="form-group">
+            <label for="colorPicker">Выберите цвет:</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="color" id="colorPicker" name="hexValue" value="#ffffff"
+                       style="width: 60px; height: 40px; border: none; background: none; cursor: pointer;">
+                <div id="colorPreview"
+                     style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid #ccc; background-color: #ffffff;">
                 </div>
-                <button type="submit" class="btn">Создать</button>
-            </form>
-        </section>
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Создать</button>
+    </form>
+</section>
+
+<script>
+    const colorInput = document.getElementById("colorPicker");
+    const preview = document.getElementById("colorPreview");
+
+    colorInput.addEventListener("input", function () {
+        preview.style.backgroundColor = this.value;
+    });
+</script>
+
+
+        <!-- Color list -->
+        <section class="panel" style="margin-top: 20px;">
+            <h3>🎨 Все цвета</h3>
             <table>
                 <thead>
                 <tr>
-                    <th>Имя</th>
-                    <th>Общее количество товаров</th>
+                    <th>Цвет</th>
+                    <th>Название</th>
+                    <th>HEX</th>
+                    <th>Количество товаров</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="color : ${colors}">
+                    <td>
+                        <div class="color-box" th:style="'background-color:' + ${color.hexValue}"></div>
+                    </td>
                     <td th:text="${color.name}"></td>
+                    <td th:text="${color.hexValue}"></td>
                     <td th:text="${color.count}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(colors)}">
-                    <td colspan="5" class="muted">Нет данных</td>
+                    <td colspan="4" class="muted">Нет данных</td>
                 </tr>
                 </tbody>
             </table>

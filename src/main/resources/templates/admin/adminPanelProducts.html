@@ -84,7 +84,14 @@
 
             <td th:text="${prod.category != null ? prod.category.name : '—'}"></td>
             <td th:text="${prod.material != null ? prod.material.name : '—'}"></td>
-            <td th:text="${prod.color != null ? prod.color.name : '—'}"></td>
+            <td>
+    <div th:if="${prod.color != null}" style="display: flex; align-items: center; gap: 6px;">
+        <div th:style="'width:20px; height:20px; border-radius:50%; border:1px solid #ccc; background-color:' + ${prod.color.hexValue}"></div>
+        <span th:text="${prod.color.name}"></span>
+    </div>
+    <div th:if="${prod.color == null}" class="muted">—</div>
+</td>
+
 
             <td>
                 <a th:href="@{/admin/products/update/{id}(id=${prod.id})}" class="btn btn-small">

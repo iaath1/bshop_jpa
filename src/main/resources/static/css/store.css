@@ -799,6 +799,34 @@ body {
     text-decoration: line-through;
 }
 
+.color-section {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.color-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+
+.color-name {
+    color: #555;
+    font-size: 14px;
+}
+
+
 
 
 

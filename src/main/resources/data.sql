@@ -12,12 +12,12 @@ INSERT INTO materials (name) VALUES
 ('Кожа'),
 ('Нейлон');
 
-INSERT INTO colors (name) VALUES
-('Белый'),
-('Черный'),
-('Синий'),
-('Красный'),
-('Зелёный');
+INSERT INTO colors (name, hex_value) VALUES
+('Белый',  '#FFFFFF'),
+('Чёрный', '#000000'),
+('Синий',  '#0000FF'),
+('Красный', '#FF0000'),
+('Зелёный', '#008000');
 
 INSERT INTO roles(name) VALUES ('ROLE_CUSTOMER'), ('ROLE_ADMIN');
 
