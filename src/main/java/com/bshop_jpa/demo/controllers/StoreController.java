@@ -3,7 +3,10 @@ package com.bshop_jpa.demo.controllers;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,6 +26,7 @@ import com.bshop_jpa.demo.models.User;
 import com.bshop_jpa.demo.repositories.CategoryRepository;
 import com.bshop_jpa.demo.services.CartItemService;
 import com.bshop_jpa.demo.services.CartService;
+import com.bshop_jpa.demo.services.ColorService;
 import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.SizeService;
 
@@ -37,22 +41,40 @@ public class StoreController {
     private final CartItemService cartItemService;
     private final CartService cartService;
     private final SizeService sizeService;
+    private final ColorService colorService;
 
-    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService, SizeService sizeService)  {
+    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService, SizeService sizeService, ColorService colorService)  {
         this.categoryRepo = categoryRepo;
         this.cartService = cartService;
         this.productService = productService;
         this.cartItemService = cartItemService;
         this.sizeService = sizeService;
+        this.colorService = colorService;
     }
 
     @GetMapping
-    public String getStore(Model model, HttpServletRequest request) {
+    public String getStore(
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) Integer colorId,
+        @RequestParam(defaultValue = "name") String sortBy,
+        @RequestParam(defaultValue = "asc") String order,
+        @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false) String sizeName,
+        HttpServletRequest request,
+        Model model
+    ) {
 
         //везде добавить
+        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, sizeName, order);
+        
+        
+
+
+        model.addAttribute("colors", colorService.findAllColors());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("categories", productService.countProductsByCategory());
-        model.addAttribute("products",  productService.findAllProducts());
+        model.addAttribute("products",  products);
+        model.addAttribute("sizes", sizeService.getBlankSizes());
         return "store/store";
     }
 

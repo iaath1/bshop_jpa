@@ -36,4 +36,8 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     List<MaterialCountDTO> countProductsByMaterial();
 
     List<Product> findByCategory(Category category);
+
+    List<Product> findAll();
+
+    List<Product> findByNameContainingIgnoreCase(String name);
 }

@@ -1,6 +1,8 @@
 package com.bshop_jpa.demo.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class ProductService {
         return null;
     }
 
-    public Iterable<Product> findAllProducts() {
+    public List<Product> findAllProducts() {
         return productRepo.findAll();
     }
 
@@ -106,6 +108,58 @@ public class ProductService {
         }
 
         productRepo.save(product);
+    }
+
+     public List<Product> getFilteredProducts(String query, Integer categoryId, Integer colorId, String sizeName, String sortOrder) {
+        List<Product> products;
+
+        if (query != null && !query.isBlank()) {
+            products = productRepo.findByNameContainingIgnoreCase(query);
+        } else {
+            products = productRepo.findAll();
+        }
+
+        // фильтр по категории
+        if (categoryId != null) {
+            products = products.stream()
+                    .filter(p -> p.getCategory() != null && p.getCategory().getId().equals(categoryId))
+                    .toList();
+        }
+
+        // фильтр по цвету
+        if (colorId != null) {
+            products = products.stream()
+                    .filter(p -> p.getColor() != null && p.getColor().getId().equals(colorId))
+                    .toList();
+        }
+
+        // сортировка по цене
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            products = products.stream()
+                    .sorted(Comparator.comparing(Product::getPrice).reversed())
+                    .toList();
+        } else {
+            products = products.stream()
+                    .sorted(Comparator.comparing(Product::getPrice))
+                    .toList();
+        }
+
+        List<Product> filteredProducts = new ArrayList<>();
+
+        // фильтр по размеру (OneToMany)
+        if(sizeName != null && !sizeName.isEmpty()) {
+            for(Product product : products) {
+                for(Size size : product.getSizes()) {
+                    if(size.getName().equals(sizeName) && size.getQuantity() > 0) {
+                        filteredProducts.add(product);
+                    }
+                }
+            }
+
+            return filteredProducts;
+        }
+
+        return products;
     }
 
     

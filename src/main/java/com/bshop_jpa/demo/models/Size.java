@@ -39,4 +39,8 @@ public class Size {
         this.quantity = quantity;
         this.product = product;
     }
+
+    public Size(String name) {
+        this.name = name;
+    }
 }
