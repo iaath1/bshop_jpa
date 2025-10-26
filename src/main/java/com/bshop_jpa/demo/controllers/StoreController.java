@@ -2,11 +2,9 @@ package com.bshop_jpa.demo.controllers;
 
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,13 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bshop_jpa.demo.models.Cart;
 import com.bshop_jpa.demo.models.CartItem;
-import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.models.User;
-import com.bshop_jpa.demo.repositories.CategoryRepository;
 import com.bshop_jpa.demo.services.CartItemService;
 import com.bshop_jpa.demo.services.CartService;
+import com.bshop_jpa.demo.services.CategoryService;
 import com.bshop_jpa.demo.services.ColorService;
 import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.SizeService;
@@ -37,19 +34,21 @@ import jakarta.servlet.http.HttpServletRequest;
 public class StoreController {
 
     private final ProductService productService;
-    private final CategoryRepository categoryRepo;
     private final CartItemService cartItemService;
     private final CartService cartService;
     private final SizeService sizeService;
     private final ColorService colorService;
+    private final CategoryService categoryService;
 
-    public StoreController(ProductService productService, CategoryRepository categoryRepo, CartService cartService, CartItemService cartItemService, SizeService sizeService, ColorService colorService)  {
-        this.categoryRepo = categoryRepo;
+    public StoreController(ProductService productService, CartService cartService, CartItemService cartItemService,
+         SizeService sizeService, ColorService colorService, CategoryService categoryService)  {
+
         this.cartService = cartService;
         this.productService = productService;
         this.cartItemService = cartItemService;
         this.sizeService = sizeService;
         this.colorService = colorService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping
@@ -66,27 +65,33 @@ public class StoreController {
 
         //везде добавить
         List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, sizeName, order);
-        
-        
 
+        Map<String, Object> params = new HashMap<>();
+        params.put("search", search);
+        params.put("colorId", colorId);
+        params.put("sortBy", sortBy);
+        params.put("order", order);
+        params.put("categoryId", categoryId);
+        params.put("sizeName", sizeName);
 
         model.addAttribute("colors", colorService.findAllColors());
         model.addAttribute("currentUrl", request.getRequestURI());
-        model.addAttribute("categories", productService.countProductsByCategory());
+        model.addAttribute("categories", categoryService.findAllCategories());
         model.addAttribute("products",  products);
         model.addAttribute("sizes", sizeService.getBlankSizes());
+        model.addAttribute("parameters", params);
         return "store/store";
     }
 
-    @GetMapping("/category/{id}")
-    public String getStoreCategoryDetails(@PathVariable Integer id, Model model, HttpServletRequest request) {
-        Category category = categoryRepo.findById(id).orElseThrow(() -> new RuntimeException());
+    // @GetMapping("/category/{id}")
+    // public String getStoreCategoryDetails(@PathVariable Integer id, Model model, HttpServletRequest request) {
+    //     Category category = categoryRepo.findById(id).orElseThrow(() -> new RuntimeException());
 
-        model.addAttribute("currentUrl", request.getRequestURI());
-        model.addAttribute("category", category);
-        model.addAttribute("products", productService.findProductsByCategory(category));
-        return "store/categoryDetails";
-    }
+    //     model.addAttribute("currentUrl", request.getRequestURI());
+    //     model.addAttribute("category", category);
+    //     model.addAttribute("products", productService.findProductsByCategory(category));
+    //     return "store/categoryDetails";
+    // }
 
     @GetMapping("/product/{id}")
     public String getStoreProductDetails(@PathVariable Long id, Model model, HttpServletRequest request) {

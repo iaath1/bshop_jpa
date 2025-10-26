@@ -43,7 +43,7 @@
     </div>
 </header>
 
-<section class="categories container">
+<!-- <section class="categories container">
     <h2 th:text="#{page.categories}">Категории</h2>
     <div class="categories-row">
         <a th:each="cat : ${categories}"
@@ -54,62 +54,66 @@
             <span class="cat-count" th:text="${cat.count}">0</span>
         </a>
     </div>
-</section>
+</section> -->
 
 <section class="products container">
     <h2 th:text="#{page.products}"></h2>
      <div class="filter-bar">
-        <form th:action="@{/store}" method="get" class="filter-form">
-            <!-- 🔍 Поиск -->
-            <input type="text" name="search" th:value="${param.search}" placeholder="🔍 Поиск товара..." class="search-input">
+    <form th:action="@{/store}" method="get" class="filter-form">
 
-            <!-- 🎨 Фильтр по цвету -->
-            <select name="colorId" class="filter-select">
-                <option value="">Все цвета</option>
-                <option th:each="c : ${colors}"
-                        th:value="${c.id}"
-                        th:selected="${param.colorId} == ${c.id}">
-                    <span th:text="${c.name}"></span>
-                </option>
-            </select>
+        <!-- 🔍 Поиск -->
+        <input type="text"
+               name="search"
+               th:value="${parameters.search}"
+               th:placeholder="#{filter.searchPlaceholder}"
+               class="search-input"/>
 
-            
+        <!-- 🎨 Цвет -->
+        <select name="colorId" class="filter-select">
+            <option value="" th:selected="${parameters.colorId == null or parameters.colorId == ''}" th:text="#{filter.colors}">Все цвета</option>
+            <option th:each="c : ${colors}"
+                    th:value="${c.id}"
+                    th:text="${c.name}"
+                    th:selected="${parameters.colorId != null and parameters.colorId == c.id}">
+            </option>
+        </select>
 
-            <!-- 🏷️ Фильтр по категории -->
-            <select name="categoryId" class="filter-select">
-                <option value="">Все категории</option>
-                <option th:each="cat : ${categories}"
-                        th:value="${cat.id}"
-                        th:text="${cat.name}"
-                        th:selected="${param.categoryId} == ${cat.id}">
-                </option>
-            </select>
+        <!-- 🏷️ Категория -->
+        <select name="categoryId" class="filter-select">
+            <option value="" th:selected="${parameters.categoryId == null or parameters.categoryId == ''}" th:text="#{filter.categories}">Все категории</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.id}"
+                    th:text="${cat.name}"
+                    th:selected="${parameters.categoryId != null and parameters.categoryId == cat.id}">
+            </option>
+        </select>
 
-             <select name="sizeName" class="filter-select">
-            <option value="">Все размеры</option>
+        <!-- 📏 Размер -->
+        <select name="sizeName" class="filter-select">
+            <option value="" th:selected="${parameters.sizeName == null or parameters.sizeName == ''}" th:text="#{filter.sizes}">Все размеры</option>
             <option th:each="s : ${sizes}"
                     th:value="${s.name}"
                     th:text="${s.name}"
-                    th:selected="${param.sizeName == s.name}"></option>
+                    th:selected="${parameters.sizeName != null and parameters.sizeName == s.name}">
+            </option>
         </select>
 
-            <!-- 🔽 Критерий сортировки -->
-            <select name="sortBy" class="filter-select">
-                <option value="name" th:selected="${param.sortBy == 'name'}">По названию</option>
-                <option value="price" th:selected="${param.sortBy == 'price'}">По цене</option>
-                <option value="date" th:selected="${param.sortBy == 'date'}">По дате</option>
-                <option value="category" th:selected="${param.sortBy == 'category'}">По категории</option>
-            </select>
+        <!-- 🔽 Критерий сортировки -->
+        <select name="sortBy" class="filter-select">
+            <option value="name" th:selected="${parameters.sortBy == 'name'}" th:text="#{filter.sortByName}">По названию</option>
+            <option value="price" th:selected="${parameters.sortBy == 'price'}" th:text="#{filter.sortByPrice}">По цене</option>
+        </select>
 
-            <!-- ↕️ Порядок -->
-            <select name="order" class="filter-select">
-                <option value="asc" th:selected="${param.order == 'asc'}">По возрастанию</option>
-                <option value="desc" th:selected="${param.order == 'desc'}">По убыванию</option>
-            </select>
+        <!-- ↕️ Порядок -->
+        <select name="order" class="filter-select">
+            <option value="asc" th:selected="${parameters.order == 'asc'}" th:text="#{filter.orderAsc}">По возрастанию</option>
+            <option value="desc" th:selected="${parameters.order == 'desc'}" th:text="#{filter.orderDesc}">По убыванию</option>
+        </select>
 
-            <button type="submit" class="btn-filter">Применить</button>
-        </form>
-    </div>
+        <button type="submit" class="btn-filter" th:text="#{filter.apply}">Применить</button>
+    </form>
+</div>
+
 
 
         <br>
