@@ -15,5 +15,7 @@ public interface OrderRepository extends CrudRepository<Order, Long>{
     @Query("SELECT new com.bshop_jpa.demo.DTO.StatusCountDTO(s.name, COUNT(o)) " +
        "FROM Status s LEFT JOIN Order o ON o.status = s " +
        "GROUP BY s.name")
-    List<StatusCountDTO> countProductsByStatus();
+    List<StatusCountDTO> countOrdersByStatus();
+
+    List<Order> findAll();
 }

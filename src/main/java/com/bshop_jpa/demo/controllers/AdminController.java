@@ -1,4 +1,6 @@
 package com.bshop_jpa.demo.controllers;
+import com.bshop_jpa.demo.services.ColorService;
+import com.bshop_jpa.demo.services.MaterialService;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.UserService;
@@ -9,7 +11,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +36,12 @@ import com.bshop_jpa.demo.models.Image;
 import com.bshop_jpa.demo.models.Material;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.Role;
-import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.models.Status;
-import com.bshop_jpa.demo.repositories.CategoryRepository;
-import com.bshop_jpa.demo.repositories.ColorRepository;
+import com.bshop_jpa.demo.services.CategoryService;
 import com.bshop_jpa.demo.repositories.ImageRepository;
-import com.bshop_jpa.demo.repositories.MaterialRepository;
-import com.bshop_jpa.demo.repositories.OrderRepository;
 import com.bshop_jpa.demo.repositories.RoleRepository;
-import com.bshop_jpa.demo.repositories.SizeRepository;
-import com.bshop_jpa.demo.repositories.StatusRepository;
+import com.bshop_jpa.demo.services.SizeService;
+import com.bshop_jpa.demo.services.StatusService;
 import com.bshop_jpa.demo.repositories.UserRepository;
 
 @Controller
@@ -49,35 +49,33 @@ import com.bshop_jpa.demo.repositories.UserRepository;
 public class AdminController {
 
     private final String IMAGE_PATH = "/uploads/products/";
-    private final OrderService orderService;
 
     @Autowired
     private final UserService userService;
     
     private final UserRepository userRepo;
     private final ProductService productService;
-    private final ColorRepository colorRepo;
-    private final MaterialRepository materialRepo;
+    private final ColorService colorService;
+    private final MaterialService materialService;
     private final RoleRepository roleRepo;
-    private final SizeRepository sizeRepo;
-    private final StatusRepository statusRepo;
-    private final CategoryRepository categoryRepo;
-    private final OrderRepository orderRepo;
+    private final SizeService sizeService;
+    private final StatusService statusService;
+    private final CategoryService categoryService;
+    private final OrderService orderService;
     private final ImageRepository imageRepo;
 
-    public AdminController(UserRepository userRepo, ProductService productService, ColorRepository colorRepo, MaterialRepository materialRepo, 
-                            RoleRepository roleRepo, SizeRepository sizeRepo, StatusRepository statusRepo, CategoryRepository categoryRepo,
-                            OrderRepository orderRepo, UserService userService, OrderService orderService, ImageRepository imageRepo) {
+    public AdminController(UserRepository userRepo, ProductService productService, ColorService colorService, MaterialService materialService, 
+                            RoleRepository roleRepo, SizeService sizeService, StatusService statusService, CategoryService categoryService,
+                            OrderService orderService, UserService userService, ImageRepository imageRepo) {
 
         this.userRepo = userRepo;
         this.productService = productService;
-        this.colorRepo = colorRepo;
-        this.materialRepo = materialRepo;
+        this.colorService = colorService;
+        this.materialService = materialService;
         this.roleRepo = roleRepo;
-        this.sizeRepo = sizeRepo;
-        this.statusRepo = statusRepo;
-        this.categoryRepo = categoryRepo;
-        this.orderRepo = orderRepo;
+        this.sizeService = sizeService;
+        this.statusService = statusService;
+        this.categoryService = categoryService;
         this.userService = userService;
         this.orderService = orderService;
         this.imageRepo = imageRepo;
@@ -90,7 +88,7 @@ public class AdminController {
     public String getAdminPanel(Model model) {
         model.addAttribute("totalUsers", userRepo.count());
         model.addAttribute("totalProducts", productService.countAllProduct());
-        model.addAttribute("totalOrders", orderRepo.count());
+        model.addAttribute("totalOrders", orderService.countOrders());
         model.addAttribute("recentUsers", userService.findRecentUsers(5));
         model.addAttribute("recentOrders", orderService.findRecentOrders(5));
         return "admin/adminPanel";
@@ -103,8 +101,31 @@ public class AdminController {
     }
 
     @GetMapping("/products")
-    public String getAdminPanelProducts(Model model) {
-        model.addAttribute("products", productService.findAllProducts());
+    public String getAdminPanelProducts(Model model, @RequestParam(required = false) String search,
+        @RequestParam(required = false) Integer colorId,
+        @RequestParam(defaultValue = "name") String sortBy,
+        @RequestParam(defaultValue = "asc") String order,
+        @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false) String sizeName,
+        @RequestParam(required = false) Integer materialId) {
+
+        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("search", search);
+        params.put("colorId", colorId);
+        params.put("sortBy", sortBy);
+        params.put("order", order);
+        params.put("categoryId", categoryId);
+        params.put("sizeName", sizeName);
+        params.put("materialId", materialId);
+
+        model.addAttribute("products", products);
+        model.addAttribute("parameters", params);
+        model.addAttribute("colors", colorService.findAllColors());
+        model.addAttribute("categories", categoryService.findAllCategories());
+        model.addAttribute("materials", materialService.findAllMaterials());
+
         return "admin/adminPanelProducts";
     }
 
@@ -114,9 +135,9 @@ public class AdminController {
         product.setSizes(productService.setBlankSizes(product));
 
         model.addAttribute("product", product);
-        model.addAttribute("colors", colorRepo.findAll());
-        model.addAttribute("materials", materialRepo.findAll());
-        model.addAttribute("categories", categoryRepo.findAll());
+        model.addAttribute("colors", colorService.findAllColors());
+        model.addAttribute("materials", materialService.findAllMaterials());
+        model.addAttribute("categories", categoryService.findAllCategories());
         return "admin/adminPanelProductsAdd";
     }
 
@@ -152,12 +173,12 @@ public class AdminController {
 
     @GetMapping("/products/update/{id}")
     public String getAdminPanelProductsUpdate(@PathVariable Long id, Model model) {
-        Product product = productService.findProductById(id);
+        Product product = productService.sortProductSizes(productService.findProductById(id));
         product.getImages().removeIf(img -> img.getImageUrl() == null || img.getImageUrl().isBlank());
 
-        model.addAttribute("categories", categoryRepo.findAll());
-        model.addAttribute("materials", materialRepo.findAll());
-        model.addAttribute("colors", colorRepo.findAll());
+        model.addAttribute("categories", categoryService.findAllCategories());
+        model.addAttribute("materials", materialService.findAllMaterials());
+        model.addAttribute("colors", colorService.findAllColors());
         model.addAttribute("product", product);
         return "admin/adminPanelProductsUpdate";
     }
@@ -236,7 +257,7 @@ public class AdminController {
 
     @GetMapping("/orders")
     public String getAdminPanelOrders(Model model) {
-        model.addAttribute("orders", orderRepo.findAll());
+        model.addAttribute("orders", orderService.findAllOrders());
         return "admin/adminPanelOrders";
     }
 
@@ -251,12 +272,12 @@ public class AdminController {
 
     @PostMapping("/categories/add")
     public String postAdminPanelCategoriesAdd(Model model, @ModelAttribute Category category) {
-        if(categoryRepo.existsByName(category.getName())) {
+        if(categoryService.existsByName(category.getName())) {
             model.addAttribute("error", "Category with this name already exists");
             return "redirect:/admin/categories";
         }
 
-        categoryRepo.save(category);
+        categoryService.saveCategory(category);
         return "redirect:/admin/categories";
     }
 
@@ -271,12 +292,12 @@ public class AdminController {
 
     // @PostMapping("/sizes/add")
     // public String postAdminPanelSizesAdd(Model model, @ModelAttribute Size size) {
-    //     if(sizeRepo.existsByName(size.getName())) {
+    //     if(sizeService.existsByName(size.getName())) {
     //         model.addAttribute("error", "Size with this name already exists");
     //         return "redirect:/admin/sizes";
     //     }
 
-    //     sizeRepo.save(size);
+    //     sizeService.save(size);
     //     return "redirect:/admin/sizes";
     // }
 
@@ -291,12 +312,12 @@ public class AdminController {
 
     @PostMapping("/colors/add")
     public String postAdminPanelColorsAdd(Model model, @ModelAttribute Color color) {
-        if(colorRepo.existsByName(color.getName())) {
+        if(colorService.existsByName(color.getName())) {
             model.addAttribute("error", "Color with this name already exists");
             return "redirect:/admin/colors";
         }
 
-        colorRepo.save(color);
+        colorService.saveColor(color);
         return "redirect:/admin/colors";
     }
 
@@ -311,12 +332,12 @@ public class AdminController {
 
     @PostMapping("/materials/add")
     public String postAdminPageMaterialAdd(Model model, @ModelAttribute Material material) {
-        if(materialRepo.existsByName(material.getName())) {
+        if(materialService.existsByName(material.getName())) {
             model.addAttribute("error", "Material with this name already exists");
             return "redirect:/admin/materials";
         }
         
-        materialRepo.save(material);
+        materialService.saveMaterial(material);
         return "redirect:/admin/materials";
     }
 
@@ -325,18 +346,18 @@ public class AdminController {
     @GetMapping("/statuses")
     public String getAdminPanelStatuses(Model model) {
         model.addAttribute("newStatus", new Status());
-        model.addAttribute("statuses", orderRepo.countProductsByStatus());
+        model.addAttribute("statuses", orderService.countOrdersByStatus());
         return "admin/adminPanelStatuses";
     }
 
     @PostMapping("/statuses/add")
     public String postAdminPanelStatusesAdd(Model model, @ModelAttribute Status status) {
-        if(statusRepo.existsByName(status.getName())) {
+        if(statusService.existsByName(status.getName())) {
             model.addAttribute("error", "Status with this name already exists");
             return "redirect:/admin/statuses";
         }
 
-        statusRepo.save(status);
+        statusService.saveStatus(status);
         return "redirect:/admin/statuses";
     }
 

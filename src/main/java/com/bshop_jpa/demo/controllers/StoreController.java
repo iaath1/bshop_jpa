@@ -24,6 +24,7 @@ import com.bshop_jpa.demo.services.CartItemService;
 import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.CategoryService;
 import com.bshop_jpa.demo.services.ColorService;
+import com.bshop_jpa.demo.services.MaterialService;
 import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.SizeService;
 
@@ -39,9 +40,10 @@ public class StoreController {
     private final SizeService sizeService;
     private final ColorService colorService;
     private final CategoryService categoryService;
+    private final MaterialService materialService;
 
     public StoreController(ProductService productService, CartService cartService, CartItemService cartItemService,
-         SizeService sizeService, ColorService colorService, CategoryService categoryService)  {
+         SizeService sizeService, ColorService colorService, CategoryService categoryService, MaterialService materialService)  {
 
         this.cartService = cartService;
         this.productService = productService;
@@ -49,6 +51,7 @@ public class StoreController {
         this.sizeService = sizeService;
         this.colorService = colorService;
         this.categoryService = categoryService;
+        this.materialService = materialService;
     }
 
     @GetMapping
@@ -59,12 +62,13 @@ public class StoreController {
         @RequestParam(defaultValue = "asc") String order,
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false) String sizeName,
+        @RequestParam(required = false) Integer materialId,
         HttpServletRequest request,
         Model model
     ) {
 
         //везде добавить
-        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, sizeName, order);
+        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order);
 
         Map<String, Object> params = new HashMap<>();
         params.put("search", search);
@@ -73,12 +77,14 @@ public class StoreController {
         params.put("order", order);
         params.put("categoryId", categoryId);
         params.put("sizeName", sizeName);
+        params.put("materialId", materialId);
 
         model.addAttribute("colors", colorService.findAllColors());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("categories", categoryService.findAllCategories());
         model.addAttribute("products",  products);
         model.addAttribute("sizes", sizeService.getBlankSizes());
+        model.addAttribute("materials", materialService.findAllMaterials());
         model.addAttribute("parameters", params);
         return "store/store";
     }
@@ -101,7 +107,7 @@ public class StoreController {
         }
 
         model.addAttribute("currentUrl", request.getRequestURI());
-        model.addAttribute("product", product);
+        model.addAttribute("product", productService.sortProductSizes(product));
         return "store/productDetails";
     }
 

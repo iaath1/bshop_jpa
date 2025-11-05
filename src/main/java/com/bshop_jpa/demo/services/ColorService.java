@@ -19,5 +19,13 @@ public class ColorService {
     public List<Color> findAllColors() {
         return colorRepo.findAll();
     }
+
+    public boolean existsByName(String name) {
+        return colorRepo.existsByName(name);
+    }
+
+    public void saveColor(Color color) {
+        colorRepo.save(color);
+    }
     
 }

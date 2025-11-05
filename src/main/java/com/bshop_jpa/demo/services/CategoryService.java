@@ -18,4 +18,12 @@ public class CategoryService {
     public List<Category> findAllCategories() {
         return categoryRepo.findAll();
     }
+
+    public boolean existsByName(String name) {
+        return categoryRepo.existsByName(name);
+    }
+
+    public void saveCategory(Category category) {
+        categoryRepo.save(category);
+    }
 }

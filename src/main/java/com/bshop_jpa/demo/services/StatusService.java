@@ -18,8 +18,15 @@ public class StatusService {
         if(statusRepo.findByName(name).isPresent()) {
             return statusRepo.findByName(name).get();
         }
-
         return null;
+    }
+
+    public void saveStatus(Status status) {
+        statusRepo.save(status);
+    }
+
+    public boolean existsByName(String name) {
+        return statusRepo.existsByName(name);
     }
 
 }

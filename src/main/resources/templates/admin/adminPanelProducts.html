@@ -45,6 +45,53 @@
         <a th:href="@{/admin/products/add}" class="btn">➕ Создать</a>
     </div>
 
+     <form th:action="@{/admin/products}" method="get" class="filter-bar">
+        <input type="text" name="search"
+               placeholder="Поиск по названию..."
+               th:value="${parameters.search}"
+               class="input-search"/>
+
+        <select name="categoryId" class="filter-select">
+            <option value="">Все категории</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.id}"
+                    th:text="${cat.name}"
+                    th:selected="${parameters.categoryId != null and parameters.categoryId == cat.id}">
+            </option>
+        </select>
+
+        <select name="materialId" class="filter-select">
+            <option value="">Все материалы</option>
+            <option th:each="mat : ${materials}"
+                    th:value="${mat.id}"
+                    th:text="${mat.name}"
+                    th:selected="${parameters.materialId != null and parameters.materialId == mat.id}">
+            </option>
+        </select>
+
+        <select name="colorId" class="filter-select">
+            <option value="">Все цвета</option>
+            <option th:each="col : ${colors}"
+                    th:value="${col.id}"
+                    th:text="${col.name}"
+                    th:selected="${parameters.colorId != null and parameters.colorId == col.id}">
+            </option>
+        </select>
+
+        <select name="sortBy" class="filter-select">
+            <option value="name" th:selected="${parameters.sortBy == 'name'}">По названию</option>
+            <option value="price" th:selected="${parameters.sortBy == 'price'}">По цене</option>
+            <option value="category" th:selected="${parameters.sortBy == 'category'}">По категории</option>
+        </select>
+
+        <select name="order" class="filter-select">
+            <option value="asc" th:selected="${parameters.order == 'asc'}">↑ Возрастание</option>
+            <option value="desc" th:selected="${parameters.order == 'desc'}">↓ Убывание</option>
+        </select>
+
+        <button type="submit" class="btn btn-filter">Применить</button>
+    </form>
+
 <section class="panel">
     <h3>Все товары</h3>
     <table>

@@ -1,7 +1,6 @@
 package com.bshop_jpa.demo.services;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import com.bshop_jpa.demo.DTO.CategoryCountDTO;
 import com.bshop_jpa.demo.DTO.ColorCountDTO;
 import com.bshop_jpa.demo.DTO.MaterialCountDTO;
 import com.bshop_jpa.demo.models.Category;
-import com.bshop_jpa.demo.models.Color;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.repositories.ProductRepository;
@@ -21,6 +19,7 @@ public class ProductService {
     
     private final ProductRepository productRepo;
     private final SizeService sizeService;
+    private static final List<String> SIZE_ORDER = List.of("XS", "S", "M", "L", "XL");
 
     public ProductService(ProductRepository productRepo, SizeService sizeService) {
         this.productRepo = productRepo;
@@ -35,8 +34,27 @@ public class ProductService {
         return null;
     }
 
+    public List<Product> sortProductSizes(List<Product> products) {
+
+        for(Product product : products) {
+            List<Size> sizes = product.getSizes();
+            sizes.sort(Comparator.comparingInt(size -> SIZE_ORDER.indexOf(size.getName())));
+            product.setSizes(sizes);
+        }
+
+        return products;
+    }
+
+    public Product sortProductSizes(Product product) {
+        List<Size> sizes = product.getSizes();
+        sizes.sort(Comparator.comparingInt(size -> SIZE_ORDER.indexOf(size.getName())));
+        product.setSizes(sizes);
+
+        return product;
+    }
+
     public List<Product> findAllProducts() {
-        return productRepo.findAll();
+        return sortProductSizes(productRepo.findAll());
     }
 
     public List<CategoryCountDTO> countProductsByCategory() {
@@ -110,7 +128,7 @@ public class ProductService {
         productRepo.save(product);
     }
 
-     public List<Product> getFilteredProducts(String query, Integer categoryId, Integer colorId, String sizeName, String sortOrder) {
+     public List<Product> getFilteredProducts(String query, Integer categoryId, Integer colorId, Integer materialId, String sizeName, String sortOrder) {
         List<Product> products;
 
         if (query != null && !query.isBlank()) {
@@ -131,6 +149,12 @@ public class ProductService {
             products = products.stream()
                     .filter(p -> p.getColor() != null && p.getColor().getId().equals(colorId))
                     .toList();
+        }
+
+        if(materialId != null) {
+            products = products.stream()
+                .filter(p -> p.getMaterial() != null && p.getMaterial().getId().equals(materialId))
+                .toList();
         }
 
         // сортировка по цене
@@ -156,10 +180,10 @@ public class ProductService {
                 }
             }
 
-            return filteredProducts;
+            return sortProductSizes(filteredProducts);
         }
 
-        return products;
+        return sortProductSizes(products);
     }
 
     

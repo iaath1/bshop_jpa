@@ -98,6 +98,15 @@
             </option>
         </select>
 
+        <select name="materialId" class="filter-select">
+            <option value="" th:selected="${parameters.materialId == null or parameters.materialId == ''}" th:text="#{filter.materials}">Все материалы</option>
+            <option th:each="m : ${materials}"
+                    th:value="${m.id}"
+                    th:text="${m.name}"
+                    th:selected="${parameters.materialId != null and parameters.materialId == m.id}">
+            </option>
+        </select>
+
         <!-- 🔽 Критерий сортировки -->
         <select name="sortBy" class="filter-select">
             <option value="name" th:selected="${parameters.sortBy == 'name'}" th:text="#{filter.sortByName}">По названию</option>
@@ -137,12 +146,23 @@
                         </div>
                     </div>
                     <div class="color-section" th:if="${prod.color != null}">
-        <span class="color-label">Цвет:</span>
+        <span class="color-label" th:text="#{page.colorText}">Цвет:</span>
         <div class="color-display">
             <div class="color-circle"
                  th:style="'background-color:' + ${prod.color.hexValue}"></div>
             <span class="color-name" th:text="${prod.color.name}">Цвет</span>
         </div>
+
+    <div class="material-section" th:if="${prod.material != null}">
+        <span class="material-label" th:text="#{page.materialText}">Материал:</span>
+        <span class="material-name" th:text="${prod.material.name}">Хлопок</span>
+    </div>
+
+    <!-- 🗂️ Категория -->
+    <div class="category-section" th:if="${prod.category != null}">
+        <span class="category-label" th:text="#{page.categoryText}">Категория:</span>
+        <span class="category-name" th:text="${prod.category.name}">Футболки</span>
+    </div>
     </div>
 
                 </div>
