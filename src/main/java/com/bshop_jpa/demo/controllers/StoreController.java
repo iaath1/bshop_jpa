@@ -4,6 +4,7 @@ package com.bshop_jpa.demo.controllers;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,11 +65,12 @@ public class StoreController {
         @RequestParam(required = false) String sizeName,
         @RequestParam(required = false) Integer materialId,
         HttpServletRequest request,
-        Model model
+        Model model,
+        Locale locale
     ) {
 
         //везде добавить
-        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order);
+        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order, locale);
 
         Map<String, Object> params = new HashMap<>();
         params.put("search", search);

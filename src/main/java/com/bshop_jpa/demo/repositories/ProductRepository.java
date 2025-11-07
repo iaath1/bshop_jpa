@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.bshop_jpa.demo.DTO.CategoryCountDTO;
@@ -34,6 +35,11 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
        "FROM Material m LEFT JOIN Product p ON p.material = m " +
        "GROUP BY m.name")
     List<MaterialCountDTO> countProductsByMaterial();
+
+   //  @Query("SELECT DISTINCT p FROM Product p " + 
+   //          "LEFT JOIN FETCH p.translations t" +
+   //          "WHERE t.languageCode = :lang")
+   //  List<Product> findAllWithTranslations(@Param("lang") String lang);
 
     List<Product> findByCategory(Category category);
 

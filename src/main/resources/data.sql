@@ -24,17 +24,44 @@ INSERT INTO roles(name) VALUES ('ROLE_CUSTOMER'), ('ROLE_ADMIN');
 INSERT INTO statuses(name) VALUES ('NEW'), ('PAYED'), ('SHIPPING'), ('SHIPPED'), ('RETURNED');
 
 
-INSERT INTO products (name, description, price, category_id, material_id, color_id) VALUES
-('Футболка Basic White', 'Классическая белая футболка из хлопка.', 49.99, 1, 1, 1),
-('Футболка Sport Red', 'Спортивная футболка с дышащей тканью.', 59.99, 1, 2, 4),
-('Кроссовки StreetRun', 'Удобные кроссовки для города и спорта.', 249.99, 2, 2, 2),
-('Кроссовки AirFlex', 'Лёгкие и амортизирующие кроссовки.', 279.99, 2, 2, 3),
-('Джинсы Classic Blue', 'Прямые джинсы из плотной ткани.', 199.99, 3, 3, 3),
-('Джинсы Slim Fit', 'Узкий фасон с эластичными волокнами.', 219.99, 3, 3, 2),
-('Куртка Leather Black', 'Кожаная куртка с подкладкой.', 399.99, 4, 4, 2),
-('Куртка WindBreaker', 'Ветровка из лёгкого нейлона.', 189.99, 4, 5, 5),
-('Шорты Summer', 'Хлопковые шорты для жаркой погоды.', 89.99, 5, 1, 5),
-('Шорты Sport Active', 'Спортивные шорты с сетчатой подкладкой.', 99.99, 5, 2, 4);
+INSERT INTO products (price, category_id, material_id, color_id) VALUES
+(49.99, 1, 1, 1),
+(59.99, 1, 2, 4),
+(249.99, 2, 2, 2),
+(279.99, 2, 2, 3),
+(199.99, 3, 3, 3),
+(219.99, 3, 3, 2),
+(399.99, 4, 4, 2),
+(189.99, 4, 5, 5),
+(89.99, 5, 1, 5),
+(99.99, 5, 2, 4);
+
+-- 🇺🇦 УКРАИНСКИЕ ПЕРЕВОДЫ
+INSERT INTO product_translations (product_id, language_code, name, description) VALUES
+(1, 'uk', 'Футболка Basic White', 'Класична біла футболка з бавовни.'),
+(2, 'uk', 'Футболка Sport Red', 'Спортивна футболка з дихаючої тканини.'),
+(3, 'uk', 'Кросівки StreetRun', 'Зручні кросівки для міста та спорту.'),
+(4, 'uk', 'Кросівки AirFlex', 'Легкі та амортизуючі кросівки.'),
+(5, 'uk', 'Джинси Classic Blue', 'Прямі джинси з щільної тканини.'),
+(6, 'uk', 'Джинси Slim Fit', 'Вузький фасон з еластичними волокнами.'),
+(7, 'uk', 'Куртка Leather Black', 'Шкіряна куртка з підкладкою.'),
+(8, 'uk', 'Куртка WindBreaker', 'Вітрівка з легкого нейлону.'),
+(9, 'uk', 'Шорти Summer', 'Бавовняні шорти для спекотної погоди.'),
+(10, 'uk', 'Шорти Sport Active', 'Спортивні шорти з сітчастою підкладкою.');
+
+-- 🇵🇱 ПОЛЬСКИЕ ПЕРЕВОДЫ
+INSERT INTO product_translations (product_id, language_code, name, description) VALUES
+(1, 'pl', 'Koszulka Basic White', 'Klasyczna biała koszulka z bawełny.'),
+(2, 'pl', 'Koszulka Sport Red', 'Sportowa koszulka z oddychającej tkaniny.'),
+(3, 'pl', 'Buty StreetRun', 'Wygodne buty do miasta i sportu.'),
+(4, 'pl', 'Buty AirFlex', 'Lekkie i amortyzujące buty sportowe.'),
+(5, 'pl', 'Dżinsy Classic Blue', 'Proste dżinsy z gęstej tkaniny.'),
+(6, 'pl', 'Dżinsy Slim Fit', 'Wąski krój z elastycznymi włóknami.'),
+(7, 'pl', 'Kurtka Leather Black', 'Skórzana kurtka z podszewką.'),
+(8, 'pl', 'Kurtka WindBreaker', 'Kurtka wiatrówka z lekkiego nylonu.'),
+(9, 'pl', 'Szorty Summer', 'Bawełniane szorty na gorącą pogodę.'),
+(10, 'pl', 'Szorty Sport Active', 'Sportowe szorty z siateczkową podszewką.');
+
 
 -- Футболка Basic White
 INSERT INTO sizes (name, quantity, product_id) VALUES

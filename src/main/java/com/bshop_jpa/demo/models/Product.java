@@ -9,6 +9,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,14 +29,14 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 100)
-    private String namePl;
-
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = true, length = 200)
     private String description;
+
+    @OneToMany(mappedBy = "product", orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<ProductTranslation> translations = new ArrayList<>();
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
@@ -62,7 +63,13 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Image> images = new ArrayList<>();
 
-
+    
+    public ProductTranslation getProductTranslation(String locale) {
+        return translations.stream()
+            .filter(t -> t.getLanguageCode().equalsIgnoreCase(locale))
+            .findFirst()
+            .orElse(null);
+    }
 
     @Transient
     public String getPreviewImageUrl() {

@@ -3,6 +3,7 @@ package com.bshop_jpa.demo.services;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import com.bshop_jpa.demo.DTO.ColorCountDTO;
 import com.bshop_jpa.demo.DTO.MaterialCountDTO;
 import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Product;
+import com.bshop_jpa.demo.models.ProductTranslation;
 import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.repositories.ProductRepository;
 
@@ -128,13 +130,13 @@ public class ProductService {
         productRepo.save(product);
     }
 
-     public List<Product> getFilteredProducts(String query, Integer categoryId, Integer colorId, Integer materialId, String sizeName, String sortOrder) {
+     public List<Product> getFilteredProducts(String query, Integer categoryId, Integer colorId, Integer materialId, String sizeName, String sortOrder, Locale locale) {
         List<Product> products;
 
         if (query != null && !query.isBlank()) {
-            products = productRepo.findByNameContainingIgnoreCase(query);
+            products = findProductByName(query, localizateProducts(productRepo.findAll(), locale.getLanguage()));
         } else {
-            products = productRepo.findAll();
+            products = localizateProducts(productRepo.findAll(), locale.getLanguage());
         }
 
         // фильтр по категории
@@ -186,6 +188,33 @@ public class ProductService {
         return sortProductSizes(products);
     }
 
+    // public List<Product> findAllWIthTranslations(String lang) {
+    //     return productRepo.findAllWithTranslations(lang);
+    // }
+
+    // public List<Product> findAllWithTranslation(String langCode) {
+    //     return productRepo.findAllWithTranslations(langCode);
+    // }
+
+    public List<Product> localizateProducts(List<Product> products, String lang) {
+        return products.stream()
+            .map(p -> {
+                ProductTranslation t = p.getProductTranslation(lang);
+                if(t != null) {
+                    p.setName(t.getName());
+                    p.setDescription(t.getDescription());
+                }
+
+                return p;
+            })
+            .toList();
+    }
+
+    public List<Product> findProductByName(String name, List<Product> products) {
+        return products.stream()
+            .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))
+            .toList();
+    }
     
 
 }

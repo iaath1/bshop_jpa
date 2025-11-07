@@ -13,6 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ import com.bshop_jpa.demo.models.Color;
 import com.bshop_jpa.demo.models.Image;
 import com.bshop_jpa.demo.models.Material;
 import com.bshop_jpa.demo.models.Product;
+import com.bshop_jpa.demo.models.ProductTranslation;
 import com.bshop_jpa.demo.models.Role;
 import com.bshop_jpa.demo.models.Status;
 import com.bshop_jpa.demo.services.CategoryService;
@@ -107,9 +109,10 @@ public class AdminController {
         @RequestParam(defaultValue = "asc") String order,
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false) String sizeName,
-        @RequestParam(required = false) Integer materialId) {
+        @RequestParam(required = false) Integer materialId,
+        Locale locale) {
 
-        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order);
+        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order, locale);
 
         Map<String, Object> params = new HashMap<>();
         params.put("search", search);
@@ -188,16 +191,24 @@ public class AdminController {
         Model model,
         @ModelAttribute Product product,
         @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
-        @PathVariable Long id) throws IOException {
+        @PathVariable Long id, Locale locale) throws IOException {
 
         Product existing = productService.findProductById(id);
 
         if(existing == null) {throw new RuntimeException("Product with id: " + id + " Does not exists.");}
                 
+        ProductTranslation pt = existing.getProductTranslation(locale.getLanguage());
 
-        // Обновляем основные поля
-        existing.setName(product.getName());
-        existing.setDescription(product.getDescription());
+        if(pt == null) {
+            pt = new ProductTranslation();
+            pt.setLanguageCode(locale.getLanguage());
+            pt.setProduct(existing);
+            existing.getTranslations().add(pt);
+        }
+
+        pt.setName(product.getProductTranslation(locale.getLanguage()).getName());
+        pt.setDescription(product.getProductTranslation(locale.getLanguage()).getDescription());
+        
         existing.setPrice(product.getPrice());
         existing.setQuantity(product.getQuantity());
         existing.setColor(product.getColor());
