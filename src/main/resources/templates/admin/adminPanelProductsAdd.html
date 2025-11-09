@@ -40,113 +40,116 @@
         </div>
 
         <div class="panel form-panel">
-    <h3>Новый товар</h3>
-    <form th:action="@{/admin/products/add}" th:object="${product}" method="post" class="form-grid" enctype="multipart/form-data">
+            <h3>Новый товар</h3>
+            <form th:action="@{/admin/products/add}" th:object="${product}" method="post" class="form-grid" enctype="multipart/form-data">
 
-        <div class="form-group">
-            <label for="files">Картинки товара:</label>
+                <!-- Загрузка изображений -->
+                <div class="form-group">
+                    <label for="files">Картинки товара:</label>
+                    <div id="preview-container" class="preview-container"></div>
+                    <div class="file-upload">
+                        <input type="file" id="files" name="files" multiple accept="image/*" required onchange="previewImages(event)">
+                        <label for="files" class="file-label">📸 Выбрать изображения</label>
+                    </div>
+                </div>
 
-            <!-- Зона предпросмотра -->
-            <div id="preview-container" class="preview-container"></div>
+                <!-- Украинский -->
+                <div class="lang-section">
+                    <h4>🇺🇦 Українська</h4>
+                    <div class="form-group">
+                        <label for="nameUk">Назва (укр)</label>
+                        <input type="text" id="nameUk" name="nameUk" class="input-lg" placeholder="Введіть назву українською...">
+                    </div>
+                    <div class="form-group">
+                        <label for="descriptionUk">Опис (укр)</label>
+                        <textarea id="descriptionUk" name="descriptionUk" rows="4" class="input-lg" placeholder="Введіть опис українською..."></textarea>
+                    </div>
+                </div>
 
-            <!-- Скрытый input -->
-            <div class="file-upload">
-                <input type="file" id="files" name="files" multiple accept="image/*" required onchange="previewImages(event)">
-                <label for="files" class="file-label">📸 Выбрать изображения</label>
-            </div>
+                <!-- Польский -->
+                <div class="lang-section">
+                    <h4>🇵🇱 Polski</h4>
+                    <div class="form-group">
+                        <label for="namePl">Nazwa (pl)</label>
+                        <input type="text" id="namePl" name="namePl" class="input-lg" placeholder="Wpisz nazwę po polsku...">
+                    </div>
+                    <div class="form-group">
+                        <label for="descriptionPl">Opis (pl)</label>
+                        <textarea id="descriptionPl" name="descriptionPl" rows="4" class="input-lg" placeholder="Wpisz opis po polsku..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Цена и количество -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Цена</label>
+                        <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Количество</label>
+                        <input type="number" id="quantity" th:field="*{quantity}" class="input-lg" placeholder="0" required>
+                    </div>
+                </div>
+
+                <!-- Размеры -->
+                <div class="form-group">
+                    <label>Размеры и количество</label>
+                    <table class="size-table">
+                        <thead>
+                        <tr><th>Размер</th><th>Количество</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="size, iStat : ${product.sizes}">
+                            <td>
+                                <input type="hidden" th:field="*{sizes[__${iStat.index}__].id}">
+                                <input type="text" th:field="*{sizes[__${iStat.index}__].name}" readonly class="input-sm">
+                            </td>
+                            <td>
+                                <input type="number" min="0" th:field="*{sizes[__${iStat.index}__].quantity}" class="input-sm">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Категория -->
+                <div class="form-group">
+                    <label for="category">Категория</label>
+                    <select id="category" th:field="*{category}" class="input-lg">
+                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                    </select>
+                </div>
+
+                <!-- Материал -->
+                <div class="form-group">
+                    <label for="material">Материал</label>
+                    <select id="material" th:field="*{material}" class="input-lg">
+                        <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
+                    </select>
+                </div>
+
+                <!-- Цвет -->
+                <div class="form-group">
+                    <label for="color">Цвет</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
+                            <option th:each="cl : ${colors}"
+                                    th:value="${cl.id}"
+                                    th:text="${cl.name}"
+                                    th:data-hex="${cl.hexValue}">
+                            </option>
+                        </select>
+                        <div id="color-preview"
+                             style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc;"></div>
+                    </div>
+                </div>
+
+                <!-- Сохранить -->
+                <div style="text-align:right; margin-top:20px;">
+                    <button type="submit" class="btn btn-lg">💾 Сохранить</button>
+                </div>
+            </form>
         </div>
-
-
-        <!-- Name -->
-        <div class="form-group">
-            <label for="name">Название</label>
-            <input type="text" id="name" th:field="*{name}" class="input-lg" placeholder="Введите название..." required>
-        </div>
-
-        <!-- Description -->
-        <div class="form-group">
-            <label for="description">Описание</label>
-            <textarea id="description" th:field="*{description}" rows="5" class="input-lg" placeholder="Введите описание..."></textarea>
-        </div>
-
-        <!-- Price & Quantity -->
-        <div class="form-row">
-            <div class="form-group">
-                <label for="price">Цена</label>
-                <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" placeholder="0.00" required>
-            </div>
-            <div class="form-group">
-                <label for="quantity">Количество</label>
-                <input type="number" id="quantity" th:field="*{quantity}" class="input-lg" placeholder="0" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Размеры и количество</label>
-            <table class="size-table">
-                <thead>
-                    <tr>
-                        <th>Размер</th>
-                        <th>Количество</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="size, iStat : ${product.sizes}">
-                        <td>
-                            <input type="hidden" th:field="*{sizes[__${iStat.index}__].id}">
-                            <input type="text" th:field="*{sizes[__${iStat.index}__].name}" readonly class="input-sm">
-                        </td>
-                        <td>
-                            <input type="number" min="0" th:field="*{sizes[__${iStat.index}__].quantity}" class="input-sm">
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Category -->
-        <div class="form-group">
-            <label for="category">Категория</label>
-            <select id="category" th:field="*{category}" class="input-lg">
-                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
-            </select>
-        </div>
-
-        <!-- Material -->
-        <div class="form-group">
-            <label for="material">Материал</label>
-            <select id="material" th:field="*{material}" class="input-lg">
-                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
-            </select>
-        </div>
-
-        <!-- Color -->
-        <!-- Color -->
-<div class="form-group">
-    <label for="color">Цвет</label>
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
-            <option th:each="cl : ${colors}"
-                    th:value="${cl.id}"
-                    th:text="${cl.name}"
-                    th:data-hex="${cl.hexValue}">
-            </option>
-        </select>
-
-        <!-- Кружок предпросмотра цвета -->
-        <div id="color-preview"
-             style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc;"></div>
-    </div>
-</div>
-
-
-        <!-- Save -->
-        <div style="text-align:right; margin-top:20px;">
-            <button type="submit" class="btn btn-lg">💾 Сохранить</button>
-        </div>
-    </form>
-</div>
-
     </main>
 </div>
 
@@ -154,16 +157,13 @@
 function previewImages(event) {
     const files = event.target.files;
     const container = document.getElementById('preview-container');
-    container.innerHTML = ''; // Очистить старые превью
-
+    container.innerHTML = '';
     Array.from(files).forEach((file, index) => {
         if (!file.type.startsWith('image/')) return;
-
         const reader = new FileReader();
         reader.onload = e => {
             const div = document.createElement('div');
             div.classList.add('preview-image');
-
             div.innerHTML = `
                 <img src="${e.target.result}" alt="image">
                 <button type="button" class="remove-btn" onclick="removeImage(${index})">×</button>
@@ -174,17 +174,14 @@ function previewImages(event) {
     });
 }
 
-// Удаляем картинку из списка выбранных
 function removeImage(index) {
     const input = document.getElementById('files');
-    const dt = new DataTransfer(); // используем для обновления списка файлов
-
+    const dt = new DataTransfer();
     Array.from(input.files)
         .filter((_, i) => i !== index)
         .forEach(f => dt.items.add(f));
-
     input.files = dt.files;
-    previewImages({ target: input }); // перерисовываем превью
+    previewImages({ target: input });
 }
 
 function updateColorPreview() {
@@ -192,23 +189,29 @@ function updateColorPreview() {
     const preview = document.getElementById("color-preview");
     const selectedOption = select.options[select.selectedIndex];
     const hex = selectedOption.getAttribute("data-hex");
-
     preview.style.backgroundColor = hex || "#ffffff";
 }
-
-// при загрузке страницы сразу показываем цвет первого элемента
 document.addEventListener("DOMContentLoaded", updateColorPreview);
 </script>
 
 <style>
-/* ✅ Красивый предпросмотр */
+.lang-section {
+    border: 1px solid #e5e7eb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: #fafafa;
+}
+.lang-section h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
 .preview-container {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 10px;
 }
-
 .preview-image {
     position: relative;
     width: 120px;
@@ -217,13 +220,11 @@ document.addEventListener("DOMContentLoaded", updateColorPreview);
     overflow: hidden;
     box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }
-
 .preview-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-
 .preview-image .remove-btn {
     position: absolute;
     top: 2px;
@@ -236,30 +237,19 @@ document.addEventListener("DOMContentLoaded", updateColorPreview);
     width: 22px;
     height: 22px;
     cursor: pointer;
-    line-height: 18px;
 }
-
-.preview-image .remove-btn:hover {
-    background: rgba(255,0,0,0.8);
-}
-
-/* Стиль кнопки выбора */
 .file-upload {
     display: inline-block;
     margin-top: 8px;
 }
-
 .file-label {
-    display: inline-block;
     padding: 10px 16px;
     background-color: #1976d2;
     color: white;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.3s;
 }
-
 .file-label:hover {
     background-color: #0d47a1;
 }

@@ -364,4 +364,48 @@ th {
     background: #1f2937;
 }
 
+.lang-switcher {
+    position: relative;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background: transparent;
+    color: #111827;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background: #fff;
+    min-width: 100px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    z-index: 10;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: #111827;
+    padding: 8px 12px;
+    display: block;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background: #f3f4f6;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
 

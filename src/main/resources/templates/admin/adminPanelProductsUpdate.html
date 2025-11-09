@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ru"
+<html lang="uk"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Admin - Edit Product</title>
+    <title>Admin - Редагування товару</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .image-gallery, .preview-gallery {
@@ -65,6 +65,7 @@
 </head>
 <body>
 <div class="layout">
+    <!-- 🧭 Бокова панель залишена без змін -->
     <aside class="sidebar">
         <div class="brand">🧭 Admin</div>
         <nav class="nav">
@@ -83,7 +84,7 @@
 
     <main class="main">
         <div class="topbar">
-            <h1>Редактирование товара</h1>
+            <h1>Редагування товару</h1>
         </div>
 
         <div class="panel form-panel">
@@ -92,55 +93,81 @@
           method="post" enctype="multipart/form-data"
           class="form-grid">
 
-        <!-- Текущие изображения -->
+        <!-- Поточні зображення -->
         <div class="form-group">
-            <label>Текущие изображения:</label>
+            <label>Поточні зображення:</label>
             <div class="image-gallery">
                 <div class="image-card"
                      th:each="img : ${product.images}"
                      th:if="${img.imageUrl != null and !#strings.isEmpty(img.imageUrl)}">
-                    <img th:src="@{${img.imageUrl}}" alt="Фото товара">
+                    <img th:src="@{${img.imageUrl}}" alt="Фото товару">
                     <button type="button" th:attr="data-id=${img.id}" onclick="removeImage(this)">×</button>
                 </div>
             </div>
         </div>
 
-        <!-- Новые изображения -->
+        <!-- Нові зображення -->
         <div class="form-group">
-            <label>Добавить новые изображения:</label>
+            <label>Додати нові зображення:</label>
             <div class="file-upload">
                 <input type="file" id="files" name="files" multiple accept="image/*" onchange="previewFiles(event)" hidden>
-                <label for="files" class="file-label">📸 Выбрать файлы</label>
+                <label for="files" class="file-label">📸 Обрати файли</label>
             </div>
             <div class="preview-gallery" id="preview"></div>
         </div>
 
-        <!-- Остальные поля -->
-        <div class="form-group">
-            <label for="name">Название</label>
-            <input type="text" id="name" th:field="*{name}" class="input-lg" required>
-        </div>
+        <!-- Переклади -->
+        <div class="translation-section">
+            <h3>Переклади</h3>
 
-        <div class="form-group">
-            <label for="description">Описание</label>
-            <textarea id="description" th:field="*{description}" rows="5" class="input-lg"></textarea>
+            <!-- 🇺🇦 Українська -->
+            <div class="form-group">
+                <label for="nameUk">Назва (укр)</label>
+                <input type="text" id="nameUk" name="nameUk"
+                       th:value="${nameUk}" class="input-lg"
+                       placeholder="Назва українською...">
+            </div>
+
+            <div class="form-group">
+                <label for="descriptionUk">Опис (укр)</label>
+                <textarea id="descriptionUk" name="descriptionUk"
+                          rows="5" class="input-lg"
+                          placeholder="Опис українською..."
+                          th:text="${descriptionUk}"></textarea>
+            </div>
+
+            <!-- 🇵🇱 Польська -->
+            <div class="form-group">
+                <label for="namePl">Назва (польськ.)</label>
+                <input type="text" id="namePl" name="namePl"
+                       th:value="${namePl}" class="input-lg"
+                       placeholder="Nazwa po polsku...">
+            </div>
+
+            <div class="form-group">
+                <label for="descriptionPl">Опис (польськ.)</label>
+                <textarea id="descriptionPl" name="descriptionPl"
+                          rows="5" class="input-lg"
+                          placeholder="Opis po polsku..."
+                          th:text="${descriptionPl}"></textarea>
+            </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
-                <label for="price">Цена</label>
+                <label for="price">Ціна</label>
                 <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" required>
             </div>
         </div>
 
-        <!-- ✅ Размеры с количеством -->
+        <!-- ✅ Розміри та кількість -->
         <div class="form-group">
-            <label>Размеры и количество</label>
+            <label>Розміри та кількість</label>
             <table class="size-table">
                 <thead>
                     <tr>
-                        <th>Размер</th>
-                        <th>Количество</th>
+                        <th>Розмір</th>
+                        <th>Кількість</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,40 +185,39 @@
         </div>
 
         <div class="form-group">
-            <label for="category">Категория</label>
+            <label for="category">Категорія</label>
             <select id="category" th:field="*{category.id}" class="input-lg">
                 <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="material">Материал</label>
+            <label for="material">Матеріал</label>
             <select id="material" th:field="*{material.id}" class="input-lg">
                 <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
             </select>
         </div>
 
-        <!-- Color -->
-<div class="form-group">
-    <label for="color">Цвет</label>
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
-            <option th:each="cl : ${colors}"
-                    th:value="${cl.id}"
-                    th:text="${cl.name}"
-                    th:data-hex="${cl.hexValue}">
-            </option>
-        </select>
+        <!-- Колір -->
+        <div class="form-group">
+            <label for="color">Колір</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
+                    <option th:each="cl : ${colors}"
+                            th:value="${cl.id}"
+                            th:text="${cl.name}"
+                            th:data-hex="${cl.hexValue}">
+                    </option>
+                </select>
 
-        <!-- Кружок предпросмотра цвета -->
-        <div id="color-preview"
-             style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc;"></div>
-    </div>
-</div>
-
+                <!-- Коло попереднього перегляду кольору -->
+                <div id="color-preview"
+                     style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc;"></div>
+            </div>
+        </div>
 
         <div style="text-align:right; margin-top:20px;">
-            <button type="submit" class="btn btn-lg">💾 Сохранить</button>
+            <button type="submit" class="btn btn-lg">💾 Зберегти</button>
         </div>
     </form>
 </div>
@@ -200,7 +226,7 @@
 </div>
 
 <script>
-    // 🖼 Предпросмотр выбранных новых изображений
+    // 🖼 Попередній перегляд вибраних зображень
     function previewFiles(event) {
         const preview = document.getElementById('preview');
         preview.innerHTML = '';
@@ -221,11 +247,9 @@
             reader.readAsDataURL(file);
         });
 
-        // Сохраняем файлы для удаления позже
         window.currentFiles = input.files;
     }
 
-    // ❌ Удалить новое изображение до загрузки
     function removeNewImage(index) {
         const input = document.getElementById('files');
         const dt = new DataTransfer();
@@ -238,29 +262,28 @@
         previewFiles({ target: input });
     }
 
-    // 🗑 Удаление старого изображения с сервера
+    // 🗑 Видалення старого зображення з сервера
     function removeImage(button) {
         const imageId = button.getAttribute('data-id');
-        if (confirm('Удалить это изображение?')) {
+        if (confirm('Видалити це зображення?')) {
             fetch(`/admin/products/image/delete/${imageId}`, { method: 'DELETE' })
                 .then(res => {
                     if (res.ok) button.parentElement.remove();
-                    else alert('Ошибка при удалении изображения');
+                    else alert('Помилка при видаленні зображення');
                 });
         }
     }
 
     function updateColorPreview() {
-    const select = document.getElementById("color");
-    const preview = document.getElementById("color-preview");
-    const selectedOption = select.options[select.selectedIndex];
-    const hex = selectedOption.getAttribute("data-hex");
+        const select = document.getElementById("color");
+        const preview = document.getElementById("color-preview");
+        const selectedOption = select.options[select.selectedIndex];
+        const hex = selectedOption.getAttribute("data-hex");
 
-    preview.style.backgroundColor = hex || "#ffffff";
-}
+        preview.style.backgroundColor = hex || "#ffffff";
+    }
 
-// при загрузке страницы сразу показываем цвет первого элемента
-document.addEventListener("DOMContentLoaded", updateColorPreview);
+    document.addEventListener("DOMContentLoaded", updateColorPreview);
 </script>
 </body>
 </html>

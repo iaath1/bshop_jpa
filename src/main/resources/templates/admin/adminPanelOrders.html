@@ -30,27 +30,38 @@
     <!-- Main -->
     <main class="main">
         <div class="topbar">
-            <h1 style="margin:0">Заказы</h1>
+            <h1 style="margin:0" th:text="#{admin.ordersTitle}">Заказы</h1>
             <div class="top-right">
+                <div class="lang-switcher">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                            <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                        </div>
+                    </div>
+            </div>
                 <span class="muted">👤 <span sec:authentication="name">Admin</span></span>
                 <form th:action="@{/auth/logout}" method="post">
-                    <button class="btn" type="submit">Выйти</button>
+                    <button class="btn" type="submit" th:text="#{admin.logout}">Выйти</button>
                 </form>
             </div>
         </div>
 
         <!-- Users Table -->
         <section class="panel">
-            <h3>Все заказы</h3>
+            <h3 th:text="#{admin.orders}">Все заказы</h3>
             <table>
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Email пользователя</th>
-                    <th>Статус</th>
-                    <th>Создано</th>
-                    <th>Последнее обновление</th>
-                    <th>Общее количество</th>
+                    <th th:text="#{admin.orderId}">ID</th>
+                    <th th:text="#{admin.orderEmail}">Email пользователя</th>
+                    <th th:text="#{admin.orderStatus}">Статус</th>
+                    <th th:text="#{admin.orderCreatedAt}">Создано</th>
+                    <th th:text="#{admin.orderUpdatedAt}">Последнее обновление</th>
+                    <th th:text="#{admin.orderTotal}">Общее количество</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -63,7 +74,7 @@
                     <td th:text="${order.totalAmount}">0</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(orders)}">
-                    <td colspan="5" class="muted">Нет данных</td>
+                    <td colspan="5" class="muted" th:text="#{admin.noData}">Нет данных</td>
                 </tr>
                 </tbody>
             </table>

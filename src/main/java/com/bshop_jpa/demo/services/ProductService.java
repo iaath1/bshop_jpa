@@ -21,11 +21,13 @@ public class ProductService {
     
     private final ProductRepository productRepo;
     private final SizeService sizeService;
+    private final ProductTranslationService ptService;
     private static final List<String> SIZE_ORDER = List.of("XS", "S", "M", "L", "XL");
 
-    public ProductService(ProductRepository productRepo, SizeService sizeService) {
+    public ProductService(ProductRepository productRepo, SizeService sizeService, ProductTranslationService ptService) {
         this.productRepo = productRepo;
         this.sizeService = sizeService;
+        this.ptService = ptService;
     }
 
     public Product findProductById(Long id) {
@@ -215,6 +217,29 @@ public class ProductService {
             .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))
             .toList();
     }
+
+    public void addTranslationToProduct(Product product, String language, String name, String description) {
+        ProductTranslation pt = new ProductTranslation();
+        pt.setLanguageCode(language);
+        pt.setProduct(product);
+        pt.setName(name);
+        pt.setDescription(description);
+
+        ptService.saveTranslation(pt);
+    }
     
+    public void setNewTranslationForProduct(Product product, String language, String name, String description) {
+        product.getTranslations().removeIf(pt -> pt.getLanguageCode().equals(language));
+
+        ProductTranslation pt = new ProductTranslation();
+        pt.setLanguageCode(language);
+        pt.setDescription(description);
+        pt.setName(name);
+        pt.setProduct(product);
+
+        product.getTranslations().add(pt);
+        productRepo.save(product);
+        //ptService.saveTranslation(pt);
+    }
 
 }

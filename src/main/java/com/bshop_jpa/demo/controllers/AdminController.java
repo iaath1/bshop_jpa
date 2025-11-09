@@ -5,6 +5,8 @@ import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.ProductService;
 import com.bshop_jpa.demo.services.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,7 +89,9 @@ public class AdminController {
 
 
     @GetMapping
-    public String getAdminPanel(Model model) {
+    public String getAdminPanel(Model model, HttpServletRequest request) {
+
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("totalUsers", userRepo.count());
         model.addAttribute("totalProducts", productService.countAllProduct());
         model.addAttribute("totalOrders", orderService.countOrders());
@@ -110,7 +114,8 @@ public class AdminController {
         @RequestParam(required = false) Integer categoryId,
         @RequestParam(required = false) String sizeName,
         @RequestParam(required = false) Integer materialId,
-        Locale locale) {
+        Locale locale,
+        HttpServletRequest request) {
 
         List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order, locale);
 
@@ -123,6 +128,7 @@ public class AdminController {
         params.put("sizeName", sizeName);
         params.put("materialId", materialId);
 
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("products", products);
         model.addAttribute("parameters", params);
         model.addAttribute("colors", colorService.findAllColors());
@@ -145,7 +151,13 @@ public class AdminController {
     }
 
     @PostMapping("/products/add")
-    public String postAdminPanelProductAdd(Model model, @ModelAttribute Product product, @RequestParam(name = "files") MultipartFile[] imageFiles) throws IOException {
+    public String postAdminPanelProductAdd(Model model,
+     @ModelAttribute Product product,
+     @RequestParam(name = "files") MultipartFile[] imageFiles,
+     @RequestParam(name = "nameUk") String nameUk,
+     @RequestParam(name = "descriptionUk") String descriptionUk,
+     @RequestParam(name = "namePl") String namePl,
+     @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
 
         List<Image> images = new ArrayList<>();
 
@@ -171,6 +183,8 @@ public class AdminController {
         }
         product.setImages(images);
         productService.saveNewProduct(product);
+        productService.addTranslationToProduct(product, "uk", nameUk, descriptionUk);
+        productService.addTranslationToProduct(product, "pl", namePl, descriptionPl);
         return "redirect:/admin/products";
     }
 
@@ -179,6 +193,10 @@ public class AdminController {
         Product product = productService.sortProductSizes(productService.findProductById(id));
         product.getImages().removeIf(img -> img.getImageUrl() == null || img.getImageUrl().isBlank());
 
+        model.addAttribute("nameUk", product.getProductTranslation("uk").getName());
+        model.addAttribute("descriptionUk", product.getProductTranslation("uk").getDescription());
+        model.addAttribute("namePl", product.getProductTranslation("pl").getName());
+        model.addAttribute("descriptionPl", product.getProductTranslation("pl").getDescription());
         model.addAttribute("categories", categoryService.findAllCategories());
         model.addAttribute("materials", materialService.findAllMaterials());
         model.addAttribute("colors", colorService.findAllColors());
@@ -191,23 +209,28 @@ public class AdminController {
         Model model,
         @ModelAttribute Product product,
         @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
-        @PathVariable Long id, Locale locale) throws IOException {
+        @PathVariable Long id,
+        Locale locale,
+        @RequestParam (name = "nameUk") String nameUk,
+        @RequestParam (name = "descriptionUk") String descriptionUk,
+        @RequestParam (name = "namePl") String namePl,
+        @RequestParam (name = "descriptionPl") String descriptionPl) throws IOException {
 
         Product existing = productService.findProductById(id);
 
         if(existing == null) {throw new RuntimeException("Product with id: " + id + " Does not exists.");}
                 
-        ProductTranslation pt = existing.getProductTranslation(locale.getLanguage());
+        // ProductTranslation pt = existing.getProductTranslation(locale.getLanguage());
 
-        if(pt == null) {
-            pt = new ProductTranslation();
-            pt.setLanguageCode(locale.getLanguage());
-            pt.setProduct(existing);
-            existing.getTranslations().add(pt);
-        }
+        // if(pt == null) {
+        //     pt = new ProductTranslation();
+        //     pt.setLanguageCode(locale.getLanguage());
+        //     pt.setProduct(existing);
+        //     existing.getTranslations().add(pt);
+        // }
 
-        pt.setName(product.getProductTranslation(locale.getLanguage()).getName());
-        pt.setDescription(product.getProductTranslation(locale.getLanguage()).getDescription());
+        // pt.setName(product.getProductTranslation(locale.getLanguage()).getName());
+        // pt.setDescription(product.getProductTranslation(locale.getLanguage()).getDescription());
         
         existing.setPrice(product.getPrice());
         existing.setQuantity(product.getQuantity());
@@ -245,6 +268,8 @@ public class AdminController {
         }
 
         productService.saveProduct(productService.updateProductSizesQuantity(existing, product.getSizes()));
+        productService.setNewTranslationForProduct(existing, "uk", nameUk, descriptionUk);
+        productService.setNewTranslationForProduct(existing, "pl", namePl, descriptionPl);
         return "redirect:/admin/products";
     }
 
@@ -275,8 +300,9 @@ public class AdminController {
 
 
     @GetMapping("/categories")
-    public String getAdminPanelCategories(Model model) {
+    public String getAdminPanelCategories(Model model, HttpServletRequest request) {
         model.addAttribute("category", new Category());
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("categories", productService.countProductsByCategory());
         return "admin/adminPanelCategories";
     }
@@ -315,7 +341,8 @@ public class AdminController {
 
 
     @GetMapping("/colors")
-    public String getAdminPanelColors(Model model) {
+    public String getAdminPanelColors(Model model, HttpServletRequest request) {
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("newColor", new Color());
         model.addAttribute("colors", productService.countProductsByColor());
         return "admin/adminPanelColors";
@@ -335,7 +362,8 @@ public class AdminController {
 
 
     @GetMapping("/materials")
-    public String getAdminPageMaterials(Model model) {
+    public String getAdminPageMaterials(Model model, HttpServletRequest request) {
+        model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("newMaterial", new Material());
         model.addAttribute("materials", productService.countProductsByMaterial());
         return "admin/adminPanelMaterials";

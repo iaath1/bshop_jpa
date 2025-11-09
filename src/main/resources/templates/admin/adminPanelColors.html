@@ -40,26 +40,37 @@
     <!-- Main -->
     <main class="main">
         <div class="topbar">
-            <h1 style="margin:0">Цвета</h1>
+            <h1 style="margin:0" th:text="#{admin.colorsTitle}">Цвета</h1>
             <div class="top-right">
+                    <div class="lang-switcher">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                            <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                        </div>
+                    </div>
+            </div>
                 <span class="muted">👤 <span sec:authentication="name">Admin</span></span>
                 <form th:action="@{/auth/logout}" method="post">
-                    <button class="btn" type="submit">Выйти</button>
+                    <button class="btn" type="submit" th:text="#{admin.logout}">Выйти</button>
                 </form>
             </div>
         </div>
 
         <!-- Create Color -->
         <section class="panel" style="margin-top: 20px;">
-    <h3>➕ Создать новый цвет</h3>
+    <h3 th:text="#{admin.createColor}">➕ Создать новый цвет</h3>
     <form th:action="@{/admin/colors/add}" method="post" class="form">
         <div class="form-group">
-            <label for="name">Название цвета:</label>
-            <input type="text" id="name" name="name" placeholder="Введите название..." required>
+            <label for="name" th:text="#{admin.colorName}">Название цвета:</label>
+            <input type="text" id="name" name="name" th:placeholder="#{admin.colorNamePlaceholder}" required>
         </div>
 
         <div class="form-group">
-            <label for="colorPicker">Выберите цвет:</label>
+            <label for="colorPicker" th:text="#{admin.chooseColor}">Выберите цвет:</label>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <input type="color" id="colorPicker" name="hexValue" value="#ffffff"
                        style="width: 60px; height: 40px; border: none; background: none; cursor: pointer;">
@@ -69,7 +80,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn">Создать</button>
+        <button type="submit" class="btn" th:text="#{admin.create}">Создать</button>
     </form>
 </section>
 
@@ -85,14 +96,14 @@
 
         <!-- Color list -->
         <section class="panel" style="margin-top: 20px;">
-            <h3>🎨 Все цвета</h3>
+            <h3 th:text="#{admin.colors}">🎨 Все цвета</h3>
             <table>
                 <thead>
                 <tr>
-                    <th>Цвет</th>
-                    <th>Название</th>
-                    <th>HEX</th>
-                    <th>Количество товаров</th>
+                    <th th:text="#{admin.color}">Цвет</th>
+                    <th th:text="#{admin.colorName}">Название</th>
+                    <th th:text="#{admin.colorHex}">HEX</th>
+                    <th th:text="#{admin.colorProducts}">Количество товаров</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -105,7 +116,7 @@
                     <td th:text="${color.count}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(colors)}">
-                    <td colspan="4" class="muted">Нет данных</td>
+                    <td colspan="4" class="muted" th:text="#{admin.noData}">Нет данных</td>
                 </tr>
                 </tbody>
             </table>
