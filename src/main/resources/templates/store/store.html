@@ -83,7 +83,7 @@
             <option value="" th:selected="${parameters.categoryId == null or parameters.categoryId == ''}" th:text="#{filter.categories}">Все категории</option>
             <option th:each="cat : ${categories}"
                     th:value="${cat.id}"
-                    th:text="${cat.name}"
+                    th:text="${lang == 'uk' ? cat.nameUa : (lang == 'pl' ? cat.namePl : cat.nameUa)}"
                     th:selected="${parameters.categoryId != null and parameters.categoryId == cat.id}">
             </option>
         </select>
@@ -161,7 +161,7 @@
     <!-- 🗂️ Категория -->
     <div class="category-section" th:if="${prod.category != null}">
         <span class="category-label" th:text="#{page.categoryText}">Категория:</span>
-        <span class="category-name" th:text="${prod.category.name}">Футболки</span>
+        <span class="category-name" th:text="${lang == 'uk' ? prod.category.nameUa : (lang == 'pl' ? prod.category.namePl : prod.category.nameUa)}">Футболки</span>
     </div>
     </div>
 

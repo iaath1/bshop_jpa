@@ -19,8 +19,8 @@ public class CategoryService {
         return categoryRepo.findAll();
     }
 
-    public boolean existsByName(String name) {
-        return categoryRepo.existsByName(name);
+    public boolean existsByName(String nameUa, String namePl) {
+        return categoryRepo.existsByNameUaAndNamePl(nameUa, namePl);
     }
 
     public void saveCategory(Category category) {

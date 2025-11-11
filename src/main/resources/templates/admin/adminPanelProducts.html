@@ -66,7 +66,7 @@
             <option value="" th:text="#{filter.categories}">Все категории</option>
             <option th:each="cat : ${categories}"
                     th:value="${cat.id}"
-                    th:text="${cat.name}"
+                    th:text="${lang == 'uk' ? cat.nameUa : (lang == 'pl' ? cat.namePl : cat.nameUa)}"
                     th:selected="${parameters.categoryId != null and parameters.categoryId == cat.id}">
             </option>
         </select>
@@ -139,7 +139,7 @@
                 </div>
             </td>
 
-            <td th:text="${prod.category != null ? prod.category.name : '—'}"></td>
+            <td th:text="${lang == 'uk' ? prod.category.nameUa : (lang == 'pl' ? prod.category.namePl : prod.category.nameUa)}"></td>
             <td th:text="${prod.material != null ? prod.material.name : '—'}"></td>
             <td>
     <div th:if="${prod.color != null}" style="display: flex; align-items: center; gap: 6px;">

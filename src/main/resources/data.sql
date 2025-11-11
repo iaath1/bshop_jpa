@@ -1,9 +1,10 @@
-INSERT INTO categories (name) VALUES
-('Футболки'),
-('Кроссовки'),
-('Джинсы'),
-('Куртки'),
-('Шорты');
+INSERT INTO categories (name_ua, name_pl) VALUES
+('Футболки', 'Koszulki'),
+('Кроссовки', 'Buty sportowe'),
+('Джинси', 'Dżinsy'),
+('Куртки', 'Kurtki'),
+('Шорти', 'Szorty');
+
 
 INSERT INTO materials (name) VALUES
 ('Хлопок'),

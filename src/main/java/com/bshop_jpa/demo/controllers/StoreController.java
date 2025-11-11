@@ -81,6 +81,7 @@ public class StoreController {
         params.put("sizeName", sizeName);
         params.put("materialId", materialId);
 
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("colors", colorService.findAllColors());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("categories", categoryService.findAllCategories());

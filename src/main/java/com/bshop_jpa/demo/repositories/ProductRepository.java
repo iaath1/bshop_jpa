@@ -16,9 +16,9 @@ import com.bshop_jpa.demo.models.Product;
 @Repository
 public interface ProductRepository extends CrudRepository<Product, Long> {
     
-    @Query("SELECT new com.bshop_jpa.demo.DTO.CategoryCountDTO(c.name, c.id, COUNT(p)) " +
+    @Query("SELECT new com.bshop_jpa.demo.DTO.CategoryCountDTO(c.nameUa, c.namePl, c.id, COUNT(p)) " +
        "FROM Category c LEFT JOIN Product p ON p.category = c " +
-       "GROUP BY c.name, c.id")
+       "GROUP BY c.nameUa, c.namePl, c.id")
     List<CategoryCountDTO> countProductsByCategory();
 
    //  @Query("SELECT new com.bshop_jpa.demo.DTO.SizeCountDTO(s.name, s.id, COUNT(p)) " +

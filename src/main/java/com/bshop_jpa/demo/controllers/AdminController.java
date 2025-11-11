@@ -38,7 +38,6 @@ import com.bshop_jpa.demo.models.Color;
 import com.bshop_jpa.demo.models.Image;
 import com.bshop_jpa.demo.models.Material;
 import com.bshop_jpa.demo.models.Product;
-import com.bshop_jpa.demo.models.ProductTranslation;
 import com.bshop_jpa.demo.models.Role;
 import com.bshop_jpa.demo.models.Status;
 import com.bshop_jpa.demo.services.CategoryService;
@@ -127,7 +126,8 @@ public class AdminController {
         params.put("categoryId", categoryId);
         params.put("sizeName", sizeName);
         params.put("materialId", materialId);
-
+        
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("products", products);
         model.addAttribute("parameters", params);
@@ -139,10 +139,11 @@ public class AdminController {
     }
 
     @GetMapping("/products/add")
-    public String getAdminPanelProductAdd(Model model) {
+    public String getAdminPanelProductAdd(Model model, Locale locale) {
         Product product = new Product();
         product.setSizes(productService.setBlankSizes(product));
 
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("product", product);
         model.addAttribute("colors", colorService.findAllColors());
         model.addAttribute("materials", materialService.findAllMaterials());
@@ -189,10 +190,11 @@ public class AdminController {
     }
 
     @GetMapping("/products/update/{id}")
-    public String getAdminPanelProductsUpdate(@PathVariable Long id, Model model) {
+    public String getAdminPanelProductsUpdate(@PathVariable Long id, Model model, Locale locale) {
         Product product = productService.sortProductSizes(productService.findProductById(id));
         product.getImages().removeIf(img -> img.getImageUrl() == null || img.getImageUrl().isBlank());
 
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("nameUk", product.getProductTranslation("uk").getName());
         model.addAttribute("descriptionUk", product.getProductTranslation("uk").getDescription());
         model.addAttribute("namePl", product.getProductTranslation("pl").getName());
@@ -309,7 +311,7 @@ public class AdminController {
 
     @PostMapping("/categories/add")
     public String postAdminPanelCategoriesAdd(Model model, @ModelAttribute Category category) {
-        if(categoryService.existsByName(category.getName())) {
+        if(categoryService.existsByName(category.getNameUa(), category.getNamePl())) {
             model.addAttribute("error", "Category with this name already exists");
             return "redirect:/admin/categories";
         }

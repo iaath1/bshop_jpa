@@ -187,7 +187,7 @@
         <div class="form-group">
             <label for="category">Категорія</label>
             <select id="category" th:field="*{category.id}" class="input-lg">
-                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${lang == 'uk' ? c.nameUa : (lang == 'pl' ? c.namePl : c.nameUa)}"></option>
             </select>
         </div>
 

@@ -58,8 +58,10 @@
             <h3 th:text="#{admin.createCategory}">➕ Создать новую категорию</h3>
             <form th:action="@{/admin/categories/add}" th:object="${category}" method="post" class="form">
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="name" th:text="#{admin.categoryName}">Название категории:</label>
-                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{admin.categoryNamePlaceholder}" required>
+                    <label for="name" th:text="#{admin.categoryNameUA}">Название категории UA:</label>
+                    <input type="text" id="name" th:field="*{nameUa}" th:placeholder="#{admin.categoryNamePlaceholder}" required>
+                    <label for="name" th:text="#{admin.categoryNamePL}">Название категории PL:</label>
+                    <input type="text" id="name" th:field="*{namePl}" th:placeholder="#{admin.categoryNamePlaceholder}" required>
                 </div>
                 <button type="submit" class="btn" th:text="#{admin.create}">Создать</button>
             </form>
@@ -67,13 +69,15 @@
             <table>
                 <thead>
                 <tr>
-                    <th th:text="#{admin.categoryName}">Имя</th>
+                    <th th:text="#{admin.categoryNameUA}">Имя</th>
+                    <th th:text="#{admin.categoryNamePL}">Имя</th>
                     <th th:text="#{admin.categoryProducts}">Общее количество товаров</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="cat : ${categories}">
-                    <td th:text="${cat.name}"></td>
+                    <td th:text="${cat.nameUa}"></td>
+                    <td th:text="${cat.namePl}"></td>
                     <td th:text="${cat.count}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(categories)}">
