@@ -18,5 +18,8 @@ public class Material {
     private Integer id;
 
     @Column(nullable = false, length = 20, unique = true)
-    private String name;
+    private String nameUa;
+
+    @Column(nullable = false, length = 20, unique = true)
+    private String namePl;
 }

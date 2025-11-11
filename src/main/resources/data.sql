@@ -6,12 +6,13 @@ INSERT INTO categories (name_ua, name_pl) VALUES
 ('Шорти', 'Szorty');
 
 
-INSERT INTO materials (name) VALUES
-('Хлопок'),
-('Полиэстер'),
-('Джинса'),
-('Кожа'),
-('Нейлон');
+INSERT INTO materials (name_ua, name_pl) VALUES
+('Хлопок', 'Bawełna'),
+('Полиэстер', 'Poliester'),
+('Джинса', 'Dżins'),
+('Кожа', 'Skóra'),
+('Нейлон', 'Nylon');
+
 
 INSERT INTO colors (name, hex_value) VALUES
 ('Белый',  '#FFFFFF'),

@@ -102,7 +102,7 @@
             <option value="" th:selected="${parameters.materialId == null or parameters.materialId == ''}" th:text="#{filter.materials}">Все материалы</option>
             <option th:each="m : ${materials}"
                     th:value="${m.id}"
-                    th:text="${m.name}"
+                    th:text="${lang == 'uk' ? m.nameUa : (lang == 'pl' ? m.namePl : m.nameUa)}"
                     th:selected="${parameters.materialId != null and parameters.materialId == m.id}">
             </option>
         </select>
@@ -155,7 +155,7 @@
 
     <div class="material-section" th:if="${prod.material != null}">
         <span class="material-label" th:text="#{page.materialText}">Материал:</span>
-        <span class="material-name" th:text="${prod.material.name}">Хлопок</span>
+        <span class="material-name" th:text="${lang == 'uk' ? prod.material.nameUa : (lang == 'pl' ? prod.material.namePl : prod.material.nameUa)}">Хлопок</span>
     </div>
 
     <!-- 🗂️ Категория -->

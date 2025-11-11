@@ -364,7 +364,9 @@ public class AdminController {
 
 
     @GetMapping("/materials")
-    public String getAdminPageMaterials(Model model, HttpServletRequest request) {
+    public String getAdminPageMaterials(Model model, HttpServletRequest request, Locale locale) {
+
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("newMaterial", new Material());
         model.addAttribute("materials", productService.countProductsByMaterial());
@@ -373,7 +375,7 @@ public class AdminController {
 
     @PostMapping("/materials/add")
     public String postAdminPageMaterialAdd(Model model, @ModelAttribute Material material) {
-        if(materialService.existsByName(material.getName())) {
+        if(materialService.existsByName(material.getNameUa(), material.getNamePl())) {
             model.addAttribute("error", "Material with this name already exists");
             return "redirect:/admin/materials";
         }

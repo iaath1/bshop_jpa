@@ -20,8 +20,8 @@ public class MaterialService {
         return materialRepo.findAll();
     }
 
-    public boolean existsByName(String name) {
-        return materialRepo.existsByName(name);
+    public boolean existsByName(String nameUa, String namePl) {
+        return materialRepo.existsByNameUaAndNamePl(nameUa, namePl);
     }
 
     public void saveMaterial(Material material) {

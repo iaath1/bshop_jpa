@@ -56,8 +56,11 @@
             <h3 th:text="#{admin.createMaterial}">➕ Создать новый материал</h3>
             <form th:action="@{/admin/materials/add}" th:object="${newMaterial}" method="post" class="form">
                 <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="name" th:text="#{admin.materialName}">Название материала:</label>
-                    <input type="text" id="name" th:field="*{name}" th:placeholder="#{admin.materialNamePlaceholder}" required>
+                    <label for="nameUa" th:text="#{admin.materialNameUA}">Название материала:</label>
+                    <input type="text" id="name" th:field="*{nameUa}" th:placeholder="#{admin.materialNamePlaceholder}" required>
+
+                    <label for="namePl" th:text="#{admin.materialNamePL}">Название материала:</label>
+                    <input type="text" id="name" th:field="*{namePl}" th:placeholder="#{admin.materialNamePlaceholder}" required>
                 </div>
                 <button type="submit" class="btn" th:text="#{admin.create}">Создать</button>
             </form>
@@ -65,13 +68,15 @@
             <table>
                 <thead>
                 <tr>
-                    <th th:text="#{admin.materialName}">Имя</th>
+                    <th th:text="#{admin.materialNameUA}">Имя</th>
+                    <th th:text="#{admin.materialNamePL}">Имя</th>
                     <th th:text="#{admin.materialProducts}">Общее количество товаров</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="material : ${materials}">
-                    <td th:text="${material.name}"></td>
+                    <td th:text="${material.nameUa}"></td>
+                    <td th:text="${material.namePl}"></td>
                     <td th:text="${material.count}"></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(materials)}">

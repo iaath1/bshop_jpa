@@ -194,7 +194,7 @@
         <div class="form-group">
             <label for="material">Матеріал</label>
             <select id="material" th:field="*{material.id}" class="input-lg">
-                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${m.name}"></option>
+                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${lang == 'uk' ? m.nameUa : (lang == 'pl' ? m.namePl : m.nameUa)}"></option>
             </select>
         </div>
 
