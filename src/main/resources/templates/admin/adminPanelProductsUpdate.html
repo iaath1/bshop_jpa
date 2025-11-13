@@ -84,7 +84,7 @@
 
     <main class="main">
         <div class="topbar">
-            <h1>Редагування товару</h1>
+            <h1 th:text="#{admin.productUpdateTitle}">Редагування товару</h1>
         </div>
 
         <div class="panel form-panel">
@@ -95,7 +95,7 @@
 
         <!-- Поточні зображення -->
         <div class="form-group">
-            <label>Поточні зображення:</label>
+            <label th:text="#{admin.productPhotos}">Поточні зображення:</label>
             <div class="image-gallery">
                 <div class="image-card"
                      th:each="img : ${product.images}"
@@ -108,28 +108,28 @@
 
         <!-- Нові зображення -->
         <div class="form-group">
-            <label>Додати нові зображення:</label>
+            <label th:text="#{admin.productAddPhoto}">Додати нові зображення:</label>
             <div class="file-upload">
                 <input type="file" id="files" name="files" multiple accept="image/*" onchange="previewFiles(event)" hidden>
-                <label for="files" class="file-label">📸 Обрати файли</label>
+                <label for="files" class="file-label" th:text="#{admin.productChoosePhoto}">📸 Обрати файли</label>
             </div>
             <div class="preview-gallery" id="preview"></div>
         </div>
 
         <!-- Переклади -->
         <div class="translation-section">
-            <h3>Переклади</h3>
+            <h3 th:text="#{admin.productTranslations}">Переклади</h3>
 
             <!-- 🇺🇦 Українська -->
             <div class="form-group">
-                <label for="nameUk">Назва (укр)</label>
+                <label for="nameUk" th:text="#{admin.productNameUA}">Назва (укр)</label>
                 <input type="text" id="nameUk" name="nameUk"
                        th:value="${nameUk}" class="input-lg"
                        placeholder="Назва українською...">
             </div>
 
             <div class="form-group">
-                <label for="descriptionUk">Опис (укр)</label>
+                <label for="descriptionUk" th:text="#{admin.productDescriptionUA}">Опис (укр)</label>
                 <textarea id="descriptionUk" name="descriptionUk"
                           rows="5" class="input-lg"
                           placeholder="Опис українською..."
@@ -138,14 +138,14 @@
 
             <!-- 🇵🇱 Польська -->
             <div class="form-group">
-                <label for="namePl">Назва (польськ.)</label>
+                <label for="namePl" th:text="#{admin.productNamePL}">Назва (польськ.)</label>
                 <input type="text" id="namePl" name="namePl"
                        th:value="${namePl}" class="input-lg"
                        placeholder="Nazwa po polsku...">
             </div>
 
             <div class="form-group">
-                <label for="descriptionPl">Опис (польськ.)</label>
+                <label for="descriptionPl" th:text="#{admin.productDescriptionPL}">Опис (польськ.)</label>
                 <textarea id="descriptionPl" name="descriptionPl"
                           rows="5" class="input-lg"
                           placeholder="Opis po polsku..."
@@ -155,19 +155,19 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label for="price">Ціна</label>
+                <label for="price" th:text="#{admin.productPrice}">Ціна</label>
                 <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" required>
             </div>
         </div>
 
         <!-- ✅ Розміри та кількість -->
         <div class="form-group">
-            <label>Розміри та кількість</label>
+            <label th:text="#{admin.productSizeAndQuantity}">Розміри та кількість</label>
             <table class="size-table">
                 <thead>
                     <tr>
-                        <th>Розмір</th>
-                        <th>Кількість</th>
+                        <th th:text="#{admin.productSize}">Розмір</th>
+                        <th th:text="#{admin.productQuantity}">Кількість</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -185,14 +185,14 @@
         </div>
 
         <div class="form-group">
-            <label for="category">Категорія</label>
+            <label for="category" th:text="#{admin.productCategory}">Категорія</label>
             <select id="category" th:field="*{category.id}" class="input-lg">
                 <option th:each="c : ${categories}" th:value="${c.id}" th:text="${lang == 'uk' ? c.nameUa : (lang == 'pl' ? c.namePl : c.nameUa)}"></option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="material">Матеріал</label>
+            <label for="material" th:text="#{admin.productMaterial}">Матеріал</label>
             <select id="material" th:field="*{material.id}" class="input-lg">
                 <option th:each="m : ${materials}" th:value="${m.id}" th:text="${lang == 'uk' ? m.nameUa : (lang == 'pl' ? m.namePl : m.nameUa)}"></option>
             </select>
@@ -200,12 +200,12 @@
 
         <!-- Колір -->
         <div class="form-group">
-            <label for="color">Колір</label>
+            <label for="color" th:text="#{admin.productColor}">Колір</label>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
                     <option th:each="cl : ${colors}"
                             th:value="${cl.id}"
-                            th:text="${cl.name}"
+                            th:text="${lang == 'uk' ? cl.nameUa : (lang == 'pl' ? cl.namePl : cl.nameUa)}"
                             th:data-hex="${cl.hexValue}">
                     </option>
                 </select>
@@ -217,7 +217,7 @@
         </div>
 
         <div style="text-align:right; margin-top:20px;">
-            <button type="submit" class="btn btn-lg">💾 Зберегти</button>
+            <button type="submit" class="btn btn-lg" th:text="#{admin.productUpdateApply}">💾 Зберегти</button>
         </div>
     </form>
 </div>

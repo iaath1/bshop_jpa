@@ -65,8 +65,11 @@
     <h3 th:text="#{admin.createColor}">➕ Создать новый цвет</h3>
     <form th:action="@{/admin/colors/add}" method="post" class="form">
         <div class="form-group">
-            <label for="name" th:text="#{admin.colorName}">Название цвета:</label>
-            <input type="text" id="name" name="name" th:placeholder="#{admin.colorNamePlaceholder}" required>
+            <label for="nameUa" th:text="#{admin.colorNameUA}">Название цвета:</label>
+            <input type="text" id="nameUa" name="nameUa" th:placeholder="#{admin.colorNamePlaceholder}" required>
+
+            <label for="namePl" th:text="#{admin.colorNamePL}">Название цвета:</label>
+            <input type="text" id="namePl" name="namePl" th:placeholder="#{admin.colorNamePlaceholder}" required>
         </div>
 
         <div class="form-group">
@@ -101,7 +104,8 @@
                 <thead>
                 <tr>
                     <th th:text="#{admin.color}">Цвет</th>
-                    <th th:text="#{admin.colorName}">Название</th>
+                    <th th:text="#{admin.colorNameUA}">Название</th>
+                    <th th:text="#{admin.colorNamePL}">Название</th>
                     <th th:text="#{admin.colorHex}">HEX</th>
                     <th th:text="#{admin.colorProducts}">Количество товаров</th>
                 </tr>
@@ -111,7 +115,8 @@
                     <td>
                         <div class="color-box" th:style="'background-color:' + ${color.hexValue}"></div>
                     </td>
-                    <td th:text="${color.name}"></td>
+                    <td th:text="${color.nameUa}"></td>
+                    <td th:text="${color.namePl}"></td>
                     <td th:text="${color.hexValue}"></td>
                     <td th:text="${color.count}"></td>
                 </tr>

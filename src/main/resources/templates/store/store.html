@@ -73,7 +73,7 @@
             <option value="" th:selected="${parameters.colorId == null or parameters.colorId == ''}" th:text="#{filter.colors}">Все цвета</option>
             <option th:each="c : ${colors}"
                     th:value="${c.id}"
-                    th:text="${c.name}"
+                    th:text="${lang == 'uk' ? c.nameUa : (lang == 'pl' ? c.namePl : c.nameUa)}"
                     th:selected="${parameters.colorId != null and parameters.colorId == c.id}">
             </option>
         </select>
@@ -150,7 +150,7 @@
         <div class="color-display">
             <div class="color-circle"
                  th:style="'background-color:' + ${prod.color.hexValue}"></div>
-            <span class="color-name" th:text="${prod.color.name}">Цвет</span>
+            <span class="color-name" th:text="${lang == 'uk' ? prod.color.nameUa : (lang == 'pl' ? prod.color.namePl : prod.color.nameUa)}">Цвет</span>
         </div>
 
     <div class="material-section" th:if="${prod.material != null}">

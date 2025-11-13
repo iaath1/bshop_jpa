@@ -275,11 +275,11 @@
     <div class="color-display" title="Цвет">
         <div class="color-circle"
              th:style="'background-color:' + ${product.color.hexValue}"></div>
-        <span class="color-name" th:text="${product.color.name}">Цвет</span>
+        <span class="color-name" th:text="${lang == 'uk' ? product.color.nameUa : (lang == 'pl' ? product.color.namePl : product.color.nameUa)}">Цвет</span>
     </div>
 </div>
 
-        <p th:if="${product.material != null}" th:text="#{page.materialText} + ${product.material.name}">Материал: Хлопок</p>
+        <p th:if="${product.material != null}" th:text="#{page.materialText} + ${lang == 'uk' ? product.color.nameUa : (lang == 'pl' ? product.color.namePl : product.color.nameUa)}">Материал: Хлопок</p>
     </div>
 
     <p class="description" th:text="${product.description}">

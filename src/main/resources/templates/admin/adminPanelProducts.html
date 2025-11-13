@@ -84,7 +84,7 @@
             <option value="" th:text="#{filter.colors}">Все цвета</option>
             <option th:each="col : ${colors}"
                     th:value="${col.id}"
-                    th:text="${col.name}"
+                    th:text="${lang == 'uk' ? col.nameUa : (lang == 'pl' ? col.namePl : col.nameUa)}"
                     th:selected="${parameters.colorId != null and parameters.colorId == col.id}">
             </option>
         </select>
@@ -144,7 +144,7 @@
             <td>
     <div th:if="${prod.color != null}" style="display: flex; align-items: center; gap: 6px;">
         <div th:style="'width:20px; height:20px; border-radius:50%; border:1px solid #ccc; background-color:' + ${prod.color.hexValue}"></div>
-        <span th:text="${prod.color.name}"></span>
+        <span th:text="${lang == 'uk' ? prod.color.nameUa : (lang == 'pl' ? prod.color.namePl : prod.color.nameUa)}"></span>
     </div>
     <div th:if="${prod.color == null}" class="muted">—</div>
 </td>

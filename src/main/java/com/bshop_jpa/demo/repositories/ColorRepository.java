@@ -9,7 +9,7 @@ import com.bshop_jpa.demo.models.Color;
 
 @Repository
 public interface ColorRepository extends CrudRepository<Color, Integer>{
-    boolean existsByName(String name);
+    boolean existsByNameUaAndNamePl(String nameUa, String namePl);
 
     List<Color> findAll();
 }

@@ -14,12 +14,13 @@ INSERT INTO materials (name_ua, name_pl) VALUES
 ('Нейлон', 'Nylon');
 
 
-INSERT INTO colors (name, hex_value) VALUES
-('Белый',  '#FFFFFF'),
-('Чёрный', '#000000'),
-('Синий',  '#0000FF'),
-('Красный', '#FF0000'),
-('Зелёный', '#008000');
+INSERT INTO colors (name_ua, name_pl, hex_value) VALUES
+('Білий', 'Biały', '#FFFFFF'),
+('Чорний', 'Czarny', '#000000'),
+('Синій', 'Niebieski', '#0000FF'),
+('Червоний', 'Czerwony', '#FF0000'),
+('Зелений', 'Zielony', '#008000');
+
 
 INSERT INTO roles(name) VALUES ('ROLE_CUSTOMER'), ('ROLE_ADMIN');
 

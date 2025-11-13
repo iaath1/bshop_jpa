@@ -103,14 +103,16 @@ public class StoreController {
     // }
 
     @GetMapping("/product/{id}")
-    public String getStoreProductDetails(@PathVariable Long id, Model model, HttpServletRequest request) {
+    public String getStoreProductDetails(@PathVariable Long id, Model model, HttpServletRequest request, Locale locale) {
         Product product = productService.findProductById(id);
         if(product == null) {
             return "redirect:/store";
         }
 
+
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("currentUrl", request.getRequestURI());
-        model.addAttribute("product", productService.sortProductSizes(product));
+        model.addAttribute("product", productService.localizateProduct(productService.sortProductSizes(product), locale.getLanguage()));
         return "store/productDetails";
     }
 

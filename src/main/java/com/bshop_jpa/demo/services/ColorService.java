@@ -20,8 +20,8 @@ public class ColorService {
         return colorRepo.findAll();
     }
 
-    public boolean existsByName(String name) {
-        return colorRepo.existsByName(name);
+    public boolean existsByName(String nameUa, String namePl) {
+        return colorRepo.existsByNameUaAndNamePl(nameUa, namePl);
     }
 
     public void saveColor(Color color) {

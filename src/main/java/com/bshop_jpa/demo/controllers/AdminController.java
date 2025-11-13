@@ -343,7 +343,8 @@ public class AdminController {
 
 
     @GetMapping("/colors")
-    public String getAdminPanelColors(Model model, HttpServletRequest request) {
+    public String getAdminPanelColors(Model model, HttpServletRequest request, Locale locale) {
+        model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("newColor", new Color());
         model.addAttribute("colors", productService.countProductsByColor());
@@ -352,7 +353,7 @@ public class AdminController {
 
     @PostMapping("/colors/add")
     public String postAdminPanelColorsAdd(Model model, @ModelAttribute Color color) {
-        if(colorService.existsByName(color.getName())) {
+        if(colorService.existsByName(color.getNameUa(), color.getNamePl())) {
             model.addAttribute("error", "Color with this name already exists");
             return "redirect:/admin/colors";
         }

@@ -212,6 +212,17 @@ public class ProductService {
             .toList();
     }
 
+    public Product localizateProduct(Product product, String lang) {
+        ProductTranslation pt = product.getProductTranslation(lang);
+
+        if(pt != null) {
+            product.setName(pt.getName());
+            product.setDescription(pt.getDescription());
+        }
+
+        return product;
+    }
+
     public List<Product> findProductByName(String name, List<Product> products) {
         return products.stream()
             .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))

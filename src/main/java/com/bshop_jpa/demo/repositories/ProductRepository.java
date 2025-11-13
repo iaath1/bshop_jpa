@@ -26,9 +26,9 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
    //     "GROUP BY s.name, s.id")
    //  List<SizeCountDTO> countProductsBySize();
 
-    @Query("SELECT new com.bshop_jpa.demo.DTO.ColorCountDTO(c.name, COUNT(p), c.hexValue) " +
+    @Query("SELECT new com.bshop_jpa.demo.DTO.ColorCountDTO(c.nameUa, c.namePl, COUNT(p), c.hexValue) " +
        "FROM Color c LEFT JOIN Product p ON p.color = c " +
-       "GROUP BY c.name, c.hexValue")
+       "GROUP BY c.nameUa, c.namePl, c.hexValue")
     List<ColorCountDTO> countProductsByColor();
 
     @Query("SELECT new com.bshop_jpa.demo.DTO.MaterialCountDTO(m.nameUa, m.namePl, COUNT(p)) " +
