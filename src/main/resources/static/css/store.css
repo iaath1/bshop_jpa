@@ -1057,6 +1057,41 @@ body {
     border: 1px solid #ccc;
 }
 
+.delivery-block {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.delivery-block label {
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.delivery-block input[type="radio"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+#lockerResult-auth, #lockerResult-guest {
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 4px solid #4cafef;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

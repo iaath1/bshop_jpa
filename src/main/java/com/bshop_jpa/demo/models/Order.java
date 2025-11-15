@@ -39,7 +39,7 @@ public class Order {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "total_amount", nullable = false)
+    @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -48,6 +48,7 @@ public class Order {
     @Column(name = "guest_email", nullable = true)
     private String guestEmail;
 
-    @Column(name = "delivery_address", nullable = true)
-    private String deliveryAddress;
+    private String lockerId;
+    private String lockerName;
+    private String lockerAddress;
 }

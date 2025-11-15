@@ -28,5 +28,11 @@ public class ProductTranslation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;  
+
+    @Override
+    public String toString() {
+        return "ProductTranslation [id=" + id + ", name=" + name + ", description=" + description + ", languageCode="
+                + languageCode + "]";
+    }
     
 }

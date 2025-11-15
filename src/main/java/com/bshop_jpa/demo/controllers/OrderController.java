@@ -3,6 +3,7 @@ package com.bshop_jpa.demo.controllers;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,7 @@ public class OrderController {
     }
 
     @GetMapping("/cart")
-    public String getOrderPage(Model model, @AuthenticationPrincipal User user, HttpServletRequest request) {
+    public String getOrderPage(Model model, @AuthenticationPrincipal User user, HttpServletRequest request, Locale locale) {
 
         if(user == null) {
             return "redirect:/login";
@@ -57,8 +58,12 @@ public class OrderController {
         BigDecimal total = BigDecimal.ZERO;
         List<CartItem> cartItems = cartService.findCartByUser(user).getItems();
 
+
         for(CartItem item : cartItems) {
             total = total.add(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            item.getProduct().setName(
+                productService.localizateProduct(item.getProduct(), locale.getLanguage()).getName()
+            );
         }
 
         model.addAttribute("currentUrl", request.getRequestURI());
@@ -70,15 +75,53 @@ public class OrderController {
         model.addAttribute("totalAmount", total);
         return "order/order";
     }
+
+
+
     
-    @PostMapping("/cart")
-    public String postOrderPage(@AuthenticationPrincipal User user, @RequestParam String address,
-                                            @RequestParam(required = false) String email) {
+    @GetMapping("/{id}")
+    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user, HttpServletRequest request,
+     @RequestParam(required = true, name = "sizeId") Integer sizeId, Locale locale) {
+
+        Product product = productService.findProductById(id);
+
+        if(product == null) {
+            return "redirect:/store";
+        }
+
+        if(user != null) {
+            model.addAttribute("user", user);
+        }
+
+        ProductForOrder productForOrder = new ProductForOrder();
+        productForOrder.setName(productService.localizateProduct(product, locale.getLanguage()).getName());
+        productForOrder.setPrice(product.getPrice());
+        productForOrder.setProductId(id);
+        productForOrder.setQuantity(1);
+        productForOrder.setSize(sizeService.getSizeById(sizeId));
+        productForOrder.setColor(product.getColor());
+        productForOrder.setMaterial(product.getMaterial());
+        productForOrder.setPreviewImageUrl(product.getPreviewImageUrl());
+
+        model.addAttribute("currentUrl", request.getRequestURI());
+        model.addAttribute("productForOrder", productForOrder);
+        return "order/order";
+    }
+
+    @GetMapping("/address")
+    public String getOrderAddressPage() {
+        return "order/address";
+    }
+
+    @PostMapping("/address/submit")
+    public String postOrderAddressPage(@AuthenticationPrincipal User user,
+                                        @RequestParam String lockerId,
+                                        @RequestParam String lockerName,
+                                        @RequestParam String lockerAddress) {
         Order order = new Order();
 
         if(user != null) {
             order.setUser(user);
-            order.setDeliveryAddress(address);
             
         }
 
@@ -97,6 +140,9 @@ public class OrderController {
             orderItems.add(orderItem);
         }
 
+        order.setLockerAddress(lockerAddress);
+        order.setLockerId(lockerId);
+        order.setLockerName(lockerName);
         order.setTotalPrice(total);
         order.setItems(orderItems);
         order.setStatus(statusService.findStatusByName("NEW"));
@@ -108,59 +154,56 @@ public class OrderController {
     }
 
 
-
-    
-    @GetMapping("/{id}")
-    public String getOrderPageUnauthorized(Model model, @PathVariable Long id, @AuthenticationPrincipal User user, HttpServletRequest request,
-     @RequestParam(required = true, name = "sizeId") Integer sizeId) {
-
-        Product product = productService.findProductById(id);
-
-        if(product == null) {
-            return "redirect:/store";
-        }
-
-        if(user != null) {
-            model.addAttribute("user", user);
-        }
-
-        ProductForOrder productForOrder = new ProductForOrder();
-        productForOrder.setName(product.getName());
-        productForOrder.setPrice(product.getPrice());
-        productForOrder.setProductId(id);
-        productForOrder.setQuantity(1);
-        productForOrder.setSize(sizeService.getSizeById(sizeId));
-        productForOrder.setColor(product.getColor());
-        productForOrder.setMaterial(product.getMaterial());
-        productForOrder.setPreviewImageUrl(product.getPreviewImageUrl());
-
-        model.addAttribute("currentUrl", request.getRequestURI());
-        model.addAttribute("productForOrder", productForOrder);
-        return "order/order";
-    }
-
-    @PostMapping("/{id}")
-    public String postOrderPageUnathorized(@AuthenticationPrincipal User user, @PathVariable Long id, @RequestParam String address,
+    @GetMapping("/address/unauthorized")
+    public String getOrderAddresUnathorized(Model model, @RequestParam(required = true, name = "productForOrder.sizeId") Integer sizeId,
+                                            @RequestParam(required = true, name = "productForOrder.productId") Long productId,
+                                            @RequestParam(required = true, name = "productForOrder.quantity") Integer quantity,
                                             @RequestParam(required = false) String email) {
 
-        Product product = productService.findProductById(id);
+        model.addAttribute("sizeId", sizeId);
+        model.addAttribute("productId", productId);
+        model.addAttribute("quantity", quantity);
+        model.addAttribute("email", email);
+        return "order/address";
+    }
+
+
+    @PostMapping("/address/unauthorized/submit")
+    public String postOrderPageUnathorized(@RequestParam String lockerId,
+                                            @RequestParam String lockerName,
+                                            @RequestParam String lockerAddress,
+                                            @RequestParam Long productId,
+                                            @RequestParam Integer sizeId,
+                                            @RequestParam Integer quantity,
+                                            @RequestParam String email) {
         Order order = new Order();
 
+        order.setGuestEmail(email);
+        order.setLockerAddress(lockerAddress);
+        order.setLockerId(lockerId);
+        order.setLockerName(lockerName);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+
+        Product productForOrder = productService.findProductById(productId);
+
         OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(product);
-            orderItem.setPrice(product.getPrice());
-            orderItem.setQuantity(1);
-            orderItem.setOrder(order);
+        orderItem.setOrder(order);
+        orderItem.setProduct(productService.findProductById(productId));
+        orderItem.setPrice(productForOrder.getPrice());
+        orderItem.setQuantity(quantity);
+        
+        total = total.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+        orderItems.add(orderItem);
 
-            order.setGuestEmail(email);
-            order.setDeliveryAddress(address);
-            order.setStatus(statusService.findStatusByName("NEW"));
-            order.getItems().add(orderItem);
-            order.setTotalPrice(product.getPrice());
-            
+        order.setTotalPrice(total);
+        order.setItems(orderItems);
+        order.setStatus(statusService.findStatusByName("NEW"));
 
-            orderService.saveOrder(order);
-            return "redirect:/payment";
+        orderService.saveOrder(order);
+        
+        return "redirect:/payment";
     }
 
 

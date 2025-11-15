@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wybierz Punkt Odbioru w Polsce</title>
+    <style>
+        /* Стили остаются такими же как в предыдущем примере */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #dc143c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .map-container {
+            flex: 1;
+            min-width: 300px;
+            height: 500px;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .form-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 1px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .delivery-service {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .service-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .service-btn.active {
+            background: #dc143c;
+            color: white;
+        }
+        
+        .pickup-points {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .pickup-point {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .pickup-point.selected {
+            background: #ffeaea;
+            border-left: 4px solid #dc143c;
+        }
+        
+        .point-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #dc143c;
+        }
+        
+        .point-address {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .point-hours {
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #dc143c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+        }
+        
+        .no-points, .loading {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+        }
+        
+        .error {
+            padding: 20px;
+            text-align: center;
+            color: #dc143c;
+            background: #ffeaea;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Wybierz Punkt Odbioru Przesyłki</h1>
+            <p class="description">Znajdź najbliższy punkt odbioru na mapie lub na liście</p>
+        </header>
+        
+        <div class="content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="city-search">Miasto:</label>
+                    <input type="text" id="city-search" placeholder="Wpisz miasto" value="Warszawa">
+                </div>
+                
+                <div class="form-group">
+                    <label>Wybierz usługę dostawy:</label>
+                    <div class="delivery-service">
+                        <div class="service-btn active" data-service="inpost">InPost</div>
+                        <div class="service-btn" data-service="dhl">DHL</div>
+                        <div class="service-btn" data-service="poczta">Poczta Polska</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dostępne punkty odbioru:</label>
+                    <div class="pickup-points" id="points-list">
+                        <div class="loading">Ładowanie punktów InPost...</div>
+                    </div>
+                </div>
+
+                <form sec:authorize="isAuthenticated()" id="lockerForm" method = "post" th:action="@{address/submit}">                    
+                    <input type="hidden" id="lockerId" name="lockerId" value="">
+                    <input type="hidden" id="lockerName" name="lockerName" value="">
+                    <input type="hidden" id="lockerAddress" name="lockerAddress" value="">
+                </form>
+
+                <form sec:authorize="isAnonymous()" id="lockerForm" method = "post" th:action="@{unauthorized/submit}">
+                    <input type="hidden" id="sizeId" name="sizeId" th:value="${sizeId}">
+                    <input type="hidden" id="productId" name="productId" th:value="${productId}">
+                    <input type="hidden" id="quantity" name="quantity" th:value="${quantity}">
+                    <input type="hidden" id="email" name="email" th:value="${email}">
+                    
+                    <input type="hidden" id="lockerId" name="lockerId" value="">
+                    <input type="hidden" id="lockerName" name="lockerName" value="">
+                    <input type="hidden" id="lockerAddress" name="lockerAddress" value="">
+                </form>
+                
+                <button class="btn" id="select-btn" disabled>Wybierz punkt odbioru</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let markers = [];
+        let selectedPoint = null;
+        let selectedService = 'inpost';
+        
+        // Инициализация карты
+        function initMap() {
+            const warsaw = { lat: 52.2297, lng: 21.0122 };
+            
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 10,
+                center: warsaw,
+                styles: [{"featureType": "poi", "stylers": [{"visibility": "off"}]}]
+            });
+            
+            // Обработчики служб доставки
+            document.querySelectorAll('.service-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedService = this.getAttribute('data-service');
+                    loadPointsForSelectedService();
+                });
+            });
+            
+            // Обработчик поиска по городу
+            document.getElementById('city-search').addEventListener('change', function() {
+                loadPointsForSelectedService();
+            });
+            
+            // Загружаем точки при старте
+            loadPointsForSelectedService();
+        }
+        
+        // Загрузка точек для выбранной службы
+        async function loadPointsForSelectedService() {
+            const city = document.getElementById('city-search').value.trim();
+            if (!city) return;
+            
+            showLoading();
+            
+            try {
+                let points = [];
+                
+                switch(selectedService) {
+                    case 'inpost':
+                        points = await getInPostPoints(city);
+                        break;
+                    case 'dhl':
+                        points = await getDHLPointsMock(city); // Заглушка, т.к. нужен API ключ
+                        break;
+                    case 'poczta':
+                        points = await getPocztaPolskaPointsMock(city); // Заглушка
+                        break;
+                }
+                
+                displayPoints(points);
+                updateMap(points);
+                
+            } catch (error) {
+                showError('Błąd ładowania punktów: ' + error.message);
+            }
+        }
+        
+        // Реальное API InPost
+        async function getInPostPoints(city = null) {
+            try {
+                let url = 'https://api-pl-points.easypack24.net/v1/points';
+                
+                if (city) {
+                    url += `?city=${encodeURIComponent(city)}`;
+                }
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Błąd pobierania danych z InPost');
+                }
+                
+                const data = await response.json();
+                
+                // Преобразуем данные InPost в наш формат
+                return data.items.map(item => ({
+                    id: item.name,
+                    name: `Paczkomat InPost ${item.name}`,
+                    address: `${item.address.line1}, ${item.address.line2}`,
+                    lat: item.location.latitude,
+                    lng: item.location.longitude,
+                    hours: item.opening_hours ? item.opening_hours[0]?.description || '24/7' : '24/7',
+                    phone: item.phone_number || null,
+                    service: 'inpost'
+                }));
+            } catch (error) {
+                console.error('Error fetching InPost points:', error);
+                throw error;
+            }
+        }
+        
+        // Заглушки для других служб (в реальном проекте заменить на настоящие API)
+        async function getDHLPointsMock(city) {
+            // В реальном проекте используйте DHL API
+            return [];
+        }
+        
+        async function getPocztaPolskaPointsMock(city) {
+            // В реальном проекте используйте Poczta Polska API
+            return [];
+        }
+        
+        // Отображение точек на карте
+        function updateMap(points) {
+            // Очищаем старые маркеры
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            if (points.length === 0) return;
+            
+            // Добавляем новые маркеры
+            const bounds = new google.maps.LatLngBounds();
+            
+            points.forEach(point => {
+                const marker = new google.maps.Marker({
+                    position: { lat: point.lat, lng: point.lng },
+                    map: map,
+                    title: point.name,
+                    icon: getMarkerIcon(point.service)
+                });
+                
+                marker.addListener('click', () => selectPoint(point));
+                markers.push(marker);
+                bounds.extend(marker.getPosition());
+            });
+            
+            // Центрируем карту на всех маркерах
+            map.fitBounds(bounds);
+        }
+        
+        // Отображение точек в списке
+        function displayPoints(points) {
+            const pointsList = document.getElementById('points-list');
+            
+            if (points.length === 0) {
+                pointsList.innerHTML = '<div class="no-points">Nie znaleziono punktów odbioru</div>';
+                return;
+            }
+            
+            pointsList.innerHTML = points.map(point => `
+                <div class="pickup-point ${selectedPoint?.id === point.id ? 'selected' : ''}" 
+                     onclick="selectPoint(${JSON.stringify(point).replace(/"/g, '&quot;')})">
+                    <div class="point-name">${point.name}</div>
+                    <div class="point-address">${point.address}</div>
+                    <div class="point-hours">Godziny: ${point.hours}</div>
+                    ${point.phone ? `<div class="point-phone">Tel: ${point.phone}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Выбор точки
+        function selectPoint(point) {
+            selectedPoint = point;
+            displayPoints([point]); // Обновляем список чтобы показать выделение
+            updateSelectButton();
+            
+            // Центрируем карту на выбранной точке
+            map.setCenter({ lat: point.lat, lng: point.lng });
+            map.setZoom(16);
+
+            document.getElementById('lockerId').value = point.id;
+            document.getElementById('lockerName').value = point.name;
+            document.getElementById('lockerAddress').value = point.address;
+        }
+        
+        // Обновление кнопки выбора
+        function updateSelectButton() {
+            const btn = document.getElementById('select-btn');
+            if (selectedPoint) {
+                btn.disabled = false;
+                btn.textContent = `Wybierz: ${selectedPoint.name.substring(0, 20)}...`;
+            } else {
+                btn.disabled = true;
+                btn.textContent = 'Wybierz punkt odbioru';
+            }
+        }
+        
+        // Вспомогательные функции
+        function showLoading() {
+            document.getElementById('points-list').innerHTML = '<div class="loading">Ładowanie punktów...</div>';
+        }
+        
+        function showError(message) {
+            document.getElementById('points-list').innerHTML = `<div class="error">${message}</div>`;
+        }
+        
+        function getMarkerIcon(service) {
+            const colors = { 'inpost': '#dc143c', 'dhl': '#FFCC00', 'poczta': '#0032A0' };
+            const color = colors[service] || '#dc143c';
+            
+            return {
+                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                    <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 0C6.716 0 0 6.716 0 15c0 15 15 25 15 25s15-10 15-25c0-8.284-6.716-15-15-15z" fill="${color}"/>
+                        <circle cx="15" cy="15" r="8" fill="white"/>
+                    </svg>
+                `)}`,
+                scaledSize: new google.maps.Size(30, 40),
+                anchor: new google.maps.Point(15, 40)
+            };
+        }
+        
+        // Обработчик кнопки выбора
+        document.getElementById('select-btn').addEventListener('click', () => {
+            if (selectedPoint) {
+                document.getElementById('lockerForm').submit();
+            }
+        });
+        
+        // Инициализация при загрузке
+        window.initMap = initMap;
+    </script>
+    
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6WMqHUEZfeSAoa21OIGvENY_oWqBsTvI&callback=initMap&language=pl&region=PL">
+    </script>
+</body>
+</html>

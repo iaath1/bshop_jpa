@@ -181,21 +181,19 @@
 
 
     <!-- Авторизованный -->
-    <form sec:authorize="isAuthenticated()" th:action="@{/order/cart}" method="post" class="order-form">
-        <label th:text="#{order.addressText}">Ваш адрес доставки:</label>
-        <input type="text" name="address"
-               th:value="${#authentication.principal.address}"
-               th:placeholder="#{order.addressInputText}" required>
+    <form sec:authorize="isAuthenticated()" th:action="@{/order/address}" method="get" class="order-form">
         <button type="submit" class="btn" th:text="#{order.submitText}">Подтвердить заказ</button>
     </form>
 
     <!-- Гость -->
-    <form sec:authorize="isAnonymous()" th:action="@{/order/{id}(id=${productForOrder.productId})}" method="post" class="order-form">
-        <label th:text="#{order.addressText}">Ваш адрес доставки:</label>
-        <input type="text" name="address" th:placeholder="#{order.addressInputText}" required>
+    <form sec:authorize="isAnonymous()" th:action="@{/order/address/unauthorized}" method="get" class="order-form">
+        <input type="hidden" name="productForOrder.productId" th:value="${productForOrder.productId}">
+        <input type="hidden" name="productForOrder.sizeId" th:value="${productForOrder.size.id}">
+        <input type="hidden" name="productForOrder.quantity" th:value="${productForOrder.quantity}">
+
         <label th:text="#{order.emailText}">Ваш email для связи:</label>
         <input type="email" name="email" th:placeholder="#{order.emailInputText}" required>
-        <button type="submit" class="btn" th:text="#{order.submitText}">Подтвердить заказ</button>
+        <button type="submit" class="btn" >Выбрать пачкомат</button>
     </form>
 </section>
 

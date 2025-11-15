@@ -57,6 +57,7 @@
                 <thead>
                 <tr>
                     <th th:text="#{admin.orderId}">ID</th>
+                    <th th:text="#{admin.address}"></th>
                     <th th:text="#{admin.orderEmail}">Email пользователя</th>
                     <th th:text="#{admin.orderStatus}">Статус</th>
                     <th th:text="#{admin.orderCreatedAt}">Создано</th>
@@ -67,11 +68,12 @@
                 <tbody>
                 <tr th:each="order : ${orders}">
                     <td th:text="${order.id}">1</td>
+                    <td th:text="${order.lockerAddress}">Адрес</td>
                     <td th:text="${order.user != null ? order.user.email : order.guestEmail}">гость</td>
                     <td th:text="${order.status.name}"></td>
                     <td th:text="${order.createdAt}"></td>
                     <td th:text="${order.updatedAt}">0</td>
-                    <td th:text="${order.totalAmount}">0</td>
+                    <td th:text="${order.totalPrice}">0</td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(orders)}">
                     <td colspan="5" class="muted" th:text="#{admin.noData}">Нет данных</td>
