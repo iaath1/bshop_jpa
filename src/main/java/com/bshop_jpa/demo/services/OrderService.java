@@ -37,5 +37,9 @@ public class OrderService {
         return orderRepo.count();
     }
 
+    public Order findOrderById(Long orderId) {
+        return orderRepo.findById(orderId).orElse(null);
+    }
+
 
 }

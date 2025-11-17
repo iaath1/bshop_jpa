@@ -42,6 +42,9 @@ public class Order {
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 
+    @Column(name = "total_price_gr", nullable = false)
+    private Long totalPriceGr;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 

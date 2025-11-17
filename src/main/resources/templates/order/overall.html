@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Podsumowanie zamówienia</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        .checkout-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+        h2 { color: #444; }
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .total {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .btn-pay {
+            background: #6772E5;
+            color: white;
+            padding: 14px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-pay:hover {
+            background: #5469D4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <h2>Podsumowanie zamówienia</h2>
+
+    <!-- -------------------- TOWARY -------------------- -->
+    <div class="section">
+        <h3>Produkty</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Ilość</th>
+                <th>Cena</th>
+                <th>Suma</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <!-- Thymeleaf — список товаров -->
+            <tr th:each="item : ${orderItems}">
+                <td th:text="${item.product.name}"></td>
+                <td th:text="${item.quantity}"></td>
+                <td th:text="${item.product.price} + ' zł'"></td>
+                 <td th:text="${item.product.price * item.quantity} + ' zł'"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="total">
+            Razem: <span th:text="${order.totalPrice} + ' zł'"></span>
+        </p>
+    </div>
+
+    <!-- -------------------- ADRES -------------------- -->
+    <div class="section">
+        <h3>Adres dostawy</h3>
+        <p><span th:text="${address}"></span></p>
+    </div>
+
+    <!-- -------------------- КНОПКА STRIPE -------------------- -->
+    <button class="btn-pay" id="payBtn">Zapłać Stripe</button>
+</div>
+
+
+<script>
+    const stripe = Stripe("pk_live_51STn7MFBbPiG0s5PPQOdwLtn45ABxmwExAhle5LoTBNOjdKV13RwHvhOaEva9JeRTIsJtET6yM5HZSd6nUEaqoCC00PtUUt2uX"); // Public key (frontend)
+
+    document.getElementById("payBtn").addEventListener("click", async () => {
+
+        // Создаём Stripe Checkout Session
+        const response = await fetch("/stripe/create-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                orderId: [[${orderId}]]
+            })
+        });
+
+        const session = await response.json();
+
+        // Перенаправление пользователя на Stripe Checkout
+        stripe.redirectToCheckout({ sessionId: session.id });
+    });
+</script>
+
+</body>
+</html>

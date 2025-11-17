@@ -144,13 +144,14 @@ public class OrderController {
         order.setLockerId(lockerId);
         order.setLockerName(lockerName);
         order.setTotalPrice(total);
+        order.setTotalPriceGr(total.multiply(new BigDecimal(100)).longValue());
         order.setItems(orderItems);
         order.setStatus(statusService.findStatusByName("NEW"));
 
         orderService.saveOrder(order);
         cartService.clearCartByUser(user);
         
-        return "redirect:/payment";
+        return "redirect:/order/overall?orderId=" + order.getId();
     }
 
 
@@ -198,12 +199,37 @@ public class OrderController {
         orderItems.add(orderItem);
 
         order.setTotalPrice(total);
+        order.setTotalPriceGr(total.multiply(new BigDecimal(100)).longValue());
         order.setItems(orderItems);
         order.setStatus(statusService.findStatusByName("NEW"));
 
         orderService.saveOrder(order);
         
-        return "redirect:/payment";
+        return "redirect:/order/overall?orderId=" + order.getId();
+    }
+
+    @GetMapping("/overall")
+    public String getOrderOverallPage(@RequestParam("orderId") Long orderId, Model model) {
+        Order order = orderService.findOrderById(orderId);
+
+        model.addAttribute("order", order);
+        model.addAttribute("orderItems", order.getItems());
+        model.addAttribute("address", order.getLockerAddress());
+        model.addAttribute("orderId", order.getId());
+        return "order/overall";
+    }
+
+    // @GetMapping("/payment/success")
+    // // public String getOrderPageSuccessPayment() {
+    // //     return "order/success";
+    // // }
+
+    @GetMapping("/payment/cancel")
+    public String getOrderPageCancelPayment(@RequestParam("orderId") Long orderId, Model model) {
+        Order order = orderService.findOrderById(orderId);
+        order.setStatus(statusService.findStatusByName("CANCELED"));
+        orderService.saveOrder(order);
+        return "order/success";
     }
 
 
