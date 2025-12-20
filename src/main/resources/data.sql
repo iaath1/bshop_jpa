@@ -24,7 +24,7 @@ INSERT INTO colors (name_ua, name_pl, hex_value) VALUES
 
 INSERT INTO roles(name) VALUES ('ROLE_CUSTOMER'), ('ROLE_ADMIN');
 
-INSERT INTO statuses(name) VALUES ('NEW'), ('PAYED'), ('SHIPPING'), ('SHIPPED'), ('RETURNED'), ('CANCELED');
+INSERT INTO statuses(name) VALUES ('NEW'), ('PAID'), ('SHIPPING'), ('SHIPPED'), ('RETURNED'), ('CANCELED');
 
 
 INSERT INTO products (price, category_id, material_id, color_id) VALUES

@@ -1,69 +1,140 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Podsumowanie zamówienia</title>
+
     <script src="https://js.stripe.com/v3/"></script>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            padding: 20px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f5f6fa;
+            padding: 30px;
+            color: #333;
         }
+
         .checkout-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+            overflow: hidden;
         }
-        h2 { color: #444; }
+
+        h2 {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .section {
+            padding: 25px;
+        }
+
         table {
             width: 100%;
-            margin-top: 15px;
             border-collapse: collapse;
         }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
+
+        th {
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 12px;
         }
-        .total {
-            font-size: 20px;
-            font-weight: bold;
+
+        td {
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .product {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product img {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .price {
+            font-weight: 600;
+        }
+
+        .total-box {
             text-align: right;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 20px;
         }
-        .section {
-            margin-bottom: 30px;
+
+        .address-box {
+            background: #f8f9fc;
+            padding: 18px;
+            border-radius: 10px;
+            border: 1px solid #e3e6f0;
+            font-size: 15px;
         }
+
+        .pay-box {
+            padding: 25px;
+            border-top: 1px solid #eee;
+        }
+
         .btn-pay {
-            background: #6772E5;
-            color: white;
-            padding: 14px 20px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
             width: 100%;
+            background: linear-gradient(135deg, #6772E5, #5469D4);
+            color: #fff;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform .1s, box-shadow .1s;
         }
+
         .btn-pay:hover {
-            background: #5469D4;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(103,114,229,.4);
+        }
+
+        .secure {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #777;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .product img { width: 55px; height: 55px; }
         }
     </style>
 </head>
 <body>
 
 <div class="checkout-container">
-    <h2>Podsumowanie zamówienia</h2>
 
-    <!-- -------------------- TOWARY -------------------- -->
+    <h2>🧾 Podsumowanie zamówienia</h2>
+
+    <!-- ===== PRODUCTS ===== -->
     <div class="section">
-        <h3>Produkty</h3>
-
         <table>
             <thead>
             <tr>
-                <th>Nazwa</th>
+                <th>Produkt</th>
                 <th>Ilość</th>
                 <th>Cena</th>
                 <th>Suma</th>
@@ -71,38 +142,47 @@
             </thead>
 
             <tbody>
-            <!-- Thymeleaf — список товаров -->
             <tr th:each="item : ${orderItems}">
-                <td th:text="${item.product.name}"></td>
+                <td>
+                    <div class="product">
+                        <img th:src="@{${item.product.previewImageUrl}}" alt="product">
+                        <span th:text="${item.product.name}"></span>
+                    </div>
+                </td>
                 <td th:text="${item.quantity}"></td>
-                <td th:text="${item.product.price} + ' zł'"></td>
-                 <td th:text="${item.product.price * item.quantity} + ' zł'"></td>
+                <td class="price" th:text="${item.product.price} + ' zł'"></td>
+                <td class="price"
+                    th:text="${item.product.price * item.quantity} + ' zł'"></td>
             </tr>
             </tbody>
         </table>
 
-        <p class="total">
+        <div class="total-box">
             Razem: <span th:text="${order.totalPrice} + ' zł'"></span>
-        </p>
+        </div>
     </div>
 
-    <!-- -------------------- ADRES -------------------- -->
+    <!-- ===== ADDRESS ===== -->
     <div class="section">
-        <h3>Adres dostawy</h3>
-        <p><span th:text="${address}"></span></p>
+        <h3>📦 Adres dostawy</h3>
+        <div class="address-box" th:text="${address}"></div>
     </div>
 
-    <!-- -------------------- КНОПКА STRIPE -------------------- -->
-    <button class="btn-pay" id="payBtn">Zapłać Stripe</button>
+    <!-- ===== PAYMENT ===== -->
+    <div class="pay-box">
+        <button class="btn-pay" id="payBtn">
+            Zapłać bezpiecznie przez Stripe
+        </button>
+        <div class="secure">
+            🔒 Bezpieczna płatność • Karta / Apple Pay / Google Pay
+        </div>
+    </div>
 </div>
 
-
 <script>
-    const stripe = Stripe("pk_live_51STn7MFBbPiG0s5PPQOdwLtn45ABxmwExAhle5LoTBNOjdKV13RwHvhOaEva9JeRTIsJtET6yM5HZSd6nUEaqoCC00PtUUt2uX"); // Public key (frontend)
+    const stripe = Stripe("pk_live_51STn7MFBbPiG0s5PPQOdwLtn45ABxmwExAhle5LoTBNOjdKV13RwHvhOaEva9JeRTIsJtET6yM5HZSd6nUEaqoCC00PtUUt2uX");
 
     document.getElementById("payBtn").addEventListener("click", async () => {
-
-        // Создаём Stripe Checkout Session
         const response = await fetch("/stripe/create-session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -112,8 +192,6 @@
         });
 
         const session = await response.json();
-
-        // Перенаправление пользователя на Stripe Checkout
         stripe.redirectToCheckout({ sessionId: session.id });
     });
 </script>

@@ -117,7 +117,8 @@ public class OrderController {
     public String postOrderAddressPage(@AuthenticationPrincipal User user,
                                         @RequestParam String lockerId,
                                         @RequestParam String lockerName,
-                                        @RequestParam String lockerAddress) {
+                                        @RequestParam String lockerAddress,
+                                        Locale locale) {
         Order order = new Order();
 
         if(user != null) {
@@ -132,7 +133,7 @@ public class OrderController {
         for(CartItem item : cartItems) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
-            orderItem.setProduct(item.getProduct());
+            orderItem.setProduct(productService.localizateProduct(item.getProduct(), locale.getLanguage()));
             orderItem.setPrice(item.getProduct().getPrice());
             orderItem.setQuantity(item.getQuantity());
             
@@ -176,7 +177,8 @@ public class OrderController {
                                             @RequestParam Long productId,
                                             @RequestParam Integer sizeId,
                                             @RequestParam Integer quantity,
-                                            @RequestParam String email) {
+                                            @RequestParam String email,
+                                            Locale locale) {
         Order order = new Order();
 
         order.setGuestEmail(email);
@@ -189,15 +191,18 @@ public class OrderController {
 
         Product productForOrder = productService.findProductById(productId);
 
+        productForOrder = productService.localizateProduct(productForOrder, locale.getLanguage());
+
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
-        orderItem.setProduct(productService.findProductById(productId));
+        orderItem.setProduct(productForOrder);
         orderItem.setPrice(productForOrder.getPrice());
         orderItem.setQuantity(quantity);
         
         total = total.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
         orderItems.add(orderItem);
-
+        
+        order.setPaid(false);
         order.setTotalPrice(total);
         order.setTotalPriceGr(total.multiply(new BigDecimal(100)).longValue());
         order.setItems(orderItems);
@@ -212,6 +217,10 @@ public class OrderController {
     public String getOrderOverallPage(@RequestParam("orderId") Long orderId, Model model) {
         Order order = orderService.findOrderById(orderId);
 
+        if(order == null) {
+            return "redirect:/order/error";
+        }
+
         model.addAttribute("order", order);
         model.addAttribute("orderItems", order.getItems());
         model.addAttribute("address", order.getLockerAddress());
@@ -220,16 +229,16 @@ public class OrderController {
     }
 
     // @GetMapping("/payment/success")
-    // // public String getOrderPageSuccessPayment() {
-    // //     return "order/success";
-    // // }
+    // public String getOrderPageSuccessPayment(@RequestParam("orderId")) {
+    //     return "order/success";
+    // }
 
     @GetMapping("/payment/cancel")
     public String getOrderPageCancelPayment(@RequestParam("orderId") Long orderId, Model model) {
         Order order = orderService.findOrderById(orderId);
         order.setStatus(statusService.findStatusByName("CANCELED"));
         orderService.saveOrder(order);
-        return "order/success";
+        return "order/canceledPayment";
     }
 
 

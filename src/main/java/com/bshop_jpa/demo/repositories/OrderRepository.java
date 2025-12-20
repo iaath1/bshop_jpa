@@ -1,5 +1,6 @@
 package com.bshop_jpa.demo.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,6 @@ public interface OrderRepository extends CrudRepository<Order, Long>{
     List<StatusCountDTO> countOrdersByStatus();
 
     List<Order> findAll();
+
+    List<Order> findByPaidFalseAndCreatedAtBefore(LocalDateTime dateTime);
 }
