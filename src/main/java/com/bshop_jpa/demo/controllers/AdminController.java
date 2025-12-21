@@ -1,5 +1,6 @@
 package com.bshop_jpa.demo.controllers;
 import com.bshop_jpa.demo.services.ColorService;
+import com.bshop_jpa.demo.services.ImageService;
 import com.bshop_jpa.demo.services.MaterialService;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.ProductService;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +53,8 @@ import com.bshop_jpa.demo.repositories.UserRepository;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final String IMAGE_PATH = "/uploads/products/";
+    @Value("${app.upload.dir}")
+    private String MEDIA_PATH;
 
     @Autowired
     private final UserService userService;
@@ -65,11 +68,11 @@ public class AdminController {
     private final StatusService statusService;
     private final CategoryService categoryService;
     private final OrderService orderService;
-    private final ImageRepository imageRepo;
+    private final ImageService imageService;
 
     public AdminController(UserRepository userRepo, ProductService productService, ColorService colorService, MaterialService materialService, 
                             RoleRepository roleRepo, SizeService sizeService, StatusService statusService, CategoryService categoryService,
-                            OrderService orderService, UserService userService, ImageRepository imageRepo) {
+                            OrderService orderService, UserService userService, ImageService imageService) {
 
         this.userRepo = userRepo;
         this.productService = productService;
@@ -81,7 +84,7 @@ public class AdminController {
         this.categoryService = categoryService;
         this.userService = userService;
         this.orderService = orderService;
-        this.imageRepo = imageRepo;
+        this.imageService = imageService;
     }
 
 
@@ -163,11 +166,8 @@ public class AdminController {
         List<Image> images = new ArrayList<>();
 
         if (imageFiles.length != 0) {
-            // Папка, где будут храниться картинки (рядом с pom.xml)
-            String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
-
             // Создать папку, если её нет
-            Files.createDirectories(Paths.get(uploadDir));
+            Files.createDirectories(Paths.get(MEDIA_PATH));
 
         
             for(MultipartFile imageFile : imageFiles) {
@@ -175,11 +175,11 @@ public class AdminController {
                 String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
 
                 // Полный путь до файла
-                Path filePath = Paths.get(uploadDir, fileName);
+                Path filePath = Paths.get(MEDIA_PATH + "/media/", fileName);
                 Files.write(filePath, imageFile.getBytes());
 
                 // В БД сохраняем только путь для web
-                images.add(new Image(product, "/uploads/products/" + fileName));
+                images.add(new Image(product, "/media/" + fileName));
             }
         }
         product.setImages(images);
@@ -240,9 +240,7 @@ public class AdminController {
         existing.setMaterial(product.getMaterial());
         existing.setCategory(product.getCategory());
 
-        // Папка для загрузки
-        String uploadDir = System.getProperty("user.dir") + "/uploads/products/";
-        Files.createDirectories(Paths.get(uploadDir));
+        Files.createDirectories(Paths.get(MEDIA_PATH));
 
         // ✅ Добавляем новые изображения, не удаляя старые
         if (imageFiles != null && imageFiles.length > 0) {
@@ -260,11 +258,11 @@ public class AdminController {
                 String fileName = UUID.randomUUID() + extension;
 
                 // Полный путь
-                Path filePath = Paths.get(uploadDir, fileName);
+                Path filePath = Paths.get(MEDIA_PATH + "/media/", fileName);
                 Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
                 // Добавляем в список
-                Image image = new Image(existing, "/uploads/products/" + fileName);
+                Image image = new Image(existing, "/media/" + fileName);
                 existing.getImages().add(image);
             }
         }
@@ -280,7 +278,7 @@ public class AdminController {
     @DeleteMapping("/products/image/delete/{id}")
     @ResponseBody
     public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
-        imageRepo.deleteById(id);
+        imageService.deleteImageById(id);
         return ResponseEntity.ok().build();
     }
 

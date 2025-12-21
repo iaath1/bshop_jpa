@@ -153,45 +153,45 @@ ALTER SEQUENCE products_id_seq RESTART WITH 11;
 
 INSERT INTO image (product_id, image_url) VALUES
 -- Product 1
-(1, '/uploads/products/1_1.png'),
-(1, '/uploads/products/1_2.png'),
-(1, '/uploads/products/1_3.png'),
+(1, '/media/1_1.png'),
+(1, '/media/1_2.png'),
+(1, '/media/1_3.png'),
 
 -- Product 2
-(2, '/uploads/products/2_1.png'),
-(2, '/uploads/products/2_2.png'),
+(2, '/media/2_1.png'),
+(2, '/media/2_2.png'),
 
 -- Product 3
-(3, '/uploads/products/3_1.png'),
-(3, '/uploads/products/3_2.png'),
+(3, '/media/3_1.png'),
+(3, '/media/3_2.png'),
 
 -- Product 4
-(4, '/uploads/products/4_1.png'),
+(4, '/media/4_1.png'),
 
 -- Product 5
-(5, '/uploads/products/5_1.png'),
-(5, '/uploads/products/5_2.png'),
-(5, '/uploads/products/5_3.png'),
-(5, '/uploads/products/5_4.png'),
+(5, '/media/5_1.png'),
+(5, '/media/5_2.png'),
+(5, '/media/5_3.png'),
+(5, '/media/5_4.png'),
 
 -- Product 6
-(6, '/uploads/products/6_1.png'),
-(6, '/uploads/products/6_2.png'),
+(6, '/media/6_1.png'),
+(6, '/media/6_2.png'),
 
 -- Product 7
-(7, '/uploads/products/7_1.png'),
-(7, '/uploads/products/7_2.png'),
+(7, '/media/7_1.png'),
+(7, '/media/7_2.png'),
 
 -- Product 8
-(8, '/uploads/products/8_1.png'),
-(8, '/uploads/products/8_2.png'),
+(8, '/media/8_1.png'),
+(8, '/media/8_2.png'),
 
 -- Product 9
-(9, '/uploads/products/9_1.png'),
+(9, '/media/9_1.png'),
 
 -- Product 10
-(10, '/uploads/products/10_1.png'),
-(10, '/uploads/products/10_2.png');
+(10, '/media/10_1.png'),
+(10, '/media/10_2.png');
 
 
 

@@ -127,17 +127,17 @@
 
 <div class="checkout-container">
 
-    <h2>🧾 Podsumowanie zamówienia</h2>
+    <h2 th:text="#{overall.cardTitle}">🧾 Podsumowanie zamówienia</h2>
 
     <!-- ===== PRODUCTS ===== -->
     <div class="section">
         <table>
             <thead>
             <tr>
-                <th>Produkt</th>
-                <th>Ilość</th>
-                <th>Cena</th>
-                <th>Suma</th>
+                <th th:text="#{overall.productCol}">Produkt</th>
+                <th th:text="#{overall.quantityCol}">Ilość</th>
+                <th th:text="#{overall.priceCol}">Cena</th>
+                <th th:text="#{overall.sumCol}">Suma</th>
             </tr>
             </thead>
 
@@ -158,19 +158,19 @@
         </table>
 
         <div class="total-box">
-            Razem: <span th:text="${order.totalPrice} + ' zł'"></span>
+            <p th:text="#{overall.total}"></p> <span th:text="${order.totalPrice} + ' zł'"></span>
         </div>
     </div>
 
     <!-- ===== ADDRESS ===== -->
     <div class="section">
-        <h3>📦 Adres dostawy</h3>
+        <h3 th:text="#{overall.address}">📦 Adres dostawy</h3>
         <div class="address-box" th:text="${address}"></div>
     </div>
 
     <!-- ===== PAYMENT ===== -->
     <div class="pay-box">
-        <button class="btn-pay" id="payBtn">
+        <button class="btn-pay" id="payBtn" th:text="#{overall.submit}">
             Zapłać bezpiecznie przez Stripe
         </button>
         <div class="secure">

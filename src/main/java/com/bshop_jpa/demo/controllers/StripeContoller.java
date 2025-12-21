@@ -1,6 +1,7 @@
 package com.bshop_jpa.demo.controllers;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class StripeContoller {
 
     @PostMapping("/create-session")
     @ResponseBody
-    public Map<String, Object> createSession(@RequestBody CheckoutRequest request) throws StripeException {
+    public Map<String, Object> createSession(@RequestBody CheckoutRequest request, Locale locale) throws StripeException {
         Order order = orderService.findOrderById(request.getOrderId());
 
         SessionCreateParams.LineItem lineItem = 
@@ -69,11 +70,17 @@ public class StripeContoller {
                     .build()
             )
             .build();
+        
+        String language = locale.getLanguage();
 
+        if(language.equals("uk")) {
+            language = "en";
+        }
 
         
         SessionCreateParams params = 
             SessionCreateParams.builder()
+                .setLocale(SessionCreateParams.Locale.valueOf(language.toUpperCase()))
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .addLineItem(lineItem)
                 .setSuccessUrl(domain + "/order/payment/success?session_id={CHECKOUT_SESSION_ID}")

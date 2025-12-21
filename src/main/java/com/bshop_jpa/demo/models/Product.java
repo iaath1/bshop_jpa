@@ -59,8 +59,8 @@ public class Product {
     @JoinColumn(name = "color_id")
     private Color color;
 
-    @Column(name = "images_url", length = 255)
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
 
     

@@ -180,8 +180,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Wybierz Punkt Odbioru Przesyłki</h1>
-            <p class="description">Znajdź najbliższy punkt odbioru na mapie lub na liście</p>
+            <h1 th:text="#{address.selectLocker}">Wybierz Punkt Odbioru Przesyłki</h1>
+            <p class="description" th:text="#{address.selectLockerSmall}">Znajdź najbliższy punkt odbioru na mapie lub na liście</p>
         </header>
         
         <div class="content">
@@ -191,12 +191,12 @@
             
             <div class="form-container">
                 <div class="form-group">
-                    <label for="city-search">Miasto:</label>
+                    <label for="city-search" th:text="#{address.city}">Miasto:</label>
                     <input type="text" id="city-search" placeholder="Wpisz miasto" value="Warszawa">
                 </div>
                 
                 <div class="form-group">
-                    <label>Wybierz usługę dostawy:</label>
+                    <label th:text="#{address.selectLockerSmall}">Wybierz usługę dostawy:</label>
                     <div class="delivery-service">
                         <div class="service-btn active" data-service="inpost">InPost</div>
                         <div class="service-btn" data-service="dhl">DHL</div>
@@ -205,7 +205,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Dostępne punkty odbioru:</label>
+                    <label th:text="#{address.availableLockers}">Dostępne punkty odbioru:</label>
                     <div class="pickup-points" id="points-list">
                         <div class="loading">Ładowanie punktów InPost...</div>
                     </div>
@@ -228,12 +228,12 @@
                     <input type="hidden" id="lockerAddress" name="lockerAddress" value="">
                 </form>
                 
-                <button class="btn" id="select-btn" disabled>Wybierz punkt odbioru</button>
+                <button class="btn" id="select-btn" disabled th:text="#{address.submitDisabled}">Wybierz punkt odbioru</button>
             </div>
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         let map;
         let markers = [];
         let selectedPoint = null;
@@ -414,12 +414,15 @@
         // Обновление кнопки выбора
         function updateSelectButton() {
             const btn = document.getElementById('select-btn');
+            const submitText = [[#{address.submit}]]
+            const submitDisabled = [[#{address.submitDisabled}]]
+
             if (selectedPoint) {
                 btn.disabled = false;
-                btn.textContent = `Wybierz: ${selectedPoint.name.substring(0, 20)}...`;
+                btn.textContent = submitText + '' + selectedPoint.name.substring(0, 20) + '...';
             } else {
                 btn.disabled = true;
-                btn.textContent = 'Wybierz punkt odbioru';
+                btn.textContent = submitDisabled;
             }
         }
         
@@ -460,7 +463,7 @@
     </script>
     
     <script async defer
-        src="API_GOOGLE_KEY">
+        src="https://maps.googleapis.com/maps/api/js?key=API_GOOGLE_KEY&callback=initMap&language=pl&region=PL">
     </script>
 </body>
 </html>
