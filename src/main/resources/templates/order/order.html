@@ -182,7 +182,7 @@
 
     <!-- Авторизованный -->
     <form sec:authorize="isAuthenticated()" th:action="@{/order/address}" method="get" class="order-form">
-        <button type="submit" class="btn" th:text="#{order.submitText}">Подтвердить заказ</button>
+        <button type="submit" class="btn" th:text="#{order.submitText}"></button>
     </form>
 
     <!-- Гость -->

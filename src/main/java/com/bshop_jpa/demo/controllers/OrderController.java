@@ -20,7 +20,6 @@ import com.bshop_jpa.demo.models.OrderItem;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.ProductForOrder;
 import com.bshop_jpa.demo.models.User;
-import com.bshop_jpa.demo.repositories.SizeRepository;
 import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.ProductService;
