@@ -11,23 +11,28 @@ import com.bshop_jpa.demo.DTO.CategoryCountDTO;
 import com.bshop_jpa.demo.DTO.ColorCountDTO;
 import com.bshop_jpa.demo.DTO.MaterialCountDTO;
 import com.bshop_jpa.demo.models.Category;
+import com.bshop_jpa.demo.models.Image;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.ProductTranslation;
 import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.repositories.ProductRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class ProductService {
     
+    private final ImageService imageService;
     private final ProductRepository productRepo;
     private final SizeService sizeService;
     private final ProductTranslationService ptService;
     private static final List<String> SIZE_ORDER = List.of("XS", "S", "M", "L", "XL");
 
-    public ProductService(ProductRepository productRepo, SizeService sizeService, ProductTranslationService ptService) {
+    public ProductService(ProductRepository productRepo, SizeService sizeService, ProductTranslationService ptService, ImageService imageService) {
         this.productRepo = productRepo;
         this.sizeService = sizeService;
         this.ptService = ptService;
+        this.imageService = imageService;
     }
 
     public Product findProductById(Long id) {
@@ -73,6 +78,7 @@ public class ProductService {
         return productRepo.count();
     }
 
+    @Transactional
     public Product updateProductSizesQuantity(Product product, List<Size> updatedSizes) {
     if (product.getSizes() == null || updatedSizes == null) {
         return product;
@@ -88,11 +94,19 @@ public class ProductService {
     return product;
 }
 
+    @Transactional
     public void saveProduct(Product product) {
         productRepo.save(product);
     }
 
+    @Transactional
     public void deleteProductById(Long id) {
+        List<Image> images = findProductById(id).getImages();
+
+        for(Image image : images) {
+            imageService.deleteImageById(image.getId());
+        }
+
         productRepo.deleteById(id);
     }
 
@@ -122,6 +136,7 @@ public class ProductService {
         return sizes;
     }
 
+    @Transactional
     public void saveNewProduct(Product product) {
         if(product.getSizes() != null) {
             for(Size size : product.getSizes()) {

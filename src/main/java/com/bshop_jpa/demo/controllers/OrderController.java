@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,6 +39,9 @@ public class OrderController {
     private final CartService cartService;
     private final StatusService statusService;
     private final SizeService sizeService;
+
+    @Value("${google.api.key}")
+    private String googleMapsKey;
 
     public OrderController(ProductService productService, OrderService orderService, CartService cartService, StatusService statusService, SizeService sizeService) {
         this.productService = productService;
@@ -108,7 +112,8 @@ public class OrderController {
     }
 
     @GetMapping("/address")
-    public String getOrderAddressPage() {
+    public String getOrderAddressPage(Model model) {
+        model.addAttribute("googleMapsKey", googleMapsKey);
         return "order/address";
     }
 
@@ -165,6 +170,7 @@ public class OrderController {
         model.addAttribute("productId", productId);
         model.addAttribute("quantity", quantity);
         model.addAttribute("email", email);
+        model.addAttribute("googleMapsKey", googleMapsKey);
         return "order/address";
     }
 

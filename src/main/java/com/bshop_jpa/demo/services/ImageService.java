@@ -17,7 +17,7 @@ import jakarta.transaction.Transactional;
 public class ImageService {
     private final ImageRepository imageRepo;
 
-    @Value("${app.upload.dir}")
+    @Value("${app.delete.dir}")
     private String MEDIA_PATH;
 
     public ImageService(ImageRepository imageRepo) {

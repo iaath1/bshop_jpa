@@ -167,7 +167,8 @@ public class AdminController {
 
         if (imageFiles.length != 0) {
             // Создать папку, если её нет
-            Files.createDirectories(Paths.get(MEDIA_PATH));
+            Path uploadDir = Paths.get(MEDIA_PATH);
+            Files.createDirectories(uploadDir);
 
         
             for(MultipartFile imageFile : imageFiles) {
@@ -175,7 +176,7 @@ public class AdminController {
                 String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
 
                 // Полный путь до файла
-                Path filePath = Paths.get(MEDIA_PATH + "/media/", fileName);
+                Path filePath = uploadDir.resolve(fileName);
                 Files.write(filePath, imageFile.getBytes());
 
                 // В БД сохраняем только путь для web
@@ -239,8 +240,10 @@ public class AdminController {
         existing.setColor(product.getColor());
         existing.setMaterial(product.getMaterial());
         existing.setCategory(product.getCategory());
+        
+        Path uploadDir = Paths.get(MEDIA_PATH);
 
-        Files.createDirectories(Paths.get(MEDIA_PATH));
+        Files.createDirectories(uploadDir);
 
         // ✅ Добавляем новые изображения, не удаляя старые
         if (imageFiles != null && imageFiles.length > 0) {
@@ -258,7 +261,7 @@ public class AdminController {
                 String fileName = UUID.randomUUID() + extension;
 
                 // Полный путь
-                Path filePath = Paths.get(MEDIA_PATH + "/media/", fileName);
+                Path filePath = uploadDir.resolve(fileName);
                 Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
                 // Добавляем в список

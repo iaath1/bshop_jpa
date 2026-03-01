@@ -1,187 +1,16 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wybierz Punkt Odbioru w Polsce</title>
-    <style>
-        /* Стили остаются такими же как в предыдущем примере */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        
-        header {
-            background: #dc143c;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .content {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        
-        .map-container {
-            flex: 1;
-            min-width: 300px;
-            height: 500px;
-        }
-        
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-        
-        .form-container {
-            flex: 1;
-            min-width: 300px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-left: 1px solid #eee;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        .delivery-service {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .service-btn {
-            flex: 1;
-            min-width: 100px;
-            padding: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
-            cursor: pointer;
-        }
-        
-        .service-btn.active {
-            background: #dc143c;
-            color: white;
-        }
-        
-        .pickup-points {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-        }
-        
-        .pickup-point {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-        }
-        
-        .pickup-point.selected {
-            background: #ffeaea;
-            border-left: 4px solid #dc143c;
-        }
-        
-        .point-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #dc143c;
-        }
-        
-        .point-address {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .point-hours {
-            color: #888;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background: #dc143c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .btn:disabled {
-            background: #cccccc;
-        }
-        
-        .no-points, .loading {
-            padding: 20px;
-            text-align: center;
-            color: #888;
-        }
-        
-        .error {
-            padding: 20px;
-            text-align: center;
-            color: #dc143c;
-            background: #ffeaea;
-        }
-        
-        @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
-            }
-            
-            .map-container {
-                height: 300px;
-            }
-        }
-    </style>
+    <title th:text="#{address.selectLocker}">Wybierz Punkt Odbioru w Polsce</title>
+    <link rel="stylesheet" th:href="@{/css/pickup-points.css}">
 </head>
 <body>
     <div class="container">
         <header>
             <h1 th:text="#{address.selectLocker}">Wybierz Punkt Odbioru Przesyłki</h1>
-            <p class="description" th:text="#{address.selectLockerSmall}">Znajdź najbliższy punkt odbioru na mapie lub na liście</p>
+            <p class="description" th:text="#{address.selectLockerSmall}">Znajdź najbliższy punkt odbioru</p>
         </header>
         
         <div class="content">
@@ -211,371 +40,44 @@
                     </div>
                 </div>
 
-                <form sec:authorize="isAuthenticated()" id="lockerForm" method = "post" th:action="@{address/submit}">                    
-                    <input type="hidden" id="lockerId" name="lockerId" value="">
-                    <input type="hidden" id="lockerName" name="lockerName" value="">
-                    <input type="hidden" id="lockerAddress" name="lockerAddress" value="">
+                <!-- Форма для авторизованных пользователей -->
+                <form sec:authorize="isAuthenticated()" 
+                      id="lockerForm" 
+                      method="post" 
+                      th:action="@{/order/address/submit}">
+                    <input type="hidden" id="lockerId" name="lockerId">
+                    <input type="hidden" id="lockerName" name="lockerName">
+                    <input type="hidden" id="lockerAddress" name="lockerAddress">
                 </form>
 
-                <form sec:authorize="isAnonymous()" id="lockerForm" method = "post" th:action="@{unauthorized/submit}">
+                <!-- Форма для анонимных пользователей -->
+                <form sec:authorize="isAnonymous()" 
+                      id="lockerForm" 
+                      method="post" 
+                      th:action="@{/order/address/unauthorized/submit}">
                     <input type="hidden" id="sizeId" name="sizeId" th:value="${sizeId}">
                     <input type="hidden" id="productId" name="productId" th:value="${productId}">
                     <input type="hidden" id="quantity" name="quantity" th:value="${quantity}">
                     <input type="hidden" id="email" name="email" th:value="${email}">
                     
-                    <input type="hidden" id="lockerId" name="lockerId" value="">
-                    <input type="hidden" id="lockerName" name="lockerName" value="">
-                    <input type="hidden" id="lockerAddress" name="lockerAddress" value="">
+                    <input type="hidden" id="lockerId" name="lockerId">
+                    <input type="hidden" id="lockerName" name="lockerName">
+                    <input type="hidden" id="lockerAddress" name="lockerAddress">
                 </form>
                 
-                <button class="btn" id="select-btn" disabled th:text="#{address.submitDisabled}">Wybierz punkt odbioru</button>
+                <button class="btn" id="select-btn" disabled>
+                    <span th:text="#{address.submitDisabled}">Wybierz punkt odbioru</span>
+                </button>
             </div>
         </div>
     </div>
 
-<script th:inline="javascript">
-    // Оголошуємо всі змінні та функції в глобальній області
-    let map;
-    let markers = [];
-    let selectedPoint = null;
-    let selectedService = 'inpost';
-    
-    // Ініціалізація картки
-    window.initMap = function() {
-        const warsaw = { lat: 52.2297, lng: 21.0122 };
-        
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 10,
-            center: warsaw,
-            styles: [{"featureType": "poi", "stylers": [{"visibility": "off"}]}]
-        });
-        
-        // Обработчики служб доставки
-        document.querySelectorAll('.service-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                selectedService = this.getAttribute('data-service');
-                loadPointsForSelectedService();
-            });
-        });
-        
-        // Обработчик поиска по городу
-        document.getElementById('city-search').addEventListener('change', function() {
-            loadPointsForSelectedService();
-        });
-        
-        // Загружаем точки при старте
-        loadPointsForSelectedService();
-    };
-    
-    // Функція оновлення карти (виправлено - тепер в глобальній області)
-    window.updateMap = function(points) {
-        console.log('Updating map with points:', points); // Для відладки
-        
-        // Очищаем старые маркеры
-        if (markers && markers.length > 0) {
-            markers.forEach(marker => marker.setMap(null));
-        }
-        markers = [];
-        
-        if (!points || points.length === 0) {
-            console.log('No points to display on map');
-            return;
-        }
-        
-        // Добавляем новые маркеры
-        const bounds = new google.maps.LatLngBounds();
-        
-        points.forEach(point => {
-            if (!point.lat || !point.lng) {
-                console.warn('Point missing coordinates:', point);
-                return;
-            }
-            
-            const marker = new google.maps.Marker({
-                position: { lat: point.lat, lng: point.lng },
-                map: map,
-                title: point.name,
-                icon: getMarkerIcon(point.service)
-            });
-            
-            marker.addListener('click', () => selectPoint(point));
-            markers.push(marker);
-            bounds.extend(marker.getPosition());
-        });
-        
-        // Центрируем карту на всех маркерах
-        if (markers.length > 0) {
-            map.fitBounds(bounds);
-            
-            // Якщо тільки один маркер - приближуємо
-            if (markers.length === 1) {
-                map.setZoom(15);
-            }
-        }
-    };
-    
-    // Загрузка точек для выбранной службы
-    window.loadPointsForSelectedService = async function() {
-        const city = document.getElementById('city-search').value.trim();
-        if (!city) {
-            showError('Введіть назву міста');
-            return;
-        }
-        
-        showLoading();
-        
-        try {
-            let points = [];
-            
-            switch(selectedService) {
-                case 'inpost':
-                    points = await getInPostPoints(city);
-                    break;
-                case 'novapost':
-                    points = await getNovaPostPoints(city);
-                    break;
-                case 'poczta':
-                    points = await getPocztaPolskaPointsMock(city);
-                    break;
-                default:
-                    points = [];
-            }
-            
-            console.log('Loaded points:', points); // Для відладки
-            
-            displayPoints(points);
-            window.updateMap(points); // Використовуємо window.updateMap
-            
-        } catch (error) {
-            console.error('Error loading points:', error);
-            showError('Błąd ładowania punktów: ' + error.message);
-        }
-    };
-    
-    // Реальное API InPost
-    window.getInPostPoints = async function(city = null) {
-        try {
-            let url = 'https://api-pl-points.easypack24.net/v1/points';
-            
-            if (city) {
-                url += `?city=${encodeURIComponent(city)}`;
-            }
-            
-            console.log('Fetching InPost points from:', url);
-            
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Błąd pobierania danych z InPost: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Преобразуем данные InPost в наш формат
-            return data.items.map(item => ({
-                id: item.name,
-                name: `Paczkomat InPost ${item.name}`,
-                address: `${item.address.line1 || ''} ${item.address.line2 || ''}`.trim(),
-                lat: parseFloat(item.location.latitude),
-                lng: parseFloat(item.location.longitude),
-                hours: item.opening_hours ? 
-                    (item.opening_hours[0]?.description || '24/7') : '24/7',
-                phone: item.phone_number || null,
-                service: 'inpost'
-            }));
-        } catch (error) {
-            console.error('Error fetching InPost points:', error);
-            throw error;
-        }
-    };
-    
-    // Nova Post API
-    window.getNovaPostPoints = async function(city) {
-        try {
-            const response = await fetch(`/api/novapost/warehouses?city=${encodeURIComponent(city)}`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+<!-- Подключаем внешний JavaScript -->
+<script th:src="@{/js/pickup-points.js}"></script>
 
-            if (!response.ok) {
-                console.log('Real API failed, using mock data');
-            }
-
-            const result = await response.json();
-            
-            if (!result.success || !result.data) {
-                console.error('Invalid response from Nova Post API:', result);
-            }
-
-            return result.data
-                .filter(item => item.Latitude && item.Longitude && parseFloat(item.Latitude) !== 0)
-                .map(item => ({
-                    id: item.Ref,
-                    name: item.Description || item.DescriptionRu,
-                    address: item.ShortAddress || item.Address,
-                    lat: parseFloat(item.Latitude),
-                    lng: parseFloat(item.Longitude),
-                    hours: formatWorkSchedule(item.WorkSchedule),
-                    phone: item.Phone || "0 800 500 609",
-                    service: 'novapost'
-                }));
-        } catch (error) {
-            console.error('Error fetching Nova Post:', error);
-        }
-    };
-    
-    
-    // Форматування робочих годин
-    window.formatWorkSchedule = function(schedule) {
-        if (!schedule) return "Brak danych";
-        
-        if (typeof schedule === 'string') return schedule;
-        
-        if (Array.isArray(schedule)) {
-            return schedule.map(s => `${s.Days}: ${s.Hours}`).join(', ');
-        }
-        
-        return "Pon-Pt: 9:00-18:00";
-    };
-    
-    
-    // Отображение точек в списке
-    window.displayPoints = function(points) {
-        const pointsList = document.getElementById('points-list');
-        
-        if (!points || points.length === 0) {
-            pointsList.innerHTML = '<div class="no-points">Nie znaleziono punktów odbioru</div>';
-            return;
-        }
-        
-        pointsList.innerHTML = points.map(point => {
-            // Екрануємо дані для безпечного використання в onclick
-            const pointJson = JSON.stringify(point).replace(/"/g, '&quot;');
-            
-            return `
-                <div class="pickup-point ${selectedPoint?.id === point.id ? 'selected' : ''}" 
-                     onclick="window.selectPoint(${pointJson})">
-                    <div class="point-name">${escapeHtml(point.name)}</div>
-                    <div class="point-address">${escapeHtml(point.address)}</div>
-                    <div class="point-hours">Godziny: ${escapeHtml(point.hours)}</div>
-                    ${point.phone ? `<div class="point-phone">Tel: ${escapeHtml(point.phone)}</div>` : ''}
-                </div>
-            `;
-        }).join('');
-    };
-    
-    // Допоміжна функція для екранування HTML
-    window.escapeHtml = function(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    };
-    
-    // Выбор точки
-    window.selectPoint = function(point) {
-        console.log('Selected point:', point);
-        selectedPoint = point;
-        
-        // Оновлюємо список для відображення вибраного елемента
-        loadPointsForSelectedService(); // Перезавантажуємо список
-        
-        // Оновлюємо кнопку
-        updateSelectButton();
-
-        // Заповнюємо приховані поля форми
-        document.getElementById('lockerId').value = point.id || '';
-        document.getElementById('lockerName').value = point.name || '';
-        document.getElementById('lockerAddress').value = point.address || '';
-        
-        // Центрируем карту на выбранной точке
-        if (map && point.lat && point.lng) {
-            map.setCenter({ lat: point.lat, lng: point.lng });
-            map.setZoom(16);
-            
-            // Підсвічуємо маркер (можна додати анімацію)
-            const marker = markers.find(m => 
-                m.getPosition().lat() === point.lat && 
-                m.getPosition().lng() === point.lng
-            );
-            if (marker) {
-                marker.setAnimation(google.maps.Animation.BOUNCE);
-                setTimeout(() => marker.setAnimation(null), 750);
-            }
-        }
-    };
-    
-    // Обновление кнопки выбора
-    window.updateSelectButton = function() {
-        const btn = document.getElementById('select-btn');
-        // Текст з Thymeleaf
-        const submitText = [[#{address.submit}]];
-        const submitDisabled = [[#{address.submitDisabled}]];
-
-        if (selectedPoint) {
-            btn.disabled = false;
-            btn.textContent = submitText + ' ' + selectedPoint.name.substring(0, 30) + '...';
-        } else {
-            btn.disabled = true;
-            btn.textContent = submitDisabled;
-        }
-    };
-    
-    // Вспомогательные функции
-    window.showLoading = function() {
-        document.getElementById('points-list').innerHTML = '<div class="loading">Ładowanie punktów...</div>';
-    };
-    
-    window.showError = function(message) {
-        document.getElementById('points-list').innerHTML = `<div class="error">${message}</div>`;
-    };
-    
-    window.getMarkerIcon = function(service) {
-        const colors = { 
-            'inpost': '#dc143c', 
-            'novapost': '#E3000F', 
-            'poczta': '#0032A0' 
-        };
-        const color = colors[service] || '#dc143c';
-        
-        return {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-                <svg width="30" height="40" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 0C6.716 0 0 6.716 0 15c0 15 15 25 15 25s15-10 15-25c0-8.284-6.716-15-15-15z" fill="${color}"/>
-                    <circle cx="15" cy="15" r="8" fill="white"/>
-                </svg>
-            `)}`,
-            scaledSize: new google.maps.Size(30, 40),
-            anchor: new google.maps.Point(15, 40)
-        };
-    };
-    
-    // Обработчик кнопки выбора
-    document.getElementById('select-btn').addEventListener('click', () => {
-        if (selectedPoint) {
-            document.getElementById('lockerForm').submit();
-        }
-    });
-
-    // Додаємо обробник для поля пошуку при натисканні Enter
-    document.getElementById('city-search').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            loadPointsForSelectedService();
-        }
-    });
+<script async defer
+    th:src="@{'https://maps.googleapis.com/maps/api/js?key=' + ${googleMapsKey} + '&callback=initMap'}">
 </script>
     
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_API_KEY&callback=initMap&language=pl&region=PL">
-    </script>
 </body>
 </html>
