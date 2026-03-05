@@ -8,9 +8,9 @@ services:
       - POSTGRES_DB=#
       - POSTGRES_PASSWORD=#
       - STRIPE_SECRET_KEY=#
-      - STRIPE_PUBLIC_KEY= #
-      - STRIPE_WEBHOOK_SECRET= #
-      - NOVAPOST_API_KEY= #
+      - STRIPE_PUBLIC_KEY=#
+      - STRIPE_WEBHOOK_SECRET=#
+      - NOVAPOST_API_KEY=#
       - GOOGLE_API_KEY=#
       - APP_UPLOAD_DIR=#
     volumes:

@@ -1,6 +1,7 @@
 package com.bshop_jpa.demo.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,24 +26,39 @@ public class NovaPostApi {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @PostMapping("/warehouses")
-    public ResponseEntity<?> getWarehouses(@RequestParam String city) {
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("apiKey", novaPostApiKey);
-        requestBody.put("modelName", "Address");
-        requestBody.put("calledMethod", "getWarehouses");
+    public ResponseEntity<?> getWarehouses(@RequestBody Map<String, Object> body) {
 
-        Map<String, Object> methodProps = new HashMap<>();
-        methodProps.put("CityName", city);
+    String city = (String) body.get("city");
+    String search = (String) body.getOrDefault("search", "");
 
-        requestBody.put("methodProperties", methodProps);
+    Map<String, Object> requestBody = new HashMap<>();
+    requestBody.put("apiKey", novaPostApiKey);
+    requestBody.put("modelName", "Address");
+    requestBody.put("calledMethod", "getWarehouses");
 
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(novaPostApiUrl, requestBody, Map.class);
+    Map<String, Object> props = new HashMap<>();
 
-            return ResponseEntity.ok(response.getBody());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("success", false, "error", "NovaPost API error"));
-        }
-        
+    props.put("CityName", city);
+
+    if (!search.isEmpty()) {
+        props.put("FindByString", search);   // ⚡ ключевая оптимизация
     }
+
+    props.put("Limit", 200); // ⚡ ограничение
+
+    requestBody.put("methodProperties", props);
+
+    try {
+
+        ResponseEntity<Map> response =
+                restTemplate.postForEntity(novaPostApiUrl, requestBody, Map.class);
+
+        return ResponseEntity.ok(response.getBody());
+
+    } catch (Exception e) {
+
+        return ResponseEntity.internalServerError()
+                .body(Map.of("success", false, "error", "NovaPost API error"));
+    }
+}
 }

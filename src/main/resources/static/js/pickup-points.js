@@ -1,215 +1,401 @@
 (() => {
-    'use strict';
+'use strict';
 
-    let map = null;
-    let markers = [];
-    let selectedPoint = null;
-    let selectedService = 'inpost';
+const POINTS_PER_PAGE = 100;
+const MAX_POINTS = 1000;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const selectBtn = document.getElementById('select-btn');
-        const cityInput = document.getElementById('city-search');
+const pointsCache = new Map();
 
-        selectBtn.addEventListener('click', () => {
-            if (selectedPoint) {
-                document.getElementById('lockerForm').submit();
-            }
-        });
+let selectedPoint = null;
+let allPoints = [];
+let filteredPoints = [];
+let currentPage = 1;
 
-        cityInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                loadPointsForSelectedService();
-            }
-        });
+let currentCity = '';
+let currentStreet = '';
+let currentNumber = '';
+let currentService = null;
 
-        cityInput.addEventListener('change', loadPointsForSelectedService);
+let searchTimeout = null;
 
-        document.querySelectorAll('.service-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.service-btn')
-                    .forEach(b => b.classList.remove('active'));
+document.addEventListener('DOMContentLoaded', () => {
+    initializeEventListeners();
+});
 
-                this.classList.add('active');
-                selectedService = this.dataset.service;
-                loadPointsForSelectedService();
-            });
-        });
+function initializeEventListeners() {
+
+    const cityInput = document.getElementById('city-search');
+    const streetInput = document.getElementById('street-search');
+    const numberInput = document.getElementById('number-search');
+    const selectBtn = document.getElementById('select-btn');
+
+    function autoSearch() {
+
+        clearTimeout(searchTimeout);
+
+        searchTimeout = setTimeout(() => {
+            handleCitySearch();
+        }, 500);
+    }
+
+    cityInput?.addEventListener('input', autoSearch);
+    streetInput?.addEventListener('input', autoSearch);
+    numberInput?.addEventListener('input', autoSearch);
+
+    selectBtn.addEventListener('click', () => {
+
+        if (!selectedPoint) return;
+
+        const isAuthenticated =
+            document.querySelector('[sec\\:authorize="isAuthenticated()"]') !== null;
+
+        const form = document.getElementById(
+            isAuthenticated ? 'lockerForm' : 'lockerFormAnon'
+        );
+
+        if (!form) return;
+
+        if (isAuthenticated) {
+
+            document.getElementById('lockerId').value = selectedPoint.id;
+            document.getElementById('lockerName').value = selectedPoint.name;
+            document.getElementById('lockerAddress').value = selectedPoint.address;
+
+        } else {
+
+            document.getElementById('lockerIdAnon').value = selectedPoint.id;
+            document.getElementById('lockerNameAnon').value = selectedPoint.name;
+            document.getElementById('lockerAddressAnon').value = selectedPoint.address;
+        }
+
+        form.submit();
     });
+}
 
-    window.initMap = function () {
-        const warsaw = { lat: 52.2297, lng: 21.0122 };
+function containsCyrillic(text) {
+    return /[а-яёіїє]/i.test(text);
+}
 
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 10,
-            center: warsaw,
-            styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }]
-        });
+async function handleCitySearch() {
 
-        loadPointsForSelectedService();
-    };
+    const city = document.getElementById('city-search')?.value.trim();
+    const street = document.getElementById('street-search')?.value.trim() || '';
+    const number = document.getElementById('number-search')?.value.trim() || '';
 
-    async function loadPointsForSelectedService() {
-        const city = document.getElementById('city-search').value.trim();
-        if (!city) {
-            showError('Wpisz miasto');
+    if (!city) {
+        showError('Введіть місто');
+        return;
+    }
+
+    currentCity = city;
+    currentStreet = street;
+    currentNumber = number;
+
+    const service = containsCyrillic(city) ? 'novapost' : 'inpost';
+    currentService = service;
+
+    const cacheKey = `${service}-${city}-${street}-${number}`;
+
+    if (pointsCache.has(cacheKey)) {
+
+        allPoints = pointsCache.get(cacheKey);
+        filteredPoints = allPoints;
+        currentPage = 1;
+
+        displayPoints();
+        updateServiceIndicator(service, city, allPoints.length);
+
+        return;
+    }
+
+    showLoading('Завантаження відділень...');
+
+    try {
+
+        let points = [];
+
+        if (service === 'inpost') {
+            points = await getInPostPoints(city, street, number);
+        }
+
+        if (service === 'novapost') {
+            points = await getNovaPostPoints(city, street, number);
+        }
+
+        if (!points.length) {
+            showError('Нічого не знайдено');
             return;
         }
 
-        showLoading();
+        pointsCache.set(cacheKey, points);
 
-        try {
-            let points = [];
+        allPoints = points;
+        filteredPoints = points;
+        currentPage = 1;
 
-            switch (selectedService) {
-                case 'inpost':
-                    points = await getInPostPoints(city);
-                    break;
-                case 'novapost':
-                    points = await getNovaPostPoints(city);
-                    break;
-                default:
-                    points = [];
-            }
+        displayPoints();
+        updateServiceIndicator(service, city, points.length);
 
-            displayPoints(points);
-            updateMap(points);
+    } catch (error) {
 
-        } catch (error) {
-            console.error(error);
-            showError('Błąd ładowania punktów');
-        }
+        console.error(error);
+        showError('Помилка пошуку');
     }
+}
 
-    async function getInPostPoints(city) {
-        const url = `https://api-pl-points.easypack24.net/v1/points?city=${encodeURIComponent(city)}`;
+async function getInPostPoints(city, street = '', number = '') {
+
+    try {
+
+        const url =
+            `https://api-pl-points.easypack24.net/v1/points?city=${encodeURIComponent(city)}&per_page=${MAX_POINTS}`;
 
         const response = await fetch(url);
-        if (!response.ok) throw new Error('InPost API error');
+
+        if (!response.ok) {
+            throw new Error('InPost API error');
+        }
 
         const data = await response.json();
 
-        return data.items.map(item => ({
+        let points = data.items.map(item => ({
+
             id: item.name,
             name: `Paczkomat ${item.name}`,
-            address: `${item.address.line1 || ''} ${item.address.line2 || ''}`.trim(),
-            lat: parseFloat(item.location.latitude),
-            lng: parseFloat(item.location.longitude),
-            hours: item.opening_hours?.[0]?.description || '24/7',
-            phone: item.phone_number || null,
+            number: item.name,
+            address: item.address?.line1 || '',
+            details: item.location_description || '24/7',
             service: 'inpost'
-        }));
-    }
 
-    async function getNovaPostPoints(city) {
-        const response = await fetch(`/api/novapost/warehouses?city=${encodeURIComponent(city)}`, {
-            method: "POST"
+        }));
+
+        // Фильтр по улице (локально)
+        if (street) {
+
+            const streetLower = street.toLowerCase();
+
+            points = points.filter(p =>
+                p.address.toLowerCase().includes(streetLower)
+            );
+        }
+
+        // Фильтр по номеру пачкомата
+        if (number) {
+
+            const numberLower = number.toLowerCase();
+
+            points = points.filter(p =>
+                p.number.toLowerCase().includes(numberLower)
+            );
+        }
+
+        return points.slice(0, MAX_POINTS);
+
+    } catch (error) {
+
+        console.error(error);
+        return [];
+    }
+}
+
+async function getNovaPostPoints(city, street = '', number = '') {
+
+    try {
+
+        const response = await fetch('/api/novapost/warehouses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                city: city,
+                search: street || number || ''
+            })
         });
 
-        if (!response.ok) throw new Error('NovaPost API error');
+        if (!response.ok) {
+            return [];
+        }
 
         const result = await response.json();
-        if (!result.success) return [];
 
-        return result.data
-            .filter(item => item.Latitude && item.Longitude)
-            .map(item => ({
-                id: item.Ref,
-                name: item.Description,
-                address: item.ShortAddress,
-                lat: parseFloat(item.Latitude),
-                lng: parseFloat(item.Longitude),
-                hours: formatWorkSchedule(item.WorkSchedule),
-                phone: item.Phone,
-                service: 'novapost'
-            }));
-    }
-
-    function updateMap(points) {
-        markers.forEach(marker => marker.setMap(null));
-        markers = [];
-
-        if (!points.length) return;
-
-        const bounds = new google.maps.LatLngBounds();
-
-        points.forEach(point => {
-            const marker = new google.maps.Marker({
-                position: { lat: point.lat, lng: point.lng },
-                map,
-                title: point.name
-            });
-
-            marker.addListener('click', () => selectPoint(point));
-            markers.push(marker);
-            bounds.extend(marker.getPosition());
-        });
-
-        map.fitBounds(bounds);
-    }
-
-    function displayPoints(points) {
-        const container = document.getElementById('points-list');
-        container.innerHTML = '';
-
-        if (!points.length) {
-            container.innerHTML = '<div class="no-points">Nie znaleziono punktów</div>';
-            return;
+        if (!result.success || !result.data) {
+            return [];
         }
 
-        points.forEach(point => {
-            const div = document.createElement('div');
-            div.className = 'pickup-point';
-            div.innerHTML = `
-                <div class="point-name">${escapeHtml(point.name)}</div>
-                <div class="point-address">${escapeHtml(point.address)}</div>
-                <div class="point-hours">Godziny: ${escapeHtml(point.hours)}</div>
-            `;
+        let warehouses = result.data.slice(0, MAX_POINTS).map(item => ({
 
-            div.addEventListener('click', () => selectPoint(point));
-            container.appendChild(div);
-        });
-    }
+            id: item.Ref,
+            name: item.Description,
+            number: extractNumber(item.Description),
+            address: item.ShortAddress || item.Description,
+            details: item.TypeOfWarehouse === '9' ? 'Поштомат' : 'Відділення',
+            service: 'novapost'
 
-    function selectPoint(point) {
-        selectedPoint = point;
-        updateSelectButton();
+        }));
 
-        document.getElementById('lockerId').value = point.id;
-        document.getElementById('lockerName').value = point.name;
-        document.getElementById('lockerAddress').value = point.address;
+        if (street) {
 
-        map.setCenter({ lat: point.lat, lng: point.lng });
-        map.setZoom(16);
-    }
+            const streetLower = street.toLowerCase();
 
-    function updateSelectButton() {
-        const btn = document.getElementById('select-btn');
-        btn.disabled = !selectedPoint;
-    }
-
-    function showLoading() {
-        document.getElementById('points-list')
-            .innerHTML = '<div class="loading">Ładowanie...</div>';
-    }
-
-    function showError(msg) {
-        document.getElementById('points-list')
-            .innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function formatWorkSchedule(schedule) {
-        if (!schedule) return "Brak danych";
-        if (typeof schedule === 'string') return schedule;
-        if (Array.isArray(schedule)) {
-            return schedule.map(s => `${s.Days}: ${s.Hours}`).join(', ');
+            warehouses = warehouses.filter(w =>
+                w.address.toLowerCase().includes(streetLower)
+            );
         }
-        return "Pon-Pt 9:00-18:00";
+
+        if (number) {
+
+            const numberLower = number.toLowerCase();
+
+            warehouses = warehouses.filter(w =>
+                w.number.toLowerCase().includes(numberLower) ||
+                w.name.toLowerCase().includes(numberLower)
+            );
+        }
+
+        return warehouses;
+
+    } catch (error) {
+
+        console.error(error);
+        return [];
     }
+}
+
+function extractNumber(name) {
+
+    if (!name) return '';
+
+    const match = name.match(/\d+/);
+
+    return match ? match[0] : '';
+}
+
+function displayPoints() {
+
+    const container = document.getElementById('points-list');
+
+    if (!filteredPoints.length) {
+
+        container.innerHTML = '<div>Немає відділень</div>';
+        return;
+    }
+
+    const start = (currentPage - 1) * POINTS_PER_PAGE;
+    const end = Math.min(start + POINTS_PER_PAGE, filteredPoints.length);
+
+    const pointsToShow = filteredPoints.slice(start, end);
+
+    container.innerHTML = pointsToShow.map(point => {
+
+        let extraInfo = [];
+
+        if (point.number) extraInfo.push(`№${point.number}`);
+        if (point.details) extraInfo.push(point.details);
+
+        return `
+        <div class="pickup-point"
+             onclick='selectPoint(${JSON.stringify(point).replace(/'/g,"&#39;")})'>
+             
+            <strong>${escapeHtml(point.name)}</strong><br>
+            ${escapeHtml(point.address)}<br>
+
+            <small>
+            ${extraInfo.join(' | ')} | 
+            ${point.service === 'novapost' ? 'Нова Пошта' : 'InPost'}
+            </small>
+        </div>
+        `;
+
+    }).join('');
+
+    if (filteredPoints.length > POINTS_PER_PAGE) {
+        addPagination();
+    }
+}
+
+function addPagination() {
+
+    const totalPages = Math.ceil(filteredPoints.length / POINTS_PER_PAGE);
+
+    let html = '<div class="pagination">';
+
+    for (let i = 1; i <= totalPages; i++) {
+
+        html += `
+        <button onclick="changePage(${i})"
+            ${i === currentPage ? 'class="active"' : ''}>
+            ${i}
+        </button>`;
+    }
+
+    html += '</div>';
+
+    document.getElementById('points-list').innerHTML += html;
+}
+
+window.selectPoint = function(point) {
+
+    selectedPoint = point;
+
+    const btn = document.getElementById('select-btn');
+
+    btn.disabled = false;
+    btn.innerHTML = `✅ ${escapeHtml(point.name)}`;
+};
+
+window.changePage = function(page) {
+
+    currentPage = page;
+    displayPoints();
+};
+
+function showLoading(msg) {
+
+    document.getElementById('points-list').innerHTML =
+        `<div>${msg}</div>`;
+}
+
+function showError(msg) {
+
+    document.getElementById('points-list').innerHTML =
+        `<div>❌ ${msg}</div>`;
+}
+
+function updateServiceIndicator(service, city, count) {
+
+    const indicator = document.getElementById('service-indicator');
+
+    indicator.style.display = 'block';
+
+    let text = `${service.toUpperCase()} | ${escapeHtml(city)}`;
+
+    if (currentStreet) {
+        text += `, ${escapeHtml(currentStreet)}`;
+    }
+
+    if (currentNumber) {
+        text += `, №${escapeHtml(currentNumber)}`;
+    }
+
+    text += ` | ${count} відділень`;
+
+    indicator.innerHTML = text;
+}
+
+function escapeHtml(text) {
+
+    if (!text) return '';
+
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+}
 
 })();

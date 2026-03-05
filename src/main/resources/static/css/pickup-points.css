@@ -1,169 +1,366 @@
+/* Основные стили */
 * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        
-        header {
-            background: #dc143c;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .content {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        
-        .map-container {
-            flex: 1;
-            min-width: 300px;
-            height: 500px;
-        }
-        
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-        
-        .form-container {
-            flex: 1;
-            min-width: 300px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-left: 1px solid #eee;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        
-        .delivery-service {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .service-btn {
-            flex: 1;
-            min-width: 100px;
-            padding: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
-            cursor: pointer;
-        }
-        
-        .service-btn.active {
-            background: #dc143c;
-            color: white;
-        }
-        
-        .pickup-points {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-        }
-        
-        .pickup-point {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-        }
-        
-        .pickup-point.selected {
-            background: #ffeaea;
-            border-left: 4px solid #dc143c;
-        }
-        
-        .point-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #dc143c;
-        }
-        
-        .point-address {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .point-hours {
-            color: #888;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background: #dc143c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .btn:disabled {
-            background: #cccccc;
-        }
-        
-        .no-points, .loading {
-            padding: 20px;
-            text-align: center;
-            color: #888;
-        }
-        
-        .error {
-            padding: 20px;
-            text-align: center;
-            color: #dc143c;
-            background: #ffeaea;
-        }
-        
-        @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
-            }
-            
-            .map-container {
-                height: 300px;
-            }
-        }
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+}
+
+/* Форма и контролы */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #dc143c;
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+}
+
+.form-control-lg {
+    padding: 18px;
+    font-size: 18px;
+}
+
+.search-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #dc143c;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #b01030;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-lg {
+    padding: 15px 30px;
+    font-size: 18px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Индикатор службы */
+.service-indicator {
+    margin-bottom: 25px;
+}
+
+.service-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 6px solid #dc143c;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.service-icon-large {
+    font-size: 32px;
+}
+
+.service-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.city-name {
+    font-size: 18px;
+    color: #666;
+    background: white;
+    padding: 5px 15px;
+    border-radius: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.points-count {
+    font-size: 16px;
+    color: #dc143c;
+    font-weight: 600;
+    margin-left: auto;
+    background: white;
+    padding: 5px 15px;
+    border-radius: 30px;
+}
+
+/* Список отделений */
+.pickup-points {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+}
+
+.pickup-point {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.pickup-point:last-child {
+    border-bottom: none;
+}
+
+.pickup-point:hover {
+    background-color: #fff5f5;
+    transform: translateX(5px);
+}
+
+.pickup-point.selected {
+    background-color: #ffeaea;
+    border-left: 6px solid #dc143c;
+}
+
+.point-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.point-icon, .service-icon {
+    font-size: 20px;
+}
+
+.point-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+    flex: 1;
+}
+
+.point-address {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 8px;
+    padding-left: 34px;
+}
+
+.point-details {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-left: 34px;
+}
+
+.point-phone {
+    color: #28a745;
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-left: 34px;
+}
+
+.point-badge {
+    display: inline-block;
+    margin-left: 34px;
+    padding: 4px 12px;
+    background: #f0f0f0;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.point-badge.inpost {
+    background: #dc143c;
+    color: white;
+}
+
+.point-badge.novapost {
+    background: #E3000F;
+    color: white;
+}
+
+/* Сообщения */
+.loading, .no-points, .error {
+    padding: 60px 20px;
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #dc143c;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    color: #dc143c;
+    background: #ffeaea;
+    border-radius: 10px;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #eee;
+}
+
+.page-btn {
+    min-width: 45px;
+    height: 45px;
+    padding: 0 5px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.page-btn.active {
+    background: #dc143c;
+    color: white;
+    border-color: #dc143c;
+}
+
+.page-btn.active:hover {
+    background: #b01030;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-dots {
+    display: inline-block;
+    padding: 0 5px;
+    color: #666;
+    font-size: 16px;
+    line-height: 45px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        min-height: calc(100vh - 20px);
+    }
+    
+    .content {
+        padding: 20px;
+    }
+    
+    .search-wrapper {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .service-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .points-count {
+        margin-left: 0;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .page-btn {
+        min-width: 40px;
+        height: 40px;
+    }
+}
+
+.pickup-point {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.pickup-point:hover {
+    background: #f7f7f7;
+}
