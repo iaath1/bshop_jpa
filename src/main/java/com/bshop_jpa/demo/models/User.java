@@ -48,7 +48,8 @@ public class User implements UserDetails{
     @Column(nullable = false, length = 100)
     private String password;
 
-    
+    private boolean isActive;
+
     private String address;
 
     @Column(name = "created_at", updatable = false)

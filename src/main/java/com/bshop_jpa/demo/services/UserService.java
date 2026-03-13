@@ -17,12 +17,20 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+    public void saveUser(User user) {
+        userRepo.save(user);
+    }
+
     public List<User> findRecentUsers(int limit) {
         return userRepo.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit));
     }
 
     public User findByEmail(String email) {
         return userRepo.findByEmail(email).orElse(null);
+    }
+
+    public void deleteUser(User user) {
+        userRepo.delete(user);
     }
 
 }
