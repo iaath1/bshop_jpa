@@ -1,6 +1,7 @@
 package com.bshop_jpa.demo.controllers;
 
 
+import com.bshop_jpa.demo.repositories.SizeRepository;
 import java.util.Set;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +28,8 @@ import jakarta.validation.Valid;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private final SizeRepository sizeRepository;
+
     private final UserService userService;
     
     private final VerificationCodeService codeService;
@@ -35,13 +38,14 @@ public class AuthController {
     private final BCryptPasswordEncoder passwordEncoder;
     private final ConfirmationEmailService emailService;
 
-    public AuthController(UserRepository userRepo, BCryptPasswordEncoder passwordEncoder, RoleRepository roleRepo, ConfirmationEmailService emailService, VerificationCodeService codeService, UserService userService) {
+    public AuthController(UserRepository userRepo, BCryptPasswordEncoder passwordEncoder, RoleRepository roleRepo, ConfirmationEmailService emailService, VerificationCodeService codeService, UserService userService, SizeRepository sizeRepository) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.roleRepo = roleRepo;
         this.emailService = emailService;
         this.codeService = codeService;
         this.userService = userService;
+        this.sizeRepository = sizeRepository;
     }
 
     @GetMapping
@@ -93,11 +97,71 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        userService.deleteUser(userToBeVerified);
 
         model.addAttribute("error", "Invalid verification code");
         model.addAttribute("email", email);
         return "redirect:/auth/verify";
 
     }
+
+    @GetMapping("/forget-password")
+    public String getForgetPassword(Model model) {
+        return "forget-password";
+    }
+
+    @PostMapping("/forget-password")
+    public String postForgetPassword(@RequestParam("email") String email, Model model) {
+        String code = codeService.generateCode();
+        codeService.saveCode(email, code);
+        System.out.println("Saved code for " + email + ": " + code);
+
+        emailService.sendConfirmationEmail(email, code);
+
+        model.addAttribute("email", email);
+
+        return "password-forget-verify";
+    }
+
+    @GetMapping("/password-forget-verify")
+    public String getForgetPasswordVerification() {
+        return "password-forget-verify";
+    }
+
+    @PostMapping("/password-forget-verify")
+    public String postForgetPasswordVerification(@RequestParam("email") String email, @RequestParam("code") String code, Model model) {
+
+        System.out.println("Verification for : " + email + " | " + code);
+        boolean isVerified = codeService.verifyCode(email, code);
+        model.addAttribute("email", email);
+
+        if(!isVerified) {
+            model.addAttribute("error", "Invalid verification code.");
+            return "password-forget-verify";
+        }
+
+
+        return "changePassword";
+
+    }
+
+    @PostMapping("/password-change")
+    public String passwordChange(@RequestParam("email") String email, @RequestParam("password") String password, @RequestParam("password2") String password2, Model model) {
+
+        boolean isPasswordsTheSame = password.equals(password2);
+        model.addAttribute("email", email);
+
+        if(!isPasswordsTheSame) {
+            model.addAttribute("error", "Passwords are not the same.");
+            return "changePassword";
+        }
+
+        User user = userService.findByEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        System.out.println("Changing password for " + email + " to " + password);
+
+        userService.saveUser(user);
+        System.out.println("Password changed successfully for " + email);
+        return "login";
+    }
+
 }

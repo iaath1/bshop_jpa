@@ -47,7 +47,8 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login") // куда отправляется POST
                 .defaultSuccessUrl("/store", true)      // куда перекидывать после успеха
                 .failureUrl("/login?error=true") // при ошибке
-                .permitAll());
+                .permitAll()).logout(logout -> logout
+                .logoutUrl("/auth/logout")); 
 
         
         return http.build();

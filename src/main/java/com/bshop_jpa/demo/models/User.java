@@ -73,11 +73,17 @@ public class User implements UserDetails{
 
     @Override
     public String getUsername() {
-        return email;
+        return this.email;
     }
 
     @Transient
     public String getRoleNames() {
         return roles.stream().map(Role::getName).collect(Collectors.joining(", "));
     }
+
+    @Override
+    public boolean isEnabled() {
+        return this.isActive();
+    }
+    
 }
