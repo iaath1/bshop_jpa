@@ -37,7 +37,7 @@ public class LoginController {
         }
 
         model.addAttribute("currentUrl", request.getRequestURI());
-        return "login";
+        return "auth/login";
     }
 
     // @PostMapping

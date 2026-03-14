@@ -52,18 +52,18 @@ public class AuthController {
     public String getAuth(Model model, HttpServletRequest request) {
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("user", new User());
-        return "authentitication";
+        return "auth/authentitication";
     }
 
     @PostMapping
     public String postAuth(@ModelAttribute("user") @Valid User user, BindingResult result, Model model) {
         if(userRepo.existsByEmail(user.getEmail())) {
             model.addAttribute("error", "User with this email already exists.");
-            return "authentitication";
+            return "auth/authentitication";
         }
 
         if(result.hasErrors()) {
-            return "authentitication";
+            return "auth/authentitication";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(Set.of(roleRepo.findByName("ROLE_ADMIN").get()));
@@ -75,14 +75,14 @@ public class AuthController {
         codeService.saveCode(user.getEmail(), code);
         emailService.sendConfirmationEmail(user.getEmail(), code);
         model.addAttribute("email", user.getEmail());
-        return "verificationPage";
+        return "auth/verificationPage";
     }
 
     @GetMapping("/verify")
     public String getVerificationPage(@ModelAttribute("email") String email, Model model) {
 
         model.addAttribute("email", email);
-        return "verificationPage";
+        return "auth/verificationPage";
     }
 
     @PostMapping("/verify")
@@ -90,7 +90,7 @@ public class AuthController {
         boolean isVerified = codeService.verifyCode(email, code);
         User userToBeVerified = userService.findByEmail(email);
 
-        if(isVerified) {
+        if(isVerified && userToBeVerified != null) {
             userToBeVerified.setActive(true);
             userService.saveUser(userToBeVerified);
             System.out.println("Code is verified");
@@ -106,11 +106,17 @@ public class AuthController {
 
     @GetMapping("/forget-password")
     public String getForgetPassword(Model model) {
-        return "forget-password";
+        return "auth/forget-password";
     }
 
     @PostMapping("/forget-password")
     public String postForgetPassword(@RequestParam("email") String email, Model model) {
+
+        if(!userRepo.existsByEmail(email)) {
+            model.addAttribute("error", "No user with this email exists.");
+            return "auth/forget-password";
+        }
+
         String code = codeService.generateCode();
         codeService.saveCode(email, code);
         System.out.println("Saved code for " + email + ": " + code);
@@ -119,12 +125,12 @@ public class AuthController {
 
         model.addAttribute("email", email);
 
-        return "password-forget-verify";
+        return "auth/password-forget-verify";
     }
 
     @GetMapping("/password-forget-verify")
     public String getForgetPasswordVerification() {
-        return "password-forget-verify";
+        return "auth/password-forget-verify";
     }
 
     @PostMapping("/password-forget-verify")
@@ -136,11 +142,11 @@ public class AuthController {
 
         if(!isVerified) {
             model.addAttribute("error", "Invalid verification code.");
-            return "password-forget-verify";
+            return "auth/password-forget-verify";
         }
 
 
-        return "changePassword";
+        return "auth/changePassword";
 
     }
 
@@ -150,7 +156,9 @@ public class AuthController {
         boolean isPasswordsTheSame = password.equals(password2);
         model.addAttribute("email", email);
 
-        if(!isPasswordsTheSame) {
+        boolean isPasswordStrong = password.length() >= 6;
+
+        if(!isPasswordsTheSame && isPasswordStrong) {
             model.addAttribute("error", "Passwords are not the same.");
             return "changePassword";
         }
@@ -161,7 +169,7 @@ public class AuthController {
 
         userService.saveUser(user);
         System.out.println("Password changed successfully for " + email);
-        return "login";
+        return "auth/login";
     }
 
 }

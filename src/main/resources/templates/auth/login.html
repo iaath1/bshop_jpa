@@ -45,18 +45,21 @@
 
 <main class="auth-body">
     <div class="auth-container">
-        <h2 th:text="#{forgetPassword.loginText}">Изменение пароля</h2>
+        <h2 th:text="#{login.loginText}">Вход в аккаунт</h2>
 
-        
+        <!-- Ошибка входа -->
         <p th:if="${error}" th:text="${error}" class="error"></p>
 
-        <form th:action="@{/auth/password-change}" method="post" class="auth-form">
-            <input type="text" name="email" th:value="${email}" th:placeholder="#{login.emailText}" readonly>
-            <input type="password" name="password" th:placeholder="#{forget-password.passwordText}" required>
-            <input type="password" name="password2" th:placeholder="#{forget-password.passwordSubmit}" required>
+        <form th:action="@{/login}" method="post" class="auth-form">
+            <input type="text" name="username" th:value="${email}" th:placeholder="#{login.emailText}" required>
+            <input type="password" name="password" th:placeholder="#{login.passwordText}" required>
 
-            <button type="submit" class="btn" th:text="#{forget-password.submitText}">Сохранить</button>
+            <button type="submit" class="btn" th:text="#{login.submitText}">Войти</button>
         </form>
+
+        <p class="auth-text">
+            <a th:href="@{/auth/forget-password}" th:text="#{login.forgetPassword}"></a>
+        </p>
 
         <p class="auth-text">
             <span th:text="#{login.authText}"></span>
