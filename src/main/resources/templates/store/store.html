@@ -33,6 +33,7 @@
 
             <!-- Если пользователь вошёл -->
             <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}">MyOrders</a>
             <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
                 <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
             </form>

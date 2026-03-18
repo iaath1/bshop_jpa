@@ -1,5 +1,6 @@
 package com.bshop_jpa.demo.controllers;
 import com.bshop_jpa.demo.services.ColorService;
+import com.bshop_jpa.demo.services.ConfirmationEmailService;
 import com.bshop_jpa.demo.services.ImageService;
 import com.bshop_jpa.demo.services.MaterialService;
 import com.bshop_jpa.demo.services.OrderService;
@@ -13,7 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,6 +43,7 @@ import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Color;
 import com.bshop_jpa.demo.models.Image;
 import com.bshop_jpa.demo.models.Material;
+import com.bshop_jpa.demo.models.Order;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.Role;
 import com.bshop_jpa.demo.models.Status;
@@ -52,6 +57,8 @@ import com.bshop_jpa.demo.repositories.UserRepository;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+    private final ConfirmationEmailService confirmationEmailService;
 
     @Value("${app.upload.dir}")
     private String MEDIA_PATH;
@@ -72,7 +79,7 @@ public class AdminController {
 
     public AdminController(UserRepository userRepo, ProductService productService, ColorService colorService, MaterialService materialService, 
                             RoleRepository roleRepo, SizeService sizeService, StatusService statusService, CategoryService categoryService,
-                            OrderService orderService, UserService userService, ImageService imageService) {
+                            OrderService orderService, UserService userService, ImageService imageService, ConfirmationEmailService confirmationEmailService) {
 
         this.userRepo = userRepo;
         this.productService = productService;
@@ -85,6 +92,7 @@ public class AdminController {
         this.userService = userService;
         this.orderService = orderService;
         this.imageService = imageService;
+        this.confirmationEmailService = confirmationEmailService;
     }
 
 
@@ -299,6 +307,33 @@ public class AdminController {
         model.addAttribute("orders", orderService.findAllOrders());
         return "admin/adminPanelOrders";
     }
+
+    @GetMapping("/orders/edit/{id}")
+    public String getUpdateOrderPage(@PathVariable Long id, Model model) {
+        Order order = orderService.findOrderById(id);
+        List<Status> statuses = statusService.findAllStatuses();
+
+        model.addAttribute("order", order);
+        model.addAttribute("statuses", statuses);
+        return "admin/updateOrder";
+    }
+
+    @PostMapping("/orders/edit")
+    public String postUpdateOrderPage(@RequestParam("orderId") Long id, @RequestParam("statusId") Integer statusId, Model model) {
+        Order orderFromDb = orderService.findOrderById(id);
+        Status status = statusService.findStatusById(statusId);
+        
+
+        orderFromDb.setStatus(status);
+        orderFromDb.setUpdatedAt(LocalDateTime.now());
+        orderService.saveOrder(orderFromDb);
+
+        confirmationEmailService.sendOrderInfoEmail(status, orderFromDb);
+
+        return "redirect:/admin/orders";
+    }
+
+
 
 
 

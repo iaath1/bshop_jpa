@@ -20,5 +20,5 @@ public interface OrderRepository extends CrudRepository<Order, Long>{
 
     List<Order> findAll();
 
-    List<Order> findByPaidFalseAndCreatedAtBefore(LocalDateTime dateTime);
+    // List<Order> findByPaidFalseAndCreatedAtBefore(LocalDateTime dateTime);
 }

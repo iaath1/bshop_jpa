@@ -1,0 +1,174 @@
+/* ===== СТРАНИЦА ЗАКАЗОВ ===== */
+
+.orders-page {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Заголовок */
+.orders-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+/* Пусто */
+.orders-empty {
+    text-align: center;
+    padding: 50px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.orders-empty p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Контейнер */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ===== КАРТОЧКА ЗАКАЗА ===== */
+.order-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* Верх заказа */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.order-info h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--dark);
+}
+
+.order-info p {
+    margin: 3px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Статус */
+.order-status {
+    font-weight: 600;
+}
+
+.status-new { color: #2563eb; }       /* синий */
+.status-paid { color: #16a34a; }      /* зелёный */
+.status-shipped { color: #f59e0b; }   /* оранжевый */
+.status-cancelled { color: #dc2626; } /* красный */
+
+/* Сумма */
+.order-total {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Доставка */
+.order-delivery {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+/* ===== ТОВАРЫ ===== */
+.order-items {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Один товар */
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    background: #fafafa;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+/* Левая часть */
+.order-item-left {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.order-thumb {
+    width: 65px;
+    height: 65px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* Инфо */
+.order-item-info h4 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.order-item-info p {
+    margin: 2px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+/* Правая часть */
+.order-item-right {
+    text-align: right;
+    font-size: 14px;
+}
+
+.order-item-price {
+    font-weight: 600;
+}
+
+.order-item-sum {
+    font-weight: 700;
+    color: var(--dark);
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 768px) {
+    .order-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .order-item-right {
+        text-align: left;
+    }
+}

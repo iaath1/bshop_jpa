@@ -63,22 +63,39 @@
                     <th th:text="#{admin.orderCreatedAt}">Создано</th>
                     <th th:text="#{admin.orderUpdatedAt}">Последнее обновление</th>
                     <th th:text="#{admin.orderTotal}">Общее количество</th>
+                    <th>⚙️</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="order : ${orders}">
-                    <td th:text="${order.id}">1</td>
-                    <td th:text="${order.lockerAddress}">Адрес</td>
-                    <td th:text="${order.user != null ? order.user.email : order.guestEmail}">гость</td>
-                    <td th:text="${order.status.name}"></td>
-                    <td th:text="${order.createdAt}"></td>
-                    <td th:text="${order.updatedAt}">0</td>
-                    <td th:text="${order.totalPrice}">0</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(orders)}">
-                    <td colspan="5" class="muted" th:text="#{admin.noData}">Нет данных</td>
-                </tr>
-                </tbody>
+<tr th:each="order : ${orders}">
+    <td th:text="${order.id}">1</td>
+
+    <td th:text="${order.lockerAddress}">Адрес</td>
+
+    <td th:text="${order.user != null ? order.user.email : order.guestEmail}">
+        гость
+    </td>
+
+    <td th:text="${order.status.name}"></td>
+
+    <td th:text="${#temporals.format(order.createdAt,'yyyy-MM-dd HH:mm')}"></td>
+
+    <td th:text="${order.updatedAt != null ? #temporals.format(order.updatedAt,'yyyy-MM-dd HH:mm') : '-'}"></td>
+
+    <td th:text="${order.totalPrice}">0</td>
+
+    <td>
+        <a class="btn"
+           th:href="@{/admin/orders/edit/{id}(id=${order.id})}">
+            ✏️ Edit
+        </a>
+    </td>
+</tr>
+
+<tr th:if="${#lists.isEmpty(orders)}">
+    <td colspan="8" class="muted" th:text="#{admin.noData}">Нет данных</td>
+</tr>
+</tbody>
             </table>
         </section>
     </main>

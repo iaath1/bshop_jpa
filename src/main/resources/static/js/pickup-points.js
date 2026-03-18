@@ -44,32 +44,31 @@ function initializeEventListeners() {
 
     selectBtn.addEventListener('click', () => {
 
-        if (!selectedPoint) return;
+    if (!selectedPoint) return;
 
-        const isAuthenticated =
-            document.querySelector('[sec\\:authorize="isAuthenticated()"]') !== null;
+    const form =
+        document.getElementById('lockerForm') ||
+        document.getElementById('lockerFormAnon');
 
-        const form = document.getElementById(
-            isAuthenticated ? 'lockerForm' : 'lockerFormAnon'
-        );
+    if (!form) return;
 
-        if (!form) return;
+    const isAuthenticated = form.id === 'lockerForm';
 
-        if (isAuthenticated) {
+    if (isAuthenticated) {
 
-            document.getElementById('lockerId').value = selectedPoint.id;
-            document.getElementById('lockerName').value = selectedPoint.name;
-            document.getElementById('lockerAddress').value = selectedPoint.address;
+        document.getElementById('lockerId').value = selectedPoint.id;
+        document.getElementById('lockerName').value = selectedPoint.name;
+        document.getElementById('lockerAddress').value = selectedPoint.address;
 
-        } else {
+    } else {
 
-            document.getElementById('lockerIdAnon').value = selectedPoint.id;
-            document.getElementById('lockerNameAnon').value = selectedPoint.name;
-            document.getElementById('lockerAddressAnon').value = selectedPoint.address;
-        }
+        document.getElementById('lockerIdAnon').value = selectedPoint.id;
+        document.getElementById('lockerNameAnon').value = selectedPoint.name;
+        document.getElementById('lockerAddressAnon').value = selectedPoint.address;
+    }
 
-        form.submit();
-    });
+    form.submit();
+});
 }
 
 function containsCyrillic(text) {

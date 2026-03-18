@@ -20,6 +20,7 @@ import com.bshop_jpa.demo.models.Order;
 import com.bshop_jpa.demo.models.OrderItem;
 import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.ProductForOrder;
+import com.bshop_jpa.demo.models.Size;
 import com.bshop_jpa.demo.models.User;
 import com.bshop_jpa.demo.services.CartService;
 import com.bshop_jpa.demo.services.OrderService;
@@ -140,6 +141,7 @@ public class OrderController {
             orderItem.setProduct(productService.localizateProduct(item.getProduct(), locale.getLanguage()));
             orderItem.setPrice(item.getProduct().getPrice());
             orderItem.setQuantity(item.getQuantity());
+            orderItem.setSize(item.getSize());
             
             total = total.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
             orderItems.add(orderItem);
@@ -185,6 +187,7 @@ public class OrderController {
                                             @RequestParam String email,
                                             Locale locale) {
         Order order = new Order();
+        Size size = sizeService.findSizeById(sizeId);
 
         order.setGuestEmail(email);
         order.setLockerAddress(lockerAddress);
@@ -203,11 +206,11 @@ public class OrderController {
         orderItem.setProduct(productForOrder);
         orderItem.setPrice(productForOrder.getPrice());
         orderItem.setQuantity(quantity);
+        orderItem.setSize(size);
         
         total = total.add(orderItem.getPrice().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
         orderItems.add(orderItem);
         
-        order.setPaid(false);
         order.setTotalPrice(total);
         order.setTotalPriceGr(total.multiply(new BigDecimal(100)).longValue());
         order.setItems(orderItems);
@@ -246,6 +249,18 @@ public class OrderController {
         return "order/canceledPayment";
     }
 
+
+    @GetMapping("/myorders")
+    public String getMyOrders(@AuthenticationPrincipal User user, Model model) {
+        if(user == null) {
+            return "redirect:/";
+        }
+
+        List<Order> orders = orderService.getOrdersByUser(user);
+        
+        model.addAttribute("orders", orders);
+        return "store/myOrders";
+    }
 
     
 }

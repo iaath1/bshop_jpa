@@ -1,5 +1,7 @@
 package com.bshop_jpa.demo.services;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.bshop_jpa.demo.models.Status;
@@ -27,6 +29,14 @@ public class StatusService {
 
     public boolean existsByName(String name) {
         return statusRepo.existsByName(name);
+    }
+
+    public List<Status> findAllStatuses() {
+        return statusRepo.findAll();
+    }
+
+    public Status findStatusById(Integer id) {
+        return statusRepo.findById(id).get();
     }
 
 }

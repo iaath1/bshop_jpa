@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bshop_jpa.demo.DTO.CheckoutRequest;
 import com.bshop_jpa.demo.models.Order;
+import com.bshop_jpa.demo.services.ConfirmationEmailService;
 import com.bshop_jpa.demo.services.OrderService;
 import com.bshop_jpa.demo.services.StatusService;
 import com.stripe.Stripe;
@@ -44,6 +45,9 @@ public class StripeContoller {
 
     @Value("${app.domain}")
     private String domain;
+
+    @Autowired
+    private ConfirmationEmailService emailService;
 
     @PostConstruct
     public void init() {
@@ -113,6 +117,7 @@ public class StripeContoller {
                         Order order = orderService.findOrderById(Long.parseLong(orderIdStr));
                         order.setStatus(statusService.findStatusByName("PAYED"));
                         orderService.saveOrder(order);
+                        emailService.sendOrderInfoEmail(statusService.findStatusByName("PAYED"), order);
                     }
                     break;
 
