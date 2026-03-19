@@ -1,6 +1,6 @@
 package com.bshop_jpa.demo.models;
 
-import java.beans.Transient;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
@@ -63,6 +63,9 @@ public class User implements UserDetails{
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
+
+    @Column(name = "avatar_url", length = 255, nullable = true)
+    private String avatarUrl;
 
 
     @Override
