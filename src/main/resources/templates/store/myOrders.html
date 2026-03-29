@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="#{page.myOrdersPage} + ' - ' + #{page.storeName}"></title>
+
+    <!-- Основные стили -->
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">🛍 MyStore</div>
+
+            <button class="nav-toggle" th:attr="aria-label=#{page.menu}" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+
+            <nav class="nav">
+                <div class="lang-switcher">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            🌐 <span th:text="${#locale.language == 'uk' ? 'UA' : #locale.language.toUpperCase()}">PL</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="#" onclick="changeLanguage('uk'); return false;">UA</a>
+                            <a href="#" onclick="changeLanguage('pl'); return false;">PL</a>
+                        </div>
+                    </div>
+                </div>
+
+                <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+                <a th:href="@{/store}" th:text="#{page.catalog}">Каталог</a>
+                <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+                <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+                <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+                <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}" th:text="#{page.myOrdersPage}">Мои
+                    заказы</a>
+                <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post"
+                    style="display:inline;">
+                    <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+                </form>
+
+                <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container orders-page">
+
+        <h2 class="orders-title" th:text="#{myOrders.titleText}">📦 Мои заказы</h2>
+
+        <!-- Пусто -->
+        <div th:if="${#lists.isEmpty(orders)}" class="orders-empty">
+            <p th:text="#{myOrders.empty}">У вас пока нет заказов 😔</p>
+            <a th:href="@{/store}" th:text="#{page.backToCatalogText}" class="btn">Перейти в каталог</a>
+        </div>
+
+        <!-- Есть заказы -->
+        <div th:if="${!#lists.isEmpty(orders)}" class="orders-list">
+
+            <div class="order-card" th:each="order : ${orders}">
+
+                <!-- Верх -->
+                <div class="order-header">
+
+                    <div class="order-info">
+                        <h3 th:text="#{myOrders.cardTitleText}">Заказ #<span th:text="${order.id}"></span></h3>
+
+                        <p>
+                            <strong th:text="#{myOrders.cardDate}">Дата:</strong>
+                            <span th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                        </p>
+
+                        <p class="order-status" th:classappend="'status-' + ${order.status.name.toLowerCase()}">
+                            <strong th:text="#{myOrders.cardStatus}">Статус:</strong>
+                            <span th:text="${order.status.name}"></span>
+                        </p>
+                    </div>
+
+                    <div class="order-total">
+                        <span th:text="${order.totalPrice} + ' zł'"></span>
+                    </div>
+                </div>
+
+                <!-- Доставка -->
+                <div class="order-delivery" th:if="${order.lockerName != null}">
+                    <strong th:text="#{myOrders.cardAddress}">📍 Пункт выдачи:</strong>
+                    <p th:text="${order.lockerName}"></p>
+                    <p th:text="${order.lockerAddress}"></p>
+                </div>
+
+                <!-- Email -->
+                <div th:if="${order.guestEmail != null}">
+                    📧 Email: <span th:text="${order.guestEmail}"></span>
+                </div>
+
+                <!-- Товары -->
+                <div class="order-items">
+
+                    <div class="order-item" th:each="item : ${order.items}">
+
+                        <!-- Левая часть -->
+                        <div class="order-item-left">
+                            <img th:src="@{${item.product.previewImageUrl}}" class="order-thumb">
+
+                            <div class="order-item-info">
+                                <h4 th:text="${item.product.name}"></h4>
+
+                                <p>
+                                    <strong th:text="#{myOrders.price}">Цена:</strong>
+                                    <span th:text="${item.price} + ' zł'"></span>
+                                </p>
+
+                                <p>
+                                    <strong th:text="#{myOrders.quantity}">Количество:</strong>
+                                    <span th:text="${item.quantity}"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Правая часть -->
+                        <div class="order-item-right">
+                            <div class="order-item-sum">
+                                <span th:text="${item.price * item.quantity} + ' zł'"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p th:text="#{page.copyright}"></p>
+    </footer>
+    <script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+
+</html>

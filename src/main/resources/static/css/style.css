@@ -1,0 +1,679 @@
+/* ============================================================
+   MYSTORE ADMIN — Design System v2
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --sidebar-bg:  #111827;
+    --sidebar-bg2: #1f2937;
+    --sidebar-w:   240px;
+    --bg:          #f3f4f8;
+    --bg-card:     #ffffff;
+    --primary:     #3b82f6;
+    --primary-d:   #2563eb;
+    --dark:        #111827;
+    --muted:       #6b7280;
+    --border:      #e5e7eb;
+    --red:         #ef4444;
+    --green:       #10b981;
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.06);
+    --shadow-md:   0 4px 16px rgba(0,0,0,.10);
+    --font:        'DM Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--dark);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ── Layout ── */
+.layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    background: var(--sidebar-bg);
+    color: #e5e7eb;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: #374151 transparent;
+    z-index: 150;
+}
+.brand {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    padding: 8px 10px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    margin-bottom: 10px;
+}
+.nav { display: flex; flex-direction: column; gap: 3px; }
+.nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    color: rgba(255,255,255,.65);
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: color .18s, background .18s;
+    white-space: nowrap;
+}
+.nav a:hover, .nav a.active {
+    background: var(--sidebar-bg2);
+    color: #fff;
+}
+
+/* ── Hamburger (mobile only) ── */
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 300;
+    background: var(--sidebar-bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: var(--shadow-md);
+    padding: 0;
+}
+.sidebar-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+    transition: transform .25s, opacity .25s;
+}
+.sidebar-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.sidebar-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.sidebar-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Dim overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 140;
+}
+.sidebar-overlay.visible { display: block; }
+
+@media (max-width: 900px) {
+    .sidebar-toggle { display: flex; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: var(--sidebar-w);
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform .3s ease;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main { padding-top: 68px; }
+}
+
+/* ── Main ── */
+.main {
+    padding: 28px clamp(16px, 3vw, 28px);
+    min-width: 0;
+}
+
+/* ── Topbar ── */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+.topbar h1 { font-size: clamp(18px, 3vw, 24px); font-weight: 700; }
+.top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.muted { color: var(--muted); font-size: 13px; }
+
+/* ── KPI Cards ── */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.card {
+    background: var(--bg-card);
+    padding: 18px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+}
+.card h4 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 8px;
+}
+.card .value { font-size: 32px; font-weight: 700; }
+
+/* ── Dashboard grid ── */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 18px;
+}
+
+/* ── Panel ──
+   KEY: overflow-x:auto on the panel itself enables table scrolling.
+   NO overflow:hidden — that clips table content.
+*/
+.panel {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 18px;
+}
+.panel h3 {
+    margin: 0;
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    background: var(--bg);
+    /* Sticky heading keeps border-radius feel */
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    /* Don't let h3 scroll with table */
+    position: sticky;
+    left: 0;
+    min-width: max-content;
+}
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-wrap: wrap;
+    gap: 10px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    position: sticky;
+    left: 0;
+    min-width: max-content;
+    width: 100%;
+}
+.panel-header h3 { margin: 0; border: none; padding: 0; background: none; border-radius: 0; position: static; min-width: 0; }
+
+/* Nested panel */
+.panel .panel {
+    margin: 16px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    box-shadow: none;
+    overflow-x: visible;
+}
+.panel .panel h3 {
+    background: transparent;
+    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    position: static;
+    min-width: 0;
+}
+
+/* ── Table ── */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px;
+}
+th, td {
+    padding: 11px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 13.5px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+th {
+    background: var(--bg);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-top: none;
+}
+/* Allow long text cells to wrap */
+td:nth-child(2), td:nth-child(3) { white-space: normal; }
+tr:hover td { background: #fafafa; }
+
+/* ── Status pills ── */
+.status { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.st-pending   { background: #fff7ed; color: #9a3412; }
+.st-completed { background: #ecfdf5; color: #065f46; }
+.st-shipped   { background: #eff6ff; color: #1e40af; }
+
+/* ── Buttons ── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--dark);
+    color: #fff;
+    padding: 8px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background .18s, transform .15s;
+    white-space: nowrap;
+    text-decoration: none;
+}
+.btn:hover { background: #1f2937; transform: translateY(-1px); }
+.btn-lg { padding: 11px 20px; font-size: 14px; }
+.btn-small { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
+.btn-danger, .btn.btn-danger {
+    background: rgba(239,68,68,.12);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,.2);
+}
+.btn-danger:hover, .btn.btn-danger:hover {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+}
+.input-search {
+    flex: 1;
+    min-width: 140px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    font-size: 13px;
+    font-family: var(--font);
+    background: var(--bg-card);
+    transition: border-color .18s;
+}
+.input-search:focus { outline: none; border-color: var(--primary); }
+.filter-select {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--bg-card);
+    font-size: 13px;
+    font-family: var(--font);
+    cursor: pointer;
+    min-width: 120px;
+    transition: border-color .18s;
+}
+.filter-select:focus { outline: none; border-color: var(--primary); }
+.btn-filter {
+    background: var(--dark);
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .18s;
+}
+.btn-filter:hover { background: #374151; }
+
+/* ── Form panel ── */
+.form-panel { max-width: 860px; margin: 0 auto; padding: clamp(20px, 3vw, 36px); }
+.form-grid { display: flex; flex-direction: column; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+.input-lg, input.input-lg, select.input-lg, textarea.input-lg {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--dark);
+    transition: border-color .18s, box-shadow .18s;
+    appearance: auto;
+}
+.input-lg:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.15); outline: none; }
+textarea.input-lg { resize: vertical; min-height: 80px; }
+.input-sm { padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 13px; font-family: var(--font); background: var(--bg); width: 100%; }
+.input-sm:focus { outline: none; border-color: var(--primary); }
+.size-table { width: 100%; border-collapse: collapse; }
+.size-table th, .size-table td { padding: 8px 12px; border: 1px solid var(--border); font-size: 13px; }
+.size-table th { background: var(--bg); font-weight: 600; text-transform: uppercase; font-size: 11px; color: var(--muted); letter-spacing: .5px; }
+
+/* ── Add forms (.form) ── categories, colors, materials, roles, statuses ── */
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    padding: 16px 18px;
+}
+.form .form-group {
+    flex: 1 1 170px;
+    min-width: 130px;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.form .form-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.form input[type="text"],
+.form input[type="email"],
+.form input[type="number"],
+.form input[type="color"],
+.form select {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-family: var(--font);
+    background: var(--bg-card);
+    color: var(--dark);
+    transition: border-color .18s, box-shadow .18s;
+}
+.form input[type="color"] { padding: 2px 6px; cursor: pointer; }
+.form input:focus, .form select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+    background: #fff;
+}
+.form > button[type="submit"], .form > .btn {
+    height: 38px;
+    padding: 0 20px;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+@media (max-width: 600px) {
+    .form { flex-direction: column; align-items: stretch; }
+    .form .form-group { flex: 1 1 auto; min-width: 0; }
+    .form > button[type="submit"], .form > .btn { width: 100%; height: 42px; justify-content: center; }
+}
+
+/* ── Lang sections ── */
+.lang-section { border: 1px solid var(--border); padding: 14px 16px; border-radius: var(--radius-sm); background: var(--bg); }
+.lang-section h4 { margin-bottom: 10px; font-size: 14px; }
+.translation-section { border: 1px solid var(--border); padding: 16px; border-radius: var(--radius-sm); background: var(--bg); }
+.translation-section h3 { font-size: 15px; margin-bottom: 14px; }
+
+/* ── Image gallery ── */
+.image-gallery, .preview-container, .preview-gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.image-card, .preview-image {
+    position: relative;
+    width: 110px; height: 110px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.image-card img, .preview-image img { width: 100%; height: 100%; object-fit: cover; }
+.image-card button, .preview-image .remove-btn {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(0,0,0,.65);
+    border: none; color: #fff; font-size: 15px;
+    border-radius: 50%; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background .18s;
+}
+.image-card button:hover, .preview-image .remove-btn:hover { background: var(--red); }
+.file-upload { display: inline-block; margin-top: 6px; }
+.file-upload input[type="file"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.file-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; background: var(--primary); color: #fff;
+    border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: background .18s;
+}
+.file-label:hover { background: var(--primary-d); }
+
+/* ── Product thumbnail ── */
+.product-thumb { width: 54px; height: 54px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+/* ── Color picker ── */
+.color-picker { display: flex; flex-wrap: wrap; gap: 10px; }
+.color-option { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.color-option input { display: none; }
+.color-circle { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--border); transition: all .15s; }
+.color-option:hover .color-circle, .color-option input:checked + .color-circle { box-shadow: 0 0 0 2px var(--primary); transform: scale(1.1); }
+
+/* ── Dropdown (lang switcher) ── */
+.lang-switcher { position: relative; }
+.dropdown { position: relative; display: inline-block; }
+.dropbtn {
+    background: rgba(0,0,0,.04);
+    border: 1px solid var(--border);
+    color: var(--dark);
+    padding: 6px 11px;
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600;
+    font-family: var(--font);
+    display: flex; align-items: center; gap: 4px;
+    cursor: pointer; transition: background .18s;
+}
+.dropbtn:hover { background: var(--border); }
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0; top: calc(100% + 5px);
+    background: var(--bg-card);
+    min-width: 90px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    z-index: 200;
+}
+.dropdown-content a { display: block; padding: 9px 14px; font-size: 13px; color: var(--dark); transition: background .15s; }
+.dropdown-content a:hover { background: #dde1e7; font-weight: 600; }
+.dropdown.open .dropdown-content { display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .cards { grid-template-columns: 1fr 1fr; }
+    th, td { padding: 9px 10px; font-size: 12.5px; }
+    .topbar h1 { font-size: 17px; }
+    .form-panel { padding: 16px; }
+}
+
+/* ============================================================
+   PATCH — desktop table full-width + mobile title fix
+   ============================================================ */
+
+/* 1. Panel header must NOT be sticky/max-content on desktop —
+      that caused panels to expand beyond grid column width    */
+.panel h3 {
+    position: static !important;
+    min-width: 0 !important;
+    width: 100%;
+}
+
+.panel-header {
+    position: static !important;
+    min-width: 0 !important;
+}
+
+/* 2. On desktop the panel itself should NOT overflow-x scroll —
+      it only needs scroll when viewport is narrow              */
+@media (min-width: 901px) {
+    .panel {
+        overflow-x: visible;
+    }
+
+    /* Inner table wrapper handles scroll on desktop */
+    .panel > table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+}
+
+/* 3. Dashboard grid panels fill full available width */
+.grid > .panel {
+    min-width: 0;
+    width: 100%;
+}
+
+/* 4. Mobile: topbar title gets left padding to clear hamburger */
+@media (max-width: 900px) {
+    .topbar {
+        padding-left: 52px; /* 40px button + 12px gap */
+    }
+}
+
+/* ============================================================
+   FINAL FIX — dashboard grid full width + table columns
+   ============================================================ */
+
+/* Dashboard: exactly 2 equal columns on desktop */
+@media (min-width: 901px) {
+    .grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Panels fill their grid cell completely */
+    .grid > .panel {
+        width: 100% !important;
+        min-width: 0 !important;
+        overflow: hidden;
+    }
+
+    /* Table scrolls inside the panel without expanding it */
+    .grid > .panel > table {
+        display: table !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed;
+    }
+
+    /* Allow text to wrap in cells so nothing gets cut */
+    .grid > .panel td,
+    .grid > .panel th {
+        white-space: normal !important;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+}
+
+/* On tablet/mobile grid becomes 1 column */
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================================
+   UNDO grid fix for non-grid panels — restore scroll behaviour
+   ============================================================ */
+
+/* Regular panels (NOT inside .grid): scroll horizontally */
+@media (min-width: 901px) {
+    /* Non-grid panel: overflow scroll, table min-width so it doesn't collapse */
+    .main > .panel,
+    .main > section.panel,
+    .main > div.panel {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .main > .panel > table,
+    .main > section.panel > table,
+    .main > div.panel > table {
+        display: table !important;
+        width: 100% !important;
+        min-width: 600px !important;
+        table-layout: auto !important;
+    }
+
+    .main > .panel td,
+    .main > .panel th,
+    .main > section.panel td,
+    .main > section.panel th {
+        white-space: nowrap !important;
+        overflow-wrap: unset !important;
+        word-break: unset !important;
+    }
+}
+
+/* ============================================================
+   NESTED PANEL TABLE FIX (e.g. Products page)
+   ============================================================ */
+@media (min-width: 901px) {
+    /* Nested panel must also scroll */
+    .main .panel .panel {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Table inside nested panel: full width, auto layout, scroll */
+    .main .panel .panel > table {
+        display: table !important;
+        width: 100% !important;
+        min-width: 700px !important;
+        table-layout: auto !important;
+    }
+
+    .main .panel .panel td,
+    .main .panel .panel th {
+        white-space: nowrap !important;
+    }
+}

@@ -1,0 +1,363 @@
+/* Основные стили */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Форма и контролы */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #dc143c;
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+}
+
+.form-control-lg {
+    padding: 18px;
+    font-size: 18px;
+}
+
+.search-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #dc143c;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #b01030;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 20, 60, 0.3);
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-lg {
+    padding: 15px 30px;
+    font-size: 18px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Индикатор службы */
+.service-indicator {
+    margin-bottom: 25px;
+}
+
+.service-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 6px solid #dc143c;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.service-icon-large {
+    font-size: 32px;
+}
+
+.service-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.city-name {
+    font-size: 18px;
+    color: #666;
+    background: white;
+    padding: 5px 15px;
+    border-radius: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.points-count {
+    font-size: 16px;
+    color: #dc143c;
+    font-weight: 600;
+    margin-left: auto;
+    background: white;
+    padding: 5px 15px;
+    border-radius: 30px;
+}
+
+/* Список отделений */
+.pickup-points {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+}
+
+/* ===== КАРТОЧКА ПУНКТА ===== */
+.pickup-point {
+    padding: 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-left 0.2s ease;
+    position: relative;
+    border-left: 4px solid transparent;
+}
+
+.pickup-point:last-child {
+    border-bottom: none;
+}
+
+.pickup-point-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+.pickup-point-check {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: transparent;
+    background: transparent;
+    transition: all 0.2s ease;
+    margin-top: 1px;
+}
+
+.pickup-point-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+
+.pickup-point-content strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+    line-height: 1.3;
+}
+
+.pickup-point-address {
+    font-size: 13px;
+    color: #555;
+}
+
+.pickup-point-meta {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Hover */
+.pickup-point:hover {
+    background-color: #fff5f5;
+    border-left-color: #dc143c44;
+}
+
+.pickup-point:hover .pickup-point-check {
+    border-color: #dc143c88;
+    color: #dc143c55;
+}
+
+/* ===== SELECTED STATE ===== */
+.pickup-point.selected {
+    background-color: #fff0f3;
+    border-left: 4px solid #dc143c;
+}
+
+.pickup-point.selected .pickup-point-check {
+    background-color: #dc143c;
+    border-color: #dc143c;
+    color: white;
+}
+
+.pickup-point.selected .pickup-point-content strong {
+    color: #b01030;
+}
+
+.pickup-point.selected .pickup-point-address {
+    color: #444;
+}
+
+/* Сообщения */
+.loading, .no-points, .error {
+    padding: 60px 20px;
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+}
+
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #dc143c;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    color: #dc143c;
+    background: #ffeaea;
+    border-radius: 10px;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #eee;
+}
+
+.page-btn {
+    min-width: 45px;
+    height: 45px;
+    padding: 0 5px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.page-btn.active {
+    background: #dc143c;
+    color: white;
+    border-color: #dc143c;
+}
+
+.page-btn.active:hover {
+    background: #b01030;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-dots {
+    display: inline-block;
+    padding: 0 5px;
+    color: #666;
+    font-size: 16px;
+    line-height: 45px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .address-card {
+        margin: 10px;
+        min-height: calc(100vh - 20px);
+    }
+    
+    .content {
+        padding: 20px;
+    }
+    
+    .search-wrapper {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .service-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .points-count {
+        margin-left: 0;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .page-btn {
+        min-width: 40px;
+        height: 40px;
+    }
+}

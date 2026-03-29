@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${product.name}">Товар</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <style>
+        .product-page {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        /* Галерея */
+        .product-gallery {
+            flex: 1 1 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-main-img {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-main-img:hover {
+            transform: scale(1.02);
+        }
+
+        .thumbnails {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .thumbnail:hover,
+        .thumbnail.active {
+            opacity: 1;
+            border-color: #e6007e;
+        }
+
+        /* Описание */
+        .product-details {
+            flex: 1 1 50%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .product-details h1 {
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e6007e;
+            margin-bottom: 15px;
+        }
+
+        .product-meta {
+            margin: 15px 0;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .description {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .product-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-buy {
+            background: #e6007e;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .btn-buy:hover {
+            background: #c40069;
+        }
+
+        .btn-back {
+            color: #333;
+            text-decoration: none;
+            padding: 10px 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #f5f5f5;
+        }
+
+        .color-section {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+.color-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.color-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+
+.color-name {
+    color: #444;
+    font-weight: 500;
+}
+
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+
+        <button class="nav-toggle" th:attr="aria-label=#{page.menu}" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav">
+            <div class="lang-switcher">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        🌐 <span th:text="${#locale.language == 'uk' ? 'UA' : #locale.language.toUpperCase()}">PL</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="changeLanguage('uk'); return false;">UA</a>
+                        <a href="#" onclick="changeLanguage('pl'); return false;">PL</a>
+                    </div>
+                </div>
+            </div>
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}" th:text="#{page.myOrdersPage}">Мои заказы</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container product-page">
+
+    <!-- Галерея товара -->
+    <div class="product-gallery">
+        <img th:src="@{${product.previewImageUrl}}" th:alt="#{page.photoAlt}" id="mainImage" class="product-main-img">
+
+        <div class="thumbnails">
+            <img th:each="img : ${product.images}"
+                 th:src="@{${img.imageUrl}}"
+                 th:alt="#{page.photoAlt}"
+                 class="thumbnail"
+                 th:onclick="'document.getElementById(\'mainImage\').src=\'' + @{${img.imageUrl}} + '\'; this.parentNode.querySelectorAll(\'.thumbnail\').forEach(t=>t.classList.remove(\'active\')); this.classList.add(\'active\');'">
+        </div>
+    </div>
+
+    <!-- Описание товара -->
+    <div class="product-details">
+    <h1 th:text="${product.name}">Название товара</h1>
+    <p class="price" th:text="${product.price} + ' zł'">0 zł</p>
+
+    <div class="product-meta">
+
+        <!-- ✅ Форма выбора размера -->
+        <form sec:authorize="isAuthenticated()"
+            th:action="@{/store/cart/add/{id}(id=${product.id})}"
+            method="post">
+
+    <!-- Блок размеров -->
+    <div class="sizes">
+        <span class="size-label" th:text="#{page.sizesText}">Размеры:</span>
+        <div class="size-list">
+            <label th:each="s : ${product.sizes}"
+                   class="size-pill"
+                   th:classappend="${s.quantity == 0} ? ' disabled' : ''">
+                <input type="radio" name="sizeId"
+                       th:value="${s.id}"
+                       th:disabled="${s.quantity == 0}"
+                       required>
+                <span th:text="${s.name}">S</span>
+            </label>
+        </div>
+    </div>
+    <br>
+
+    <button type="submit" class="btn-buy"
+            th:text="${#authorization.expression('isAuthenticated()')} ?
+                     #{page.cartText} :
+                     #{page.orderText}">
+        Добавить в корзину
+    </button>
+</form>
+
+
+<form sec:authorize="isAnonymous()"
+      th:action="@{/order/{id}(id=${product.id})}"
+      method="get">
+
+    <!-- Блок размеров -->
+    <div class="sizes">
+        <span class="size-label" th:text="#{page.sizesText}">Размеры:</span>
+        <div class="size-list">
+            <label th:each="s : ${product.sizes}"
+                   class="size-pill"
+                   th:classappend="${s.quantity == 0} ? ' disabled' : ''">
+                <input type="radio" name="sizeId"
+                       th:value="${s.id}"
+                       th:disabled="${s.quantity == 0}"
+                       required>
+                <span th:text="${s.name}">S</span>
+            </label>
+        </div>
+    </div>
+    <br>
+
+    <button type="submit" class="btn-buy"
+            th:text="${#authorization.expression('isAuthenticated()')} ?
+                     #{page.cartText} :
+                     #{page.orderText}">
+        Добавить в корзину
+    </button>
+</form>
+
+        <!-- 🎨 Цвет товара -->
+<div class="color-section" th:if="${product.color != null}">
+    <span class="color-label" th:text="#{page.colorText}">Цвет:</span>
+    <div class="color-display" title="Цвет">
+        <div class="color-circle"
+             th:style="'background-color:' + ${product.color.hexValue}"></div>
+        <span class="color-name" th:text="${lang == 'uk' ? product.color.nameUa : (lang == 'pl' ? product.color.namePl : product.color.nameUa)}">Цвет</span>
+    </div>
+</div>
+
+        <p th:if="${product.material != null}" th:text="#{page.materialText} + ${lang == 'uk' ? product.color.nameUa : (lang == 'pl' ? product.color.namePl : product.color.nameUa)}">Материал: Хлопок</p>
+    </div>
+
+    <p class="description" th:text="${product.description}">
+        Подробное описание товара. Его особенности, преимущества и характеристики.
+    </p>
+
+    <div class="product-actions">
+        <a th:href="@{/store}" class="btn-back" th:text="#{page.backToCatalogText}">← Вернуться в каталог</a>
+    </div>
+</div>
+
+
+
+</main>
+
+<footer class="footer">
+    <p th:text="#{page.copyright}"></p>
+</footer>
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

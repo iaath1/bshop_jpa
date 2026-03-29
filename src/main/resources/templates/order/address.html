@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{address.selectLocker}">Виберіть відділення</title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <link rel="stylesheet" th:href="@{/css/pickup-points.css}">
+    <style>
+        .address-card {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            min-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .address-header {
+            background: #dc143c;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .pickup-points {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .address-card {
+                margin: 10px;
+                min-height: calc(100vh - 20px);
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+
+        <button class="nav-toggle" th:attr="aria-label=#{page.menu}" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav">
+            <div class="lang-switcher">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        🌐 <span th:text="${#locale.language == 'uk' ? 'UA' : #locale.language.toUpperCase()}">PL</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="changeLanguage('uk'); return false;">UA</a>
+                        <a href="#" onclick="changeLanguage('pl'); return false;">PL</a>
+                    </div>
+                </div>
+            </div>
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}" th:text="#{page.myOrdersPage}">Мои заказы</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
+<main class="container address-page">
+    <div class="address-card">
+        <div class="address-header">
+            <h1 th:text="#{address.selectLocker}">Виберіть відділення доставки</h1>
+            <p class="description" th:text="#{address.selectLockerSmall}">Введіть місто та оберіть зручне відділення</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-container">
+                
+                <!-- Индикатор службы доставки -->
+                <div id="service-indicator" style="display: none;" class="service-indicator"></div>
+                
+                <!-- Поиск по городу -->
+                <!-- Поиск по городу -->
+<div class="form-group">
+    <label for="city-search" class="form-label" th:text="#{address.cityLabel}">Місто:</label>
+
+    <input type="text"
+           id="city-search"
+           class="form-control form-control-lg"
+           th:placeholder="#{address.cityPlaceholder}"
+           autocomplete="off">
+</div>
+
+<!-- Улица -->
+<div class="form-group">
+    <label for="street-search" class="form-label" th:text="#{address.streetLabel}">
+        Вулиця (необов'язково)
+    </label>
+
+    <input type="text"
+           id="street-search"
+           class="form-control form-control-lg"
+           th:placeholder="#{address.streetPlaceholder}"
+           autocomplete="off">
+</div>
+
+<!-- Номер отделения / пачкомата -->
+<div class="form-group">
+    <label for="number-search" class="form-label" th:text="#{address.lockerLabel}">
+        № відділення / пачкомату (необов'язково)
+    </label>
+
+    <input type="text"
+           id="number-search"
+           class="form-control form-control-lg"
+           th:placeholder="#{address.lockerPlaceholder}"
+           autocomplete="off">
+</div>
+
+<!-- Список отделений -->
+<div class="form-group">
+    <label class="form-label" th:text="#{address.lockersLabel}">
+        Доступні відділення
+    </label>
+
+    <div class="pickup-points" id="points-list">
+        <div class="loading" th:text="#{address.loadingText}">
+            Почніть вводити місто для пошуку
+        </div>
+    </div>
+</div>
+
+                <!-- Формы (скрытые) -->
+                <form sec:authorize="isAuthenticated()" 
+                      id="lockerForm" 
+                      method="post" 
+                      th:action="@{/order/address/submit}">
+                    <input type="hidden" id="lockerId" name="lockerId">
+                    <input type="hidden" id="lockerName" name="lockerName">
+                    <input type="hidden" id="lockerAddress" name="lockerAddress">
+                </form>
+
+                <form sec:authorize="isAnonymous()" 
+                      id="lockerFormAnon" 
+                      method="post" 
+                      th:action="@{/order/address/unauthorized/submit}">
+                    <input type="hidden" id="sizeId" name="sizeId" th:value="${sizeId}"> 
+                    <input type="hidden" id="productId" name="productId" th:value="${productId}">
+                    <input type="hidden" id="quantity" name="quantity" th:value="${quantity}">
+                    <input type="hidden" id="email" name="email" th:value="${email}">
+                    
+                    <input type="hidden" id="lockerIdAnon" name="lockerId">
+                    <input type="hidden" id="lockerNameAnon" name="lockerName">
+                    <input type="hidden" id="lockerAddressAnon" name="lockerAddress">
+                </form>
+                
+                <!-- Кнопка выбора -->
+                <button class="btn btn-success btn-lg btn-block" id="select-btn" disabled>
+                    <span th:text="#{address.submitDisabled}">Виберіть відділення</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p th:text="#{page.copyright}"></p>
+    </footer>
+
+    <!-- Подключаем JavaScript -->
+    <script th:src="@{/js/pickup-points.js}"></script>
+    <script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

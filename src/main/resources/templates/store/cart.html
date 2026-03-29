@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="#{page.cart} + ' - ' + #{page.storeName}"></title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+
+        <button class="nav-toggle" th:attr="aria-label=#{page.menu}" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav">
+            <div class="lang-switcher">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        🌐 <span th:text="${#locale.language == 'uk' ? 'UA' : #locale.language.toUpperCase()}">PL</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="changeLanguage('uk'); return false;">UA</a>
+                        <a href="#" onclick="changeLanguage('pl'); return false;">PL</a>
+                    </div>
+                </div>
+            </div>
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}" th:text="#{page.myOrdersPage}">Мои заказы</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container cart-page">
+    <h2 class="page-title" th:text="#{cart.cartText}">🛒 Ваша корзина</h2>
+
+    <!-- Если корзина пуста -->
+    <div th:if="${#lists.isEmpty(cartItems)}" class="cart-empty">
+        <p th:text="#{cart.emptyCartText}">Корзина пуста 😔</p>
+        <a th:href="@{/store}" class="btn" th:text="#{page.backToCatalogText}">Перейти в каталог</a>
+    </div>
+
+    <!-- Если корзина не пуста -->
+    <div th:if="${!#lists.isEmpty(cartItems)}" class="cart-content">
+        <div class="cart-items">
+            <div class="cart-item" th:each="item : ${cartItems}">
+                <div class="cart-item-info">
+                    <img th:src="@{${item.product.previewImageUrl}}" th:alt="#{page.photoAlt}" class="cart-thumb">
+                    <div class="cart-item-details">
+                        <h3 th:text="${item.product.name}" class="cart-item-name"></h3>
+                        <p class="cart-item-price" th:text="${item.product.price} + ' zł'"></p>
+
+                        <!-- Количество товара на складе -->
+                        <p class="cart-item-stock"
+                           th:text="#{page.quantityText} + ${item.size.quantity}">В наличии: 0</p>
+
+                        <!-- Размер -->
+                        <p class="cart-item-size"
+                           th:if="${item.size != null}"
+                           th:text="#{page.sizeText} + ${item.size.name}">Размер: M</p>
+                    </div>
+                </div>
+
+                <form th:action="@{/store/cart/update}" method="post" class="cart-item-actions">
+                    <input type="hidden" name="cartItemId" th:value="${item.id}">
+                    <input type="hidden" name="sizeId" th:value="${item.size.id}">
+                    <input type="number" name="quantity" min="1" th:value="${item.quantity}" class="qty-input">
+                    <button type="submit" class="btn-small" th:text="#{cart.updateText}">Обновить</button>
+                </form>
+
+                <div class="cart-item-sum">
+                    <span th:text="${item.product.price * item.quantity} + ' zł'"></span>
+                </div>
+
+                <form th:action="@{/store/cart/delete/{id}(id=${item.id})}" method="post" class="cart-item-remove">
+                    <button type="submit" class="btn-small danger">✖</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Блок итога -->
+        <aside class="cart-summary">
+            <h3 th:text="#{order.sumText}">Итого</h3>
+            <p class="cart-total">
+                <span th:text="${total} + ' zł'"></span>
+            </p>
+            <a th:href="@{/order/cart}" class="btn btn-primary" th:text="#{page.orderText}">Оформить заказ</a>
+            <a th:href="@{/store}" class="btn btn-secondary" th:text="#{page.backToCatalogText}">Продолжить покупки</a>
+        </aside>
+    </div>
+</main>
+
+
+<footer class="footer">
+    <p th:text="#{page.copyright}"></p>
+</footer>
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

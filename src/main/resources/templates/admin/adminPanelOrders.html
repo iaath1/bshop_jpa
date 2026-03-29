@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Admin - Users</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <button class="sidebar-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+</button>
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">🧭 Admin</div>
+        <nav class="nav">
+            <a th:href="@{/admin}" th:classappend="${activePage}=='dashboard' ? ' active'">🏠 Dashboard</a>
+            <a th:href="@{/admin/users}" th:classappend="${activePage}=='users' ? ' active'">👤 Users</a>
+            <a th:href="@{/admin/products}" th:classappend="${activePage}=='products' ? ' active'">📦 Products</a>
+            <a th:href="@{/admin/orders}" th:classappend="${activePage}=='orders' ? ' active'">🧾 Orders</a>
+            <a th:href="@{/admin/categories}" th:classappend="${activePage}=='categories' ? ' active'">🏷️ Categories</a>
+            <a th:href="@{/admin/colors}" th:classappend="${activePage}=='colors' ? ' active'">🎨 Colors</a>
+            <a th:href="@{/admin/statuses}" th:classappend="${activePage}=='statuses' ? ' active'">📊 Statuses</a>
+            <a th:href="@{/admin/sizes}" th:classappend="${activePage}=='sizes' ? ' active'">📏 Sizes</a>
+            <a th:href="@{/admin/materials}" th:classappend="${activePage}=='materials' ? ' active'">🧵 Materials</a>
+            <a th:href="@{/admin/roles}" th:classappend="${activePage}=='roles' ? ' active'">🛡️ Roles</a>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="topbar">
+            <h1 style="margin:0" th:text="#{admin.ordersTitle}">Заказы</h1>
+            <div class="top-right">
+                <div class="lang-switcher">
+                    <div class="dropdown">
+                        <button class="dropbtn">
+                            🌐 <span th:text="${#locale.language.toUpperCase()}">UA</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <a th:href="@{${currentUrl}(lang='uk')}">UA</a>
+                            <a th:href="@{${currentUrl}(lang='pl')}">PL</a>
+                        </div>
+                    </div>
+            </div>
+                <span class="muted">👤 <span sec:authentication="name">Admin</span></span>
+                <form th:action="@{/auth/logout}" method="post">
+                    <button class="btn" type="submit" th:text="#{admin.logout}">Выйти</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <section class="panel">
+            <h3 th:text="#{admin.orders}">Все заказы</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th th:text="#{admin.orderId}">ID</th>
+                    <th th:text="#{admin.address}"></th>
+                    <th th:text="#{admin.orderEmail}">Email пользователя</th>
+                    <th th:text="#{admin.orderStatus}">Статус</th>
+                    <th th:text="#{admin.orderCreatedAt}">Создано</th>
+                    <th th:text="#{admin.orderUpdatedAt}">Последнее обновление</th>
+                    <th th:text="#{admin.orderTotal}">Общее количество</th>
+                    <th>⚙️</th>
+                </tr>
+                </thead>
+                <tbody>
+<tr th:each="order : ${orders}">
+    <td th:text="${order.id}">1</td>
+
+    <td th:text="${order.lockerAddress}">Адрес</td>
+
+    <td th:text="${order.user != null ? order.user.email : order.guestEmail}">
+        гость
+    </td>
+
+    <td th:text="${order.status.name}"></td>
+
+    <td th:text="${#temporals.format(order.createdAt,'yyyy-MM-dd HH:mm')}"></td>
+
+    <td th:text="${order.updatedAt != null ? #temporals.format(order.updatedAt,'yyyy-MM-dd HH:mm') : '-'}"></td>
+
+    <td th:text="${order.totalPrice}">0</td>
+
+    <td>
+        <a class="btn"
+           th:href="@{/admin/orders/edit/{id}(id=${order.id})}">
+            ✏️ Edit
+        </a>
+    </td>
+</tr>
+
+<tr th:if="${#lists.isEmpty(orders)}">
+    <td colspan="8" class="muted" th:text="#{admin.noData}">Нет данных</td>
+</tr>
+</tbody>
+            </table>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

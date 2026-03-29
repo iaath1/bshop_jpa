@@ -1,0 +1,42 @@
+package com.bshop_jpa.demo.services;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.bshop_jpa.demo.models.Status;
+import com.bshop_jpa.demo.repositories.StatusRepository;
+
+@Service
+public class StatusService {
+    
+    private final StatusRepository statusRepo;
+
+    public StatusService(StatusRepository statusRepo) {
+        this.statusRepo = statusRepo;
+    }
+
+    public Status findStatusByName(String name) {
+        if(statusRepo.findByName(name).isPresent()) {
+            return statusRepo.findByName(name).get();
+        }
+        return null;
+    }
+
+    public void saveStatus(Status status) {
+        statusRepo.save(status);
+    }
+
+    public boolean existsByName(String name) {
+        return statusRepo.existsByName(name);
+    }
+
+    public List<Status> findAllStatuses() {
+        return statusRepo.findAll();
+    }
+
+    public Status findStatusById(Integer id) {
+        return statusRepo.findById(id).get();
+    }
+
+}

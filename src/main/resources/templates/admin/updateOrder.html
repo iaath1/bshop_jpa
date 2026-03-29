@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Редактирование заказа</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+<button class="sidebar-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+</button>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+        <div class="brand">🧭 Admin</div>
+        <nav class="nav">
+            <a th:href="@{/admin}" th:classappend="${activePage}=='dashboard' ? ' active'">🏠 Dashboard</a>
+            <a th:href="@{/admin/users}" th:classappend="${activePage}=='users' ? ' active'">👤 Users</a>
+            <a th:href="@{/admin/products}" th:classappend="${activePage}=='products' ? ' active'">📦 Products</a>
+            <a th:href="@{/admin/orders}" th:classappend="${activePage}=='orders' ? ' active'">🧾 Orders</a>
+            <a th:href="@{/admin/categories}" th:classappend="${activePage}=='categories' ? ' active'">🏷️ Categories</a>
+            <a th:href="@{/admin/colors}" th:classappend="${activePage}=='colors' ? ' active'">🎨 Colors</a>
+            <a th:href="@{/admin/statuses}" th:classappend="${activePage}=='statuses' ? ' active'">📊 Statuses</a>
+            <a th:href="@{/admin/sizes}" th:classappend="${activePage}=='sizes' ? ' active'">📏 Sizes</a>
+            <a th:href="@{/admin/materials}" th:classappend="${activePage}=='materials' ? ' active'">🧵 Materials</a>
+            <a th:href="@{/admin/roles}" th:classappend="${activePage}=='roles' ? ' active'">🛡️ Roles</a>
+        </nav>
+    </aside>
+
+
+<!-- MAIN -->
+<main class="main">
+
+<div class="topbar">
+    <h1>Редактирование заказа #<span th:text="${order.id}"></span></h1>
+
+    <form th:action="@{/auth/logout}" method="post">
+        <button class="btn">Logout</button>
+    </form>
+</div>
+
+
+<div class="panel form-panel">
+
+<form th:action="@{/admin/orders/edit}" method="post">
+
+<input type="hidden" name="orderId" th:value="${order.id}"/>
+
+<div class="form-grid">
+
+<!-- EMAIL -->
+<div class="form-group">
+<label>Email покупателя</label>
+
+<input class="input-lg"
+       type="email"
+       name="guestEmail"
+       th:value="${order.guestEmail != null ? order.guestEmail : order.user?.email}">
+</div>
+
+
+<!-- STATUS -->
+<div class="form-group">
+
+<label>Статус заказа</label>
+
+<select class="input-lg" name="statusId">
+
+<option th:each="status : ${statuses}"
+        th:value="${status.id}"
+        th:selected="${status.id == order.status.id}"
+        th:text="${status.name}">
+</option>
+
+</select>
+
+</div>
+
+
+<!-- ADDRESS -->
+<div class="form-group">
+
+<label>Адрес доставки</label>
+
+<input class="input-lg"
+       type="text"
+       name="lockerAddress"
+       th:value="${order.lockerAddress}">
+</div>
+
+
+<div class="form-row">
+
+<div class="form-group">
+<label>Locker ID</label>
+
+<input class="input-lg"
+       type="text"
+       name="lockerId"
+       th:value="${order.lockerId}">
+</div>
+
+<div class="form-group">
+<label>Locker Name</label>
+
+<input class="input-lg"
+       type="text"
+       name="lockerName"
+       th:value="${order.lockerName}">
+</div>
+
+</div>
+
+
+<!-- TOTAL -->
+<div class="form-group">
+<label>Сумма заказа</label>
+
+<input class="input-lg"
+       type="text"
+       th:value="${order.totalPrice}"
+       disabled>
+</div>
+
+
+</div>
+
+
+<!-- ITEMS -->
+<h3>Товары</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Товар</th>
+<th>Цена</th>
+<th>Количество</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr th:each="item : ${order.items}">
+
+<td th:text="${item.product.name}"></td>
+
+<td th:text="${item.price}"></td>
+
+<td th:text="${item.quantity}"></td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+
+<br>
+
+<button class="btn btn-lg" type="submit">
+💾 Сохранить изменения
+</button>
+
+</form>
+
+</div>
+
+</main>
+
+</div>
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

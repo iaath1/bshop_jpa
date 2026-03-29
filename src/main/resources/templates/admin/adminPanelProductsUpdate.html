@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="uk"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Admin - Редагування товару</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .image-gallery, .preview-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-card {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-card button {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(255, 0, 0, 0.7);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 18px;
+        }
+        .image-card button:hover {
+            background: red;
+        }
+        .file-upload {
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .file-label {
+            display: inline-block;
+            padding: 10px 16px;
+            background-color: #1976d2;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .file-label:hover {
+            background-color: #0d47a1;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="sidebar-toggle" aria-label="Меню">
+    <span></span><span></span><span></span>
+</button>
+<div class="layout">
+    <!-- 🧭 Бокова панель залишена без змін -->
+    <aside class="sidebar">
+        <div class="brand">🧭 Admin</div>
+        <nav class="nav">
+            <a th:href="@{/admin}" th:classappend="${activePage}=='dashboard' ? ' active'">🏠 Dashboard</a>
+            <a th:href="@{/admin/users}" th:classappend="${activePage}=='users' ? ' active'">👤 Users</a>
+            <a th:href="@{/admin/products}" th:classappend="${activePage}=='products' ? ' active'">📦 Products</a>
+            <a th:href="@{/admin/orders}" th:classappend="${activePage}=='orders' ? ' active'">🧾 Orders</a>
+            <a th:href="@{/admin/categories}" th:classappend="${activePage}=='categories' ? ' active'">🏷️ Categories</a>
+            <a th:href="@{/admin/colors}" th:classappend="${activePage}=='colors' ? ' active'">🎨 Colors</a>
+            <a th:href="@{/admin/statuses}" th:classappend="${activePage}=='statuses' ? ' active'">📊 Statuses</a>
+            <a th:href="@{/admin/sizes}" th:classappend="${activePage}=='sizes' ? ' active'">📏 Sizes</a>
+            <a th:href="@{/admin/materials}" th:classappend="${activePage}=='materials' ? ' active'">🧵 Materials</a>
+            <a th:href="@{/admin/roles}" th:classappend="${activePage}=='roles' ? ' active'">🛡️ Roles</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <h1 th:text="#{admin.productUpdateTitle}">Редагування товару</h1>
+        </div>
+
+        <div class="panel form-panel">
+    <form th:action="@{/admin/products/update/{id}(id=${product.id})}"
+          th:object="${product}"
+          method="post" enctype="multipart/form-data"
+          class="form-grid">
+
+        <!-- Поточні зображення -->
+        <div class="form-group">
+            <label th:text="#{admin.productPhotos}">Поточні зображення:</label>
+            <div class="image-gallery">
+                <div class="image-card"
+                     th:each="img : ${product.images}"
+                     th:if="${img.imageUrl != null and !#strings.isEmpty(img.imageUrl)}">
+                    <img th:src="@{${img.imageUrl}}" alt="Фото товару">
+                    <button type="button" th:attr="data-id=${img.id}" onclick="removeImage(this)">×</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нові зображення -->
+        <div class="form-group">
+            <label th:text="#{admin.productAddPhoto}">Додати нові зображення:</label>
+            <div class="file-upload">
+                <input type="file" id="files" name="files" multiple accept="image/*" onchange="previewFiles(event)" hidden>
+                <label for="files" class="file-label" th:text="#{admin.productChoosePhoto}">📸 Обрати файли</label>
+            </div>
+            <div class="preview-gallery" id="preview"></div>
+        </div>
+
+        <!-- Переклади -->
+        <div class="translation-section">
+            <h3 th:text="#{admin.productTranslations}">Переклади</h3>
+
+            <!-- 🇺🇦 Українська -->
+            <div class="form-group">
+                <label for="nameUk" th:text="#{admin.productNameUA}">Назва (укр)</label>
+                <input type="text" id="nameUk" name="nameUk"
+                       th:value="${nameUk}" class="input-lg"
+                       placeholder="Назва українською...">
+            </div>
+
+            <div class="form-group">
+                <label for="descriptionUk" th:text="#{admin.productDescriptionUA}">Опис (укр)</label>
+                <textarea id="descriptionUk" name="descriptionUk"
+                          rows="5" class="input-lg"
+                          placeholder="Опис українською..."
+                          th:text="${descriptionUk}"></textarea>
+            </div>
+
+            <!-- 🇵🇱 Польська -->
+            <div class="form-group">
+                <label for="namePl" th:text="#{admin.productNamePL}">Назва (польськ.)</label>
+                <input type="text" id="namePl" name="namePl"
+                       th:value="${namePl}" class="input-lg"
+                       placeholder="Nazwa po polsku...">
+            </div>
+
+            <div class="form-group">
+                <label for="descriptionPl" th:text="#{admin.productDescriptionPL}">Опис (польськ.)</label>
+                <textarea id="descriptionPl" name="descriptionPl"
+                          rows="5" class="input-lg"
+                          placeholder="Opis po polsku..."
+                          th:text="${descriptionPl}"></textarea>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="price" th:text="#{admin.productPrice}">Ціна</label>
+                <input type="number" step="0.01" id="price" th:field="*{price}" class="input-lg" required>
+            </div>
+        </div>
+
+        <!-- ✅ Розміри та кількість -->
+        <div class="form-group">
+            <label th:text="#{admin.productSizeAndQuantity}">Розміри та кількість</label>
+            <table class="size-table">
+                <thead>
+                    <tr>
+                        <th th:text="#{admin.productSize}">Розмір</th>
+                        <th th:text="#{admin.productQuantity}">Кількість</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="size, iStat : ${product.sizes}">
+                        <td>
+                            <input type="hidden" th:field="*{sizes[__${iStat.index}__].id}">
+                            <input type="text" th:field="*{sizes[__${iStat.index}__].name}" readonly class="input-sm">
+                        </td>
+                        <td>
+                            <input type="number" min="0" th:field="*{sizes[__${iStat.index}__].quantity}" class="input-sm">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-group">
+            <label for="category" th:text="#{admin.productCategory}">Категорія</label>
+            <select id="category" th:field="*{category.id}" class="input-lg">
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${lang == 'uk' ? c.nameUa : (lang == 'pl' ? c.namePl : c.nameUa)}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="material" th:text="#{admin.productMaterial}">Матеріал</label>
+            <select id="material" th:field="*{material.id}" class="input-lg">
+                <option th:each="m : ${materials}" th:value="${m.id}" th:text="${lang == 'uk' ? m.nameUa : (lang == 'pl' ? m.namePl : m.nameUa)}"></option>
+            </select>
+        </div>
+
+        <!-- Колір -->
+        <div class="form-group">
+            <label for="color" th:text="#{admin.productColor}">Колір</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <select id="color" th:field="*{color}" class="input-lg" onchange="updateColorPreview()">
+                    <option th:each="cl : ${colors}"
+                            th:value="${cl.id}"
+                            th:text="${lang == 'uk' ? cl.nameUa : (lang == 'pl' ? cl.namePl : cl.nameUa)}"
+                            th:data-hex="${cl.hexValue}">
+                    </option>
+                </select>
+
+                <!-- Коло попереднього перегляду кольору -->
+                <div id="color-preview"
+                     style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc;"></div>
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top:20px;">
+            <button type="submit" class="btn btn-lg" th:text="#{admin.productUpdateApply}">💾 Зберегти</button>
+        </div>
+    </form>
+</div>
+
+    </main>
+</div>
+
+<script>
+    // 🖼 Попередній перегляд вибраних зображень
+    function previewFiles(event) {
+        const preview = document.getElementById('preview');
+        preview.innerHTML = '';
+        const input = event.target;
+        const dt = new DataTransfer();
+
+        Array.from(input.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const card = document.createElement('div');
+                card.classList.add('image-card');
+                card.innerHTML = `
+                    <img src="${e.target.result}" alt="preview">
+                    <button type="button" onclick="removeNewImage(${index})">×</button>
+                `;
+                preview.appendChild(card);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        window.currentFiles = input.files;
+    }
+
+    function removeNewImage(index) {
+        const input = document.getElementById('files');
+        const dt = new DataTransfer();
+
+        Array.from(window.currentFiles || input.files)
+            .filter((_, i) => i !== index)
+            .forEach(f => dt.items.add(f));
+
+        input.files = dt.files;
+        previewFiles({ target: input });
+    }
+
+    // 🗑 Видалення старого зображення з сервера
+    function removeImage(button) {
+        const imageId = button.getAttribute('data-id');
+        if (confirm('Видалити це зображення?')) {
+            fetch(`/admin/products/image/delete/${imageId}`, { method: 'DELETE' })
+                .then(res => {
+                    if (res.ok) button.parentElement.remove();
+                    else alert('Помилка при видаленні зображення');
+                });
+        }
+    }
+
+    function updateColorPreview() {
+        const select = document.getElementById("color");
+        const preview = document.getElementById("color-preview");
+        const selectedOption = select.options[select.selectedIndex];
+        const hex = selectedOption.getAttribute("data-hex");
+
+        preview.style.backgroundColor = hex || "#ffffff";
+    }
+
+    document.addEventListener("DOMContentLoaded", updateColorPreview);
+</script>
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

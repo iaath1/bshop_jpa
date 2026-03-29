@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="#{page.catalog} + ' - ' + #{page.storeName}"></title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+
+        <button class="nav-toggle" th:attr="aria-label=#{page.menu}" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav">
+            <div class="lang-switcher">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        🌐 <span th:text="${#locale.language == 'uk' ? 'UA' : #locale.language.toUpperCase()}">PL</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="changeLanguage('uk'); return false;">UA</a>
+                        <a href="#" onclick="changeLanguage('pl'); return false;">PL</a>
+                    </div>
+                </div>
+            </div>
+
+            <a th:href="@{/}" th:text="#{page.home}">Главная</a>
+            <a th:href="@{/store}" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}" th:text="#{page.myOrdersPage}">Мои заказы</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
+
+<section class="products container">
+    <h2 th:text="#{page.products}"></h2>
+
+    <div class="filter-bar">
+        <form th:action="@{/store}" method="get" class="filter-form">
+            <input type="text"
+                   name="search"
+                   th:value="${parameters.search}"
+                   th:placeholder="#{filter.searchPlaceholder}"
+                   class="search-input"/>
+
+            <select name="colorId" class="filter-select">
+                <option value="" th:selected="${parameters.colorId == null or parameters.colorId == ''}" th:text="#{filter.colors}">Все цвета</option>
+                <option th:each="c : ${colors}"
+                        th:value="${c.id}"
+                        th:text="${lang == 'uk' ? c.nameUa : (lang == 'pl' ? c.namePl : c.nameUa)}"
+                        th:selected="${parameters.colorId != null and parameters.colorId == c.id}">
+                </option>
+            </select>
+
+            <select name="categoryId" class="filter-select">
+                <option value="" th:selected="${parameters.categoryId == null or parameters.categoryId == ''}" th:text="#{filter.categories}">Все категории</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.id}"
+                        th:text="${lang == 'uk' ? cat.nameUa : (lang == 'pl' ? cat.namePl : cat.nameUa)}"
+                        th:selected="${parameters.categoryId != null and parameters.categoryId == cat.id}">
+                </option>
+            </select>
+
+            <select name="sizeName" class="filter-select">
+                <option value="" th:selected="${parameters.sizeName == null or parameters.sizeName == ''}" th:text="#{filter.sizes}">Все размеры</option>
+                <option th:each="s : ${sizes}"
+                        th:value="${s.name}"
+                        th:text="${s.name}"
+                        th:selected="${parameters.sizeName != null and parameters.sizeName == s.name}">
+                </option>
+            </select>
+
+            <select name="materialId" class="filter-select">
+                <option value="" th:selected="${parameters.materialId == null or parameters.materialId == ''}" th:text="#{filter.materials}">Все материалы</option>
+                <option th:each="m : ${materials}"
+                        th:value="${m.id}"
+                        th:text="${lang == 'uk' ? m.nameUa : (lang == 'pl' ? m.namePl : m.nameUa)}"
+                        th:selected="${parameters.materialId != null and parameters.materialId == m.id}">
+                </option>
+            </select>
+
+            <select name="sortBy" class="filter-select">
+                <option value="name" th:selected="${parameters.sortBy == 'name'}" th:text="#{filter.sortByName}">По названию</option>
+                <option value="price" th:selected="${parameters.sortBy == 'price'}" th:text="#{filter.sortByPrice}">По цене</option>
+            </select>
+
+            <select name="order" class="filter-select">
+                <option value="asc" th:selected="${parameters.order == 'asc'}" th:text="#{filter.orderAsc}">По возрастанию</option>
+                <option value="desc" th:selected="${parameters.order == 'desc'}" th:text="#{filter.orderDesc}">По убыванию</option>
+            </select>
+
+            <button type="submit" class="btn-filter" th:text="#{filter.apply}">Применить</button>
+        </form>
+    </div>
+
+    <div class="products-grid">
+        <div class="product-card" th:each="prod : ${products}">
+
+            <!-- Фото + инфо — flex: 1 чтобы тянулся -->
+            <div class="product-content">
+                <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
+                    <img th:if="${prod.previewImageUrl != null}"
+                         th:src="@{${prod.previewImageUrl}}"
+                         th:alt="#{page.photoAlt}"
+                         class="product-thumb-lg">
+                </a>
+                <div class="product-info">
+                    <h3 th:text="${prod.name}">Название товара</h3>
+                    <p class="price" th:text="${prod.price} + ' zł'">0 zł</p>
+
+                    <div class="sizes">
+                        <span class="size-label" th:text="#{page.sizesText}">Размеры:</span>
+                        <div class="size-list">
+                            <span th:each="s : ${prod.sizes}"
+                                  th:text="${s.name}"
+                                  th:classappend="${s.quantity > 0} ? ' size-available' : ' size-unavailable'">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="color-section" th:if="${prod.color != null}">
+                        <span class="color-label" th:text="#{page.colorText}">Цвет:</span>
+                        <div class="color-display">
+                            <div class="color-circle" th:style="'background-color:' + ${prod.color.hexValue}"></div>
+                            <span class="color-name" th:text="${lang == 'uk' ? prod.color.nameUa : (lang == 'pl' ? prod.color.namePl : prod.color.nameUa)}">Цвет</span>
+                        </div>
+                    </div>
+
+                    <div class="material-section" th:if="${prod.material != null}">
+                        <span class="material-label" th:text="#{page.materialText}">Материал:</span>
+                        <span class="material-name" th:text="${lang == 'uk' ? prod.material.nameUa : (lang == 'pl' ? prod.material.namePl : prod.material.nameUa)}">Хлопок</span>
+                    </div>
+
+                    <div class="category-section" th:if="${prod.category != null}">
+                        <span class="category-label" th:text="#{page.categoryText}">Категория:</span>
+                        <span class="category-name" th:text="${lang == 'uk' ? prod.category.nameUa : (lang == 'pl' ? prod.category.namePl : prod.category.nameUa)}">Футболки</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки — всегда внизу карточки -->
+            <div class="card-actions">
+                <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-action btn-detail" th:text="#{page.productDetailsText}">Подробнее</a>
+
+                <!-- Авторизованный: добавить в корзину -->
+                <form sec:authorize="isAuthenticated()"
+                      th:action="@{/store/cart/add/{id}(id=${prod.id})}"
+                      method="post"
+                      style="display:contents;">
+                    <button type="submit" class="btn-action btn-buy" th:text="#{page.cartText}">В корзину</button>
+                </form>
+
+                <!-- Гость: оформить заказ -->
+                <a sec:authorize="isAnonymous()"
+                   th:href="@{/order/{id}(id=${prod.id})}"
+                   class="btn-action btn-buy"
+                   th:text="#{page.orderText}">Оформить заказ</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p th:text="#{page.copyright}"></p>
+</footer>
+
+<!-- Скрипт в конце body, после DOM -->
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>
