@@ -1,4 +1,5 @@
 package com.bshop_jpa.demo.controllers;
+
 import com.bshop_jpa.demo.services.ColorService;
 import com.bshop_jpa.demo.services.ConfirmationEmailService;
 import com.bshop_jpa.demo.services.ImageService;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +64,7 @@ public class AdminController {
 
     @Autowired
     private final UserService userService;
-    
+
     private final UserRepository userRepo;
     private final ProductService productService;
     private final ColorService colorService;
@@ -74,9 +76,12 @@ public class AdminController {
     private final OrderService orderService;
     private final ImageService imageService;
 
-    public AdminController(UserRepository userRepo, ProductService productService, ColorService colorService, MaterialService materialService, 
-                            RoleRepository roleRepo, SizeService sizeService, StatusService statusService, CategoryService categoryService,
-                            OrderService orderService, UserService userService, ImageService imageService, ConfirmationEmailService confirmationEmailService) {
+    public AdminController(UserRepository userRepo, ProductService productService, ColorService colorService,
+            MaterialService materialService,
+            RoleRepository roleRepo, SizeService sizeService, StatusService statusService,
+            CategoryService categoryService,
+            OrderService orderService, UserService userService, ImageService imageService,
+            ConfirmationEmailService confirmationEmailService) {
 
         this.userRepo = userRepo;
         this.productService = productService;
@@ -91,9 +96,6 @@ public class AdminController {
         this.imageService = imageService;
         this.confirmationEmailService = confirmationEmailService;
     }
-
-
-
 
     @GetMapping
     public String getAdminPanel(Model model, HttpServletRequest request) {
@@ -115,16 +117,17 @@ public class AdminController {
 
     @GetMapping("/products")
     public String getAdminPanelProducts(Model model, @RequestParam(required = false) String search,
-        @RequestParam(required = false) Integer colorId,
-        @RequestParam(defaultValue = "name") String sortBy,
-        @RequestParam(defaultValue = "asc") String order,
-        @RequestParam(required = false) Integer categoryId,
-        @RequestParam(required = false) String sizeName,
-        @RequestParam(required = false) Integer materialId,
-        Locale locale,
-        HttpServletRequest request) {
+            @RequestParam(required = false) Integer colorId,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String order,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) String sizeName,
+            @RequestParam(required = false) Integer materialId,
+            Locale locale,
+            HttpServletRequest request) {
 
-        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName, order, locale);
+        List<Product> products = productService.getFilteredProducts(search, categoryId, colorId, materialId, sizeName,
+                order, locale);
 
         Map<String, Object> params = new HashMap<>();
         params.put("search", search);
@@ -134,7 +137,7 @@ public class AdminController {
         params.put("categoryId", categoryId);
         params.put("sizeName", sizeName);
         params.put("materialId", materialId);
-        
+
         model.addAttribute("lang", locale.getLanguage());
         model.addAttribute("currentUrl", request.getRequestURI());
         model.addAttribute("products", products);
@@ -161,12 +164,12 @@ public class AdminController {
 
     @PostMapping("/products/add")
     public String postAdminPanelProductAdd(Model model,
-     @ModelAttribute Product product,
-     @RequestParam(name = "files") MultipartFile[] imageFiles,
-     @RequestParam(name = "nameUk") String nameUk,
-     @RequestParam(name = "descriptionUk") String descriptionUk,
-     @RequestParam(name = "namePl") String namePl,
-     @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
+            @ModelAttribute Product product,
+            @RequestParam(name = "files") MultipartFile[] imageFiles,
+            @RequestParam(name = "nameUk") String nameUk,
+            @RequestParam(name = "descriptionUk") String descriptionUk,
+            @RequestParam(name = "namePl") String namePl,
+            @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
 
         List<Image> images = new ArrayList<>();
 
@@ -174,8 +177,9 @@ public class AdminController {
             Path uploadDir = Paths.get(MEDIA_PATH);
             Files.createDirectories(uploadDir);
 
-            for(MultipartFile imageFile : imageFiles) {
-                if (imageFile.isEmpty()) continue;
+            for (MultipartFile imageFile : imageFiles) {
+                if (imageFile.isEmpty())
+                    continue;
                 String contentType = imageFile.getContentType();
                 if (contentType == null || !contentType.startsWith("image/")) {
                     continue;
@@ -186,8 +190,8 @@ public class AdminController {
 
                 String originalFilename = imageFile.getOriginalFilename();
                 String extension = (originalFilename != null && originalFilename.contains("."))
-                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                    : "";
+                        ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                        : "";
                 String fileName = UUID.randomUUID() + extension;
                 Path filePath = uploadDir.resolve(fileName);
                 Files.copy(imageFile.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -221,26 +225,28 @@ public class AdminController {
 
     @PostMapping("/products/update/{id}")
     public String postAdminPanelProductsUpdate(
-        Model model,
-        @ModelAttribute Product product,
-        @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
-        @PathVariable Long id,
-        Locale locale,
-        @RequestParam (name = "nameUk") String nameUk,
-        @RequestParam (name = "descriptionUk") String descriptionUk,
-        @RequestParam (name = "namePl") String namePl,
-        @RequestParam (name = "descriptionPl") String descriptionPl) throws IOException {
+            Model model,
+            @ModelAttribute Product product,
+            @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
+            @PathVariable Long id,
+            Locale locale,
+            @RequestParam(name = "nameUk") String nameUk,
+            @RequestParam(name = "descriptionUk") String descriptionUk,
+            @RequestParam(name = "namePl") String namePl,
+            @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
 
         Product existing = productService.findProductById(id);
 
-        if(existing == null) {throw new RuntimeException("Product with id: " + id + " Does not exists.");}
-                
+        if (existing == null) {
+            throw new RuntimeException("Product with id: " + id + " Does not exists.");
+        }
+
         existing.setPrice(product.getPrice());
         existing.setQuantity(product.getQuantity());
         existing.setColor(product.getColor());
         existing.setMaterial(product.getMaterial());
         existing.setCategory(product.getCategory());
-        
+
         Path uploadDir = Paths.get(MEDIA_PATH);
 
         Files.createDirectories(uploadDir);
@@ -248,7 +254,8 @@ public class AdminController {
         // ✅ Добавляем новые изображения, не удаляя старые
         if (imageFiles != null && imageFiles.length > 0) {
             for (MultipartFile imageFile : imageFiles) {
-                if (imageFile.isEmpty()) continue;
+                if (imageFile.isEmpty())
+                    continue;
 
                 // Получаем оригинальное расширение
                 String originalFilename = imageFile.getOriginalFilename();
@@ -276,8 +283,6 @@ public class AdminController {
         return "redirect:/admin/products";
     }
 
-
-
     @DeleteMapping("/products/image/delete/{id}")
     @ResponseBody
     public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
@@ -285,14 +290,12 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-
     @PostMapping("/products/delete/{id}")
     public String postAdminPanelProductsDelete(@PathVariable Long id) {
         productService.deleteProductById(id);
 
         return "redirect:/admin/products";
     }
-
 
     @GetMapping("/orders")
     public String getAdminPanelOrders(Model model) {
@@ -311,10 +314,10 @@ public class AdminController {
     }
 
     @PostMapping("/orders/edit")
-    public String postUpdateOrderPage(@RequestParam("orderId") Long id, @RequestParam("statusId") Integer statusId, Model model) {
+    public String postUpdateOrderPage(@RequestParam("orderId") Long id, @RequestParam("statusId") Integer statusId,
+            Model model) {
         Order orderFromDb = orderService.findOrderById(id);
         Status status = statusService.findStatusById(statusId);
-        
 
         orderFromDb.setStatus(status);
         orderFromDb.setUpdatedAt(LocalDateTime.now());
@@ -324,10 +327,6 @@ public class AdminController {
 
         return "redirect:/admin/orders";
     }
-
-
-
-
 
     @GetMapping("/categories")
     public String getAdminPanelCategories(Model model, HttpServletRequest request) {
@@ -339,7 +338,7 @@ public class AdminController {
 
     @PostMapping("/categories/add")
     public String postAdminPanelCategoriesAdd(Model model, @ModelAttribute Category category) {
-        if(categoryService.existsByName(category.getNameUa(), category.getNamePl())) {
+        if (categoryService.existsByName(category.getNameUa(), category.getNamePl())) {
             model.addAttribute("error", "Category with this name already exists");
             return "redirect:/admin/categories";
         }
@@ -347,8 +346,6 @@ public class AdminController {
         categoryService.saveCategory(category);
         return "redirect:/admin/categories";
     }
-
-
 
     @GetMapping("/colors")
     public String getAdminPanelColors(Model model, HttpServletRequest request, Locale locale) {
@@ -361,7 +358,7 @@ public class AdminController {
 
     @PostMapping("/colors/add")
     public String postAdminPanelColorsAdd(Model model, @ModelAttribute Color color) {
-        if(colorService.existsByName(color.getNameUa(), color.getNamePl())) {
+        if (colorService.existsByName(color.getNameUa(), color.getNamePl())) {
             model.addAttribute("error", "Color with this name already exists");
             return "redirect:/admin/colors";
         }
@@ -369,8 +366,6 @@ public class AdminController {
         colorService.saveColor(color);
         return "redirect:/admin/colors";
     }
-
-
 
     @GetMapping("/materials")
     public String getAdminPageMaterials(Model model, HttpServletRequest request, Locale locale) {
@@ -384,16 +379,14 @@ public class AdminController {
 
     @PostMapping("/materials/add")
     public String postAdminPageMaterialAdd(Model model, @ModelAttribute Material material) {
-        if(materialService.existsByName(material.getNameUa(), material.getNamePl())) {
+        if (materialService.existsByName(material.getNameUa(), material.getNamePl())) {
             model.addAttribute("error", "Material with this name already exists");
             return "redirect:/admin/materials";
         }
-        
+
         materialService.saveMaterial(material);
         return "redirect:/admin/materials";
     }
-
-
 
     @GetMapping("/statuses")
     public String getAdminPanelStatuses(Model model) {
@@ -404,7 +397,7 @@ public class AdminController {
 
     @PostMapping("/statuses/add")
     public String postAdminPanelStatusesAdd(Model model, @ModelAttribute Status status) {
-        if(statusService.existsByName(status.getName())) {
+        if (statusService.existsByName(status.getName())) {
             model.addAttribute("error", "Status with this name already exists");
             return "redirect:/admin/statuses";
         }
@@ -412,8 +405,6 @@ public class AdminController {
         statusService.saveStatus(status);
         return "redirect:/admin/statuses";
     }
-
-
 
     @GetMapping("/roles")
     public String getAdminPanelRoles(Model model) {
@@ -424,7 +415,7 @@ public class AdminController {
 
     @PostMapping("/roles/add")
     public String postAdminPanelRolesAdd(Model model, @ModelAttribute Role role) {
-        if(roleRepo.existsByName(role.getName())) {
+        if (roleRepo.existsByName(role.getName())) {
             model.addAttribute("error", "Role with this name already exists");
             return "redirect:/admin/roles";
         }
@@ -432,7 +423,5 @@ public class AdminController {
         roleRepo.save(role);
         return "redirect:/admin/roles";
     }
-
-
 
 }
