@@ -10,7 +10,7 @@ import com.bshop_jpa.demo.repositories.UserRepository;
 
 @Service
 public class UserService {
-    
+
     private final UserRepository userRepo;
 
     public UserService(UserRepository userRepo) {
@@ -31,6 +31,10 @@ public class UserService {
 
     public void deleteUser(User user) {
         userRepo.delete(user);
+    }
+
+    public boolean userExistsByPhone(String phone) {
+        return userRepo.existsByPhone(phone);
     }
 
 }

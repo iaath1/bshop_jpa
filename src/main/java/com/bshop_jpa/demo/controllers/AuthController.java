@@ -76,6 +76,12 @@ public class AuthController {
         if (result.hasErrors()) {
             return "auth/authentitication";
         }
+
+        if (user.getPhone() != null && userService.userExistsByPhone(user.getPhone())) {
+            model.addAttribute("error", "User with this phone number already exists.");
+            return "auth/authentitication";
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getEmail().equals(ADMIN_EMAIL) || user.getEmail().equals(ADMIN_EMAIL2)) {
             user.setRoles(Set.of(roleRepo.findByName("ROLE_ADMIN").get()));
