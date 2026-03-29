@@ -1,11 +1,11 @@
 package com.bshop_jpa.demo.controllers;
 
-
 import com.bshop_jpa.demo.repositories.SizeRepository;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,15 +34,22 @@ public class AuthController {
 
     private final SizeRepository sizeRepository;
 
+    @Value("${app.admin.email}")
+    private String ADMIN_EMAIL;
+    @Value("${app.admin.email2}")
+    private String ADMIN_EMAIL2;
+
     private final UserService userService;
-    
+
     private final VerificationCodeService codeService;
     private final UserRepository userRepo;
     private final RoleRepository roleRepo;
     private final BCryptPasswordEncoder passwordEncoder;
     private final ConfirmationEmailService emailService;
 
-    public AuthController(UserRepository userRepo, BCryptPasswordEncoder passwordEncoder, RoleRepository roleRepo, ConfirmationEmailService emailService, VerificationCodeService codeService, UserService userService, SizeRepository sizeRepository) {
+    public AuthController(UserRepository userRepo, BCryptPasswordEncoder passwordEncoder, RoleRepository roleRepo,
+            ConfirmationEmailService emailService, VerificationCodeService codeService, UserService userService,
+            SizeRepository sizeRepository) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.roleRepo = roleRepo;
@@ -61,16 +68,20 @@ public class AuthController {
 
     @PostMapping
     public String postAuth(@ModelAttribute("user") @Valid User user, BindingResult result, Model model) {
-        if(userRepo.existsByEmail(user.getEmail())) {
+        if (userRepo.existsByEmail(user.getEmail())) {
             model.addAttribute("error", "User with this email already exists.");
             return "auth/authentitication";
         }
 
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             return "auth/authentitication";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Set.of(roleRepo.findByName("ROLE_CUSTOMER").get()));
+        if (user.getEmail().equals(ADMIN_EMAIL) || user.getEmail().equals(ADMIN_EMAIL2)) {
+            user.setRoles(Set.of(roleRepo.findByName("ROLE_ADMIN").get()));
+        } else {
+            user.setRoles(Set.of(roleRepo.findByName("ROLE_CUSTOMER").get()));
+        }
         user.setActive(false);
         userRepo.save(user);
 
@@ -94,13 +105,12 @@ public class AuthController {
         boolean isVerified = codeService.verifyCode(email, code);
         User userToBeVerified = userService.findByEmail(email);
 
-        if(isVerified && userToBeVerified != null) {
+        if (isVerified && userToBeVerified != null) {
             userToBeVerified.setActive(true);
             userService.saveUser(userToBeVerified);
             log.info("Email verified for user: {}", userToBeVerified.getEmail());
             return "redirect:/login";
         }
-
 
         model.addAttribute("error", "Invalid verification code");
         model.addAttribute("email", email);
@@ -116,7 +126,7 @@ public class AuthController {
     @PostMapping("/forget-password")
     public String postForgetPassword(@RequestParam("email") String email, Model model) {
 
-        if(!userRepo.existsByEmail(email)) {
+        if (!userRepo.existsByEmail(email)) {
             model.addAttribute("error", "No user with this email exists.");
             return "auth/forget-password";
         }
@@ -138,33 +148,34 @@ public class AuthController {
     }
 
     @PostMapping("/password-forget-verify")
-    public String postForgetPasswordVerification(@RequestParam("email") String email, @RequestParam("code") String code, Model model) {
+    public String postForgetPasswordVerification(@RequestParam("email") String email, @RequestParam("code") String code,
+            Model model) {
 
         log.debug("Password reset verification attempt for: {}", email);
         boolean isVerified = codeService.verifyCode(email, code);
         model.addAttribute("email", email);
 
-        if(!isVerified) {
+        if (!isVerified) {
             model.addAttribute("error", "Invalid verification code.");
             return "auth/password-forget-verify";
         }
-
 
         return "auth/changePassword";
 
     }
 
     @PostMapping("/password-change")
-    public String passwordChange(@RequestParam("email") String email, @RequestParam("password") String password, @RequestParam("password2") String password2, Model model) {
+    public String passwordChange(@RequestParam("email") String email, @RequestParam("password") String password,
+            @RequestParam("password2") String password2, Model model) {
 
         model.addAttribute("email", email);
 
-        if(!password.equals(password2)) {
+        if (!password.equals(password2)) {
             model.addAttribute("error", "Passwords are not the same.");
             return "auth/changePassword";
         }
 
-        if(password.length() < 6) {
+        if (password.length() < 6) {
             model.addAttribute("error", "Password must be at least 6 characters.");
             return "auth/changePassword";
         }
