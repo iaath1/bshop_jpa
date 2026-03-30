@@ -91,6 +91,13 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/com.resend/resend-java -->
+<dependency>
+    <groupId>com.resend</groupId>
+    <artifactId>resend-java</artifactId>
+    <version>4.13.0</version>
+    <scope>compile</scope>
+</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.stripe/stripe-java -->
 <dependency>
