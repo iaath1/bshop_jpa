@@ -44,7 +44,7 @@ public class OrderController {
     @Value("${google.maps.api.key}")
     private String googleMapsKey;
 
-    @Value("${stripe.public.key}")
+    @Value("${STRIPE_PUBLIC_KEY}")
     private String stripePublicKey;
 
     public OrderController(ProductService productService, OrderService orderService, CartService cartService, StatusService statusService, SizeService sizeService) {
