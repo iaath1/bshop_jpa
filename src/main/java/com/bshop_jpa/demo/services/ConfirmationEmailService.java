@@ -24,47 +24,57 @@ public class ConfirmationEmailService {
     @Value("${MAIL_USERNAME}")
     private String mailFrom;
 
+    // Добавь логгер
+    private static final org.slf4j.Logger logger = 
+        org.slf4j.LoggerFactory.getLogger(ConfirmationEmailService.class);
+
     @Async
     public void sendConfirmationEmail(String toEmail, String code) {
-        SimpleMailMessage confirmationEmail = new SimpleMailMessage();
+        try {
+            SimpleMailMessage confirmationEmail = new SimpleMailMessage();
+            confirmationEmail.setFrom(mailFrom);
+            confirmationEmail.setTo(toEmail);
+            confirmationEmail.setSubject("Account confirmation");
+            confirmationEmail.setText(
+                "Your confirmation code: \n\n" + code + 
+                "\n\nEnter it on the website to activate your account.");
 
-        confirmationEmail.setFrom(mailFrom);
-        confirmationEmail.setTo(toEmail);
-        confirmationEmail.setSubject("Account confirmation");
-        confirmationEmail.setText(
-                "Your confirmation code: \n\n" + code + "\n\nEnter it on the website to activate your account.");
+            javaMailSender.send(confirmationEmail);
+            logger.info("Confirmation email sent to: {}", toEmail);
 
-        javaMailSender.send(confirmationEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send confirmation email to {}: {}", toEmail, e.getMessage(), e);
+        }
     }
 
     @Async
     public void sendOrderInfoEmail(Status status, Order order) {
-        SimpleMailMessage informationEmail = new SimpleMailMessage();
-        String email;
+        try {
+            SimpleMailMessage informationEmail = new SimpleMailMessage();
+            String email = (order.getGuestEmail() == null || order.getGuestEmail().isEmpty())
+                ? order.getUser().getEmail()
+                : order.getGuestEmail();
 
-        if (order.getGuestEmail() == null || order.getGuestEmail().isEmpty()) {
-            email = order.getUser().getEmail();
-        } else {
-            email = order.getGuestEmail();
+            informationEmail.setFrom(mailFrom);
+            informationEmail.setTo(email);
+            informationEmail.setSubject("Order information");
+
+            switch (status.getName()) {
+                case "PAID":
+                    informationEmail.setText("We have accepted your paid. If you have questions, please contact us on tel: ...");
+                    break;
+                case "SHIPPING":
+                    informationEmail.setText("Your order have been delivered to Delivery Company.");
+                    break;
+                default:
+                    break;
+            }
+
+            javaMailSender.send(informationEmail);
+            logger.info("Order email sent to: {}", email);
+
+        } catch (Exception e) {
+            logger.error("Failed to send order email: {}", e.getMessage(), e);
         }
-
-        informationEmail.setFrom(mailFrom);
-        informationEmail.setTo(email);
-        informationEmail.setSubject("Order information");
-
-        switch (status.getName()) {
-            case "PAID":
-                informationEmail
-                        .setText("We have accepted your paid. If you have questions, please contact us on tel: ... ");
-                break;
-            case "SHIPPING":
-                informationEmail.setText("Your order have been delivered to Delivery Company.");
-                break;
-            default:
-                break;
-        }
-
-        javaMailSender.send(informationEmail);
     }
-
 }
