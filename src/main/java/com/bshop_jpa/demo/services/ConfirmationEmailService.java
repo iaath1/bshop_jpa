@@ -30,22 +30,26 @@ public class ConfirmationEmailService {
 
     @Async
     public void sendConfirmationEmail(String toEmail, String code) {
-        try {
-            SimpleMailMessage confirmationEmail = new SimpleMailMessage();
-            confirmationEmail.setFrom(mailFrom);
-            confirmationEmail.setTo(toEmail);
-            confirmationEmail.setSubject("Account confirmation");
-            confirmationEmail.setText(
-                "Your confirmation code: \n\n" + code + 
-                "\n\nEnter it on the website to activate your account.");
+    try {
+        System.out.println("=== SENDING EMAIL TO: " + toEmail);
+        System.out.println("=== MAIL FROM: " + mailFrom);
 
-            javaMailSender.send(confirmationEmail);
-            logger.info("Confirmation email sent to: {}", toEmail);
+        SimpleMailMessage confirmationEmail = new SimpleMailMessage();
+        confirmationEmail.setFrom(mailFrom);
+        confirmationEmail.setTo(toEmail);
+        confirmationEmail.setSubject("Account confirmation");
+        confirmationEmail.setText(
+            "Your confirmation code: \n\n" + code +
+            "\n\nEnter it on the website to activate your account.");
 
-        } catch (Exception e) {
-            logger.error("Failed to send confirmation email to {}: {}", toEmail, e.getMessage(), e);
-        }
+        javaMailSender.send(confirmationEmail);
+        System.out.println("=== EMAIL SENT SUCCESSFULLY TO: " + toEmail);
+
+    } catch (Exception e) {
+        System.out.println("=== EMAIL ERROR: " + e.getMessage());
+        e.printStackTrace();
     }
+}
 
     @Async
     public void sendOrderInfoEmail(Status status, Order order) {
