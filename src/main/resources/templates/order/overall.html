@@ -218,7 +218,7 @@
 </footer>
 
 <script>
-    const stripe = Stripe([[${stripePublicKey}]]);
+    const stripe = Stripe('[[${stripePublicKey}]]');
 
     document.getElementById("payBtn").addEventListener("click", async () => {
         const response = await fetch("/stripe/create-session", {
