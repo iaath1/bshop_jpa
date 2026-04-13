@@ -34,9 +34,9 @@ public class AuthController {
 
     private final SizeRepository sizeRepository;
 
-    @Value("${app.admin.email}")
+    @Value("${APP_ADMIN_EMAIL}")
     private String ADMIN_EMAIL;
-    @Value("${app.admin.email2}")
+    @Value("${APP_ADMIN_EMAIL2}")
     private String ADMIN_EMAIL2;
 
     private final UserService userService;
