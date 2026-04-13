@@ -21,35 +21,47 @@ public class ConfirmationEmailService {
     @Autowired
     public JavaMailSender javaMailSender;
 
+    @Value("${BREVO_API_KEY}")
+    private String brevoApiKey;
+
     @Value("${MAIL_USERNAME}")
     private String mailFrom;
 
     // Добавь логгер
-    private static final org.slf4j.Logger logger = 
-        org.slf4j.LoggerFactory.getLogger(ConfirmationEmailService.class);
+    private final org.springframework.web.reactive.function.client.WebClient webClient =
+        org.springframework.web.reactive.function.client.WebClient.create("https://api.brevo.com");
 
     @Async
     public void sendConfirmationEmail(String toEmail, String code) {
-    try {
-        System.out.println("=== SENDING EMAIL TO: " + toEmail);
-        System.out.println("=== MAIL FROM: " + mailFrom);
+        try {
+            System.out.println("=== SENDING EMAIL TO: " + toEmail);
 
-        SimpleMailMessage confirmationEmail = new SimpleMailMessage();
-        confirmationEmail.setFrom(mailFrom);
-        confirmationEmail.setTo(toEmail);
-        confirmationEmail.setSubject("Account confirmation");
-        confirmationEmail.setText(
-            "Your confirmation code: \n\n" + code +
-            "\n\nEnter it on the website to activate your account.");
+            String body = """
+                {
+                    "sender": {"email": "%s"},
+                    "to": [{"email": "%s"}],
+                    "subject": "Account confirmation",
+                    "textContent": "Your confirmation code:\\n\\n%s\\n\\nEnter it on the website to activate your account."
+                }
+                """.formatted(mailFrom, toEmail, code);
 
-        javaMailSender.send(confirmationEmail);
-        System.out.println("=== EMAIL SENT SUCCESSFULLY TO: " + toEmail);
+            String response = webClient.post()
+                .uri("/v3/smtp/email")
+                .header("api-key", brevoApiKey)
+                .header("Content-Type", "application/json")
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
-    } catch (Exception e) {
-        System.out.println("=== EMAIL ERROR: " + e.getMessage());
-        e.printStackTrace();
+            System.out.println("=== EMAIL SENT: " + response);
+
+        } catch (Exception e) {
+            System.out.println("=== EMAIL ERROR: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
+
 
     @Async
     public void sendOrderInfoEmail(Status status, Order order) {
@@ -75,10 +87,10 @@ public class ConfirmationEmailService {
             }
 
             javaMailSender.send(informationEmail);
-            logger.info("Order email sent to: {}", email);
+            System.out.println("=== ORDER INFO EMAIL SENT TO: " + email);
 
         } catch (Exception e) {
-            logger.error("Failed to send order email: {}", e.getMessage(), e);
+            System.out.println("=== EMAIL ERROR: " + e.getMessage());
         }
     }
 }
