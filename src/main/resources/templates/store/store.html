@@ -157,19 +157,19 @@
             <div class="card-actions">
                 <a th:href="@{/store/product/{id}(id=${prod.id})}" class="btn-action btn-detail" th:text="#{page.productDetailsText}">Подробнее</a>
 
-                <!-- Авторизованный: добавить в корзину -->
-                <form sec:authorize="isAuthenticated()"
+                
+                <!-- <form sec:authorize="isAuthenticated()"
                       th:action="@{/store/cart/add/{id}(id=${prod.id})}"
                       method="post"
                       style="display:contents;">
                     <button type="submit" class="btn-action btn-buy" th:text="#{page.cartText}">В корзину</button>
                 </form>
 
-                <!-- Гость: оформить заказ -->
+                
                 <a sec:authorize="isAnonymous()"
                    th:href="@{/order/{id}(id=${prod.id})}"
                    class="btn-action btn-buy"
-                   th:text="#{page.orderText}">Оформить заказ</a>
+                   th:text="#{page.orderText}">Оформить заказ</a> -->
             </div>
 
         </div>
