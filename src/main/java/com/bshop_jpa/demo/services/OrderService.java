@@ -55,7 +55,7 @@ public class OrderService {
     public List<Order> findUnpaidAndExpired(LocalDateTime dateTime) {
         List<Order> orders = orderRepo.findAll();
 
-        return orders.stream().filter(order -> order.getStatus().getName().equals("NEW") && order.getCreatedAt().isBefore(dateTime)).toList();
+        return orders.stream().filter(order -> (order.getStatus().getName().equals("NEW") || order.getStatus().getName().equals("CANCELED")) && order.getCreatedAt().isBefore(dateTime)).toList();
     }
 
     public void deleteAllOrders(List<Order> orders) {
