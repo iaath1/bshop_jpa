@@ -33,3 +33,4 @@ build/
 .vscode/
 .env
 .claude/
+hs_err_pid21128.log

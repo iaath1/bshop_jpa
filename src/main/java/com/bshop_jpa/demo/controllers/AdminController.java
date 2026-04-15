@@ -11,20 +11,15 @@ import com.bshop_jpa.demo.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +42,7 @@ import com.bshop_jpa.demo.models.Product;
 import com.bshop_jpa.demo.models.Role;
 import com.bshop_jpa.demo.models.Status;
 import com.bshop_jpa.demo.services.CategoryService;
-import com.bshop_jpa.demo.repositories.ImageRepository;
+import com.bshop_jpa.demo.services.CloudinaryService;
 import com.bshop_jpa.demo.repositories.RoleRepository;
 import com.bshop_jpa.demo.services.SizeService;
 import com.bshop_jpa.demo.services.StatusService;
@@ -59,11 +54,14 @@ public class AdminController {
 
     private final ConfirmationEmailService confirmationEmailService;
 
-    @Value("${app.upload.dir}")
-    private String MEDIA_PATH;
+    // @Value("${app.upload.dir}")
+    // private String MEDIA_PATH;
+    
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Autowired
-    private final UserService userService;
+    private  UserService userService;
 
     private final UserRepository userRepo;
     private final ProductService productService;
@@ -162,49 +160,33 @@ public class AdminController {
         return "admin/adminPanelProductsAdd";
     }
 
-    @PostMapping("/products/add")
-    public String postAdminPanelProductAdd(Model model,
-            @ModelAttribute Product product,
-            @RequestParam(name = "files") MultipartFile[] imageFiles,
-            @RequestParam(name = "nameUk") String nameUk,
-            @RequestParam(name = "descriptionUk") String descriptionUk,
-            @RequestParam(name = "namePl") String namePl,
-            @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
+   @PostMapping("/products/add")
+public String postAdminPanelProductAdd(Model model,
+        @ModelAttribute Product product,
+        @RequestParam(name = "files") MultipartFile[] imageFiles,
+        @RequestParam(name = "nameUk") String nameUk,
+        @RequestParam(name = "descriptionUk") String descriptionUk,
+        @RequestParam(name = "namePl") String namePl,
+        @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
 
-        List<Image> images = new ArrayList<>();
+    List<Image> images = new ArrayList<>();
 
-        if (imageFiles.length != 0) {
-            Path uploadDir = Paths.get(MEDIA_PATH);
-            Files.createDirectories(uploadDir);
+    for (MultipartFile imageFile : imageFiles) {
+        if (imageFile.isEmpty()) continue;
+        String contentType = imageFile.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) continue;
+        if (imageFile.getSize() > 10 * 1024 * 1024) continue;
 
-            for (MultipartFile imageFile : imageFiles) {
-                if (imageFile.isEmpty())
-                    continue;
-                String contentType = imageFile.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    continue;
-                }
-                if (imageFile.getSize() > 10 * 1024 * 1024) {
-                    continue;
-                }
-
-                String originalFilename = imageFile.getOriginalFilename();
-                String extension = (originalFilename != null && originalFilename.contains("."))
-                        ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                        : "";
-                String fileName = UUID.randomUUID() + extension;
-                Path filePath = uploadDir.resolve(fileName);
-                Files.copy(imageFile.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-                images.add(new Image(product, "/media/" + fileName));
-            }
-        }
-        product.setImages(images);
-        productService.saveNewProduct(product);
-        productService.addTranslationToProduct(product, "uk", nameUk, descriptionUk);
-        productService.addTranslationToProduct(product, "pl", namePl, descriptionPl);
-        return "redirect:/admin/products";
+        String url = cloudinaryService.uploadImage(imageFile); // ✅ вместо Files.copy
+        images.add(new Image(product, url));
     }
+
+    product.setImages(images);
+    productService.saveNewProduct(product);
+    productService.addTranslationToProduct(product, "uk", nameUk, descriptionUk);
+    productService.addTranslationToProduct(product, "pl", namePl, descriptionPl);
+    return "redirect:/admin/products";
+}
 
     @GetMapping("/products/update/{id}")
     public String getAdminPanelProductsUpdate(@PathVariable Long id, Model model, Locale locale) {
@@ -223,66 +205,41 @@ public class AdminController {
         return "admin/adminPanelProductsUpdate";
     }
 
-    @PostMapping("/products/update/{id}")
-    public String postAdminPanelProductsUpdate(
-            Model model,
-            @ModelAttribute Product product,
-            @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
-            @PathVariable Long id,
-            Locale locale,
-            @RequestParam(name = "nameUk") String nameUk,
-            @RequestParam(name = "descriptionUk") String descriptionUk,
-            @RequestParam(name = "namePl") String namePl,
-            @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
+@PostMapping("/products/update/{id}")
+public String postAdminPanelProductsUpdate(
+        Model model,
+        @ModelAttribute Product product,
+        @RequestParam(name = "files", required = false) MultipartFile[] imageFiles,
+        @PathVariable Long id,
+        Locale locale,
+        @RequestParam(name = "nameUk") String nameUk,
+        @RequestParam(name = "descriptionUk") String descriptionUk,
+        @RequestParam(name = "namePl") String namePl,
+        @RequestParam(name = "descriptionPl") String descriptionPl) throws IOException {
 
-        Product existing = productService.findProductById(id);
+    Product existing = productService.findProductById(id);
+    if (existing == null) throw new RuntimeException("Product with id: " + id + " does not exist.");
 
-        if (existing == null) {
-            throw new RuntimeException("Product with id: " + id + " Does not exists.");
+    existing.setPrice(product.getPrice());
+    existing.setQuantity(product.getQuantity());
+    existing.setColor(product.getColor());
+    existing.setMaterial(product.getMaterial());
+    existing.setCategory(product.getCategory());
+
+    if (imageFiles != null && imageFiles.length > 0) {
+        for (MultipartFile imageFile : imageFiles) {
+            if (imageFile.isEmpty()) continue;
+
+            String url = cloudinaryService.uploadImage(imageFile); // ✅ вместо Files.copy
+            existing.getImages().add(new Image(existing, url));
         }
-
-        existing.setPrice(product.getPrice());
-        existing.setQuantity(product.getQuantity());
-        existing.setColor(product.getColor());
-        existing.setMaterial(product.getMaterial());
-        existing.setCategory(product.getCategory());
-
-        Path uploadDir = Paths.get(MEDIA_PATH);
-
-        Files.createDirectories(uploadDir);
-
-        // ✅ Добавляем новые изображения, не удаляя старые
-        if (imageFiles != null && imageFiles.length > 0) {
-            for (MultipartFile imageFile : imageFiles) {
-                if (imageFile.isEmpty())
-                    continue;
-
-                // Получаем оригинальное расширение
-                String originalFilename = imageFile.getOriginalFilename();
-                String extension = "";
-                if (originalFilename != null && originalFilename.contains(".")) {
-                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                }
-
-                // Уникальное имя файла
-                String fileName = UUID.randomUUID() + extension;
-
-                // Полный путь
-                Path filePath = uploadDir.resolve(fileName);
-                Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                // Добавляем в список
-                Image image = new Image(existing, "/media/" + fileName);
-                existing.getImages().add(image);
-            }
-        }
-
-        productService.saveProduct(productService.updateProductSizesQuantity(existing, product.getSizes()));
-        productService.setNewTranslationForProduct(existing, "uk", nameUk, descriptionUk);
-        productService.setNewTranslationForProduct(existing, "pl", namePl, descriptionPl);
-        return "redirect:/admin/products";
     }
 
+    productService.saveProduct(productService.updateProductSizesQuantity(existing, product.getSizes()));
+    productService.setNewTranslationForProduct(existing, "uk", nameUk, descriptionUk);
+    productService.setNewTranslationForProduct(existing, "pl", namePl, descriptionPl);
+    return "redirect:/admin/products";
+}
     @DeleteMapping("/products/image/delete/{id}")
     @ResponseBody
     public ResponseEntity<Void> deleteImage(@PathVariable Long id) {

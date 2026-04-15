@@ -41,7 +41,7 @@ public class StripeContoller {
     @Autowired
     private StatusService statusService;
     
-    @Value("${stripe.secret.key}")
+    @Value("${STRIPE_SECRET_KEY}")
     private String stripeSecretKey;
 
     @Value("${stripe.webhook.secret}")
