@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ru"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="#{home.title} + ' - ' + #{page.storeName}"></title>
+    <link rel="stylesheet" th:href="@{/css/store.css}">
+    <style>
+        /* ══════════════════════════════════════════
+           HOME PAGE — additional styles
+           ══════════════════════════════════════════ */
+
+        /* ── Hero ───────────────────────────────── */
+        .hero-home {
+            position: relative;
+            min-height: clamp(340px, 55vw, 560px);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background: var(--dark);
+        }
+
+        .hero-home::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 80% at 75% 50%, rgba(200,149,108,.18) 0%, transparent 65%),
+                radial-gradient(ellipse 40% 60% at 20% 80%, rgba(200,149,108,.10) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* diagonal accent stripe */
+        .hero-home::after {
+            content: '';
+            position: absolute;
+            top: -40px; right: -60px;
+            width: 340px; height: 340px;
+            border-radius: 50%;
+            border: 1px solid rgba(200,149,108,.18);
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: var(--max-w);
+            margin-inline: auto;
+            padding: clamp(40px, 6vw, 80px) var(--pad);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-text { max-width: 520px; }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 18px;
+        }
+        .hero-eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 28px; height: 1px;
+            background: var(--primary);
+        }
+
+        .hero-title {
+            font-family: var(--font-head);
+            font-size: clamp(32px, 5vw, 58px);
+            color: #fff;
+            line-height: 1.08;
+            margin-bottom: 20px;
+            letter-spacing: -.5px;
+        }
+        .hero-title em {
+            font-style: normal;
+            color: var(--primary);
+        }
+
+        .hero-sub {
+            font-size: 16px;
+            color: rgba(255,255,255,.6);
+            line-height: 1.7;
+            margin-bottom: 32px;
+            max-width: 400px;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 15px;
+            font-family: var(--font-body);
+            text-decoration: none;
+            transition: background .2s, transform .15s, box-shadow .2s;
+        }
+        .hero-cta:hover {
+            background: var(--primary-d);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(200,149,108,.35);
+        }
+        .hero-cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,.7);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 14px 20px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: var(--radius-sm);
+            transition: all .18s;
+        }
+        .hero-cta-secondary:hover {
+            color: #fff;
+            border-color: rgba(255,255,255,.4);
+            background: rgba(255,255,255,.06);
+        }
+
+        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        /* Hero image grid */
+        .hero-visuals {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 200px 140px;
+            gap: 10px;
+        }
+        .hero-img {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: rgba(255,255,255,.04);
+        }
+        .hero-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: .85;
+            transition: opacity .3s, transform .4s;
+        }
+        .hero-img:hover img { opacity: 1; transform: scale(1.04); }
+        .hero-img:first-child {
+            grid-row: 1 / 3;
+            border: 1px solid rgba(200,149,108,.2);
+        }
+        .hero-img:not(:first-child) {
+            border: 1px solid rgba(255,255,255,.06);
+        }
+
+        /* ── Stats strip ─────────────────────────── */
+        .stats-strip {
+            background: var(--primary);
+        }
+        .stats-inner {
+            max-width: var(--max-w);
+            margin-inline: auto;
+            padding: 0 var(--pad);
+            display: flex;
+            align-items: stretch;
+        }
+        .stat-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 20px 16px;
+            border-right: 1px solid rgba(255,255,255,.2);
+        }
+        .stat-item:last-child { border-right: none; }
+        .stat-icon { font-size: 22px; flex-shrink: 0; }
+        .stat-text { line-height: 1.25; }
+        .stat-value {
+            font-family: var(--font-head);
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,.75);
+            font-weight: 500;
+        }
+        @media (max-width: 600px) {
+            .stats-inner { flex-wrap: wrap; }
+            .stat-item { flex: 1 1 50%; border-bottom: 1px solid rgba(255,255,255,.15); }
+            .stat-item:nth-child(2n) { border-right: none; }
+        }
+
+        /* ── Section header ──────────────────────── */
+        .section-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: clamp(20px, 3vw, 32px);
+            flex-wrap: wrap;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .section-title {
+            font-family: var(--font-head);
+            font-size: clamp(22px, 3vw, 32px);
+            color: var(--dark);
+            line-height: 1.15;
+        }
+        .section-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: gap .2s, color .18s;
+            white-space: nowrap;
+        }
+        .section-link:hover { gap: 10px; color: var(--primary-d); }
+
+        /* ── New-arrivals badge ───────────────────── */
+        .new-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--primary);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        /* ── Categories grid ─────────────────────── */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .cat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px 16px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all .22s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .cat-card:hover {
+            background: var(--dark);
+            color: #fff;
+            border-color: var(--dark);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .cat-emoji { font-size: 28px; transition: transform .3s; }
+        .cat-card:hover .cat-emoji { transform: scale(1.15); }
+        .cat-name {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+        .cat-count {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .cat-card:hover .cat-count { color: rgba(255,255,255,.6); }
+
+        /* ── Promo banner ────────────────────────── */
+        .promo-banner {
+            background: linear-gradient(135deg, var(--dark) 0%, #3a2410 100%);
+            border-radius: var(--radius-lg);
+            padding: clamp(28px, 5vw, 52px);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        .promo-banner::before {
+            content: '';
+            position: absolute;
+            right: -80px; top: -80px;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            border: 1px solid rgba(200,149,108,.15);
+            pointer-events: none;
+        }
+        .promo-banner::after {
+            content: '';
+            position: absolute;
+            right: -20px; top: -20px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            border: 1px solid rgba(200,149,108,.1);
+            pointer-events: none;
+        }
+        .promo-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(200,149,108,.2);
+            color: var(--primary);
+            border: 1px solid rgba(200,149,108,.3);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+        .promo-title {
+            font-family: var(--font-head);
+            font-size: clamp(24px, 4vw, 40px);
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+        .promo-title span { color: var(--primary); }
+        .promo-sub {
+            color: rgba(255,255,255,.55);
+            font-size: 15px;
+            margin-bottom: 24px;
+            max-width: 380px;
+        }
+        @media (max-width: 640px) {
+            .promo-banner { grid-template-columns: 1fr; }
+        }
+
+        /* ── Trust strip ─────────────────────────── */
+        .trust-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .trust-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 22px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: box-shadow .2s;
+        }
+        .trust-card:hover { box-shadow: var(--shadow-md); }
+        .trust-icon-wrap {
+            width: 42px; height: 42px;
+            background: rgba(200,149,108,.1);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .trust-card h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        .trust-card p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* ── Page sections spacing ───────────────── */
+        .home-section {
+            padding: clamp(40px, 6vw, 72px) 0;
+        }
+        .home-section + .home-section {
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Responsive hero ─────────────────────── */
+        @media (max-width: 768px) {
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-visuals { display: none; }
+            .hero-text { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="header">
+    <div class="container header-inner">
+        <div class="logo">🛍 MyStore</div>
+
+        <button class="nav-toggle" th:attr="aria-label=#{page.menu}" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="nav">
+            <div class="lang-switcher">
+                <div class="dropdown">
+                    <button class="dropbtn">
+                        🌐 <span th:text="${#locale.language == 'uk' ? 'UA' : #locale.language.toUpperCase()}">PL</span>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" onclick="changeLanguage('uk'); return false;">UA</a>
+                        <a href="#" onclick="changeLanguage('pl'); return false;">PL</a>
+                    </div>
+                </div>
+            </div>
+
+            <a th:href="@{/}" th:text="#{page.home}" class="active">Главная</a>
+            <a th:href="@{/store}" th:text="#{page.catalog}">Каталог</a>
+            <a th:href="@{/about}" th:text="#{page.about}">О нас</a>
+            <a th:href="@{/contacts}" th:text="#{page.contacts}">Контакты</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/store/cart}" th:text="#{page.cart}">Корзина</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/order/myorders}" th:text="#{page.myOrdersPage}">Мои заказы</a>
+            <form sec:authorize="isAuthenticated()" th:action="@{/auth/logout}" method="post" style="display:inline;">
+                <button class="btn-small danger" type="submit" th:text="#{page.logout}">Выйти</button>
+            </form>
+
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" th:text="#{page.login}">Войти</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero-home">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <div class="hero-eyebrow" th:text="#{home.eyebrow}">Нова колекція 2025</div>
+            <h1 class="hero-title" th:utext="#{home.heroTitle}">
+                Твій стиль —<br><em>твоя мова</em>
+            </h1>
+            <p class="hero-sub" th:text="#{home.heroSub}">
+                Одяг, який говорить за тебе. Якісні матеріали, актуальні фасони та доставка по всій Польщі.
+            </p>
+            <div class="hero-actions">
+                <a th:href="@{/store}" class="hero-cta" th:text="#{home.catalogBtn}">Перейти до каталогу →</a>
+                <a th:href="@{/store(order='desc')}" class="hero-cta-secondary" th:text="#{home.newArrivalsBtn}">Нові надходження</a>
+            </div>
+        </div>
+
+        <!-- Product image collage (first 3 new products) -->
+        <div class="hero-visuals" th:if="${newProducts != null and !#lists.isEmpty(newProducts)}">
+            <div class="hero-img" th:if="${newProducts.size() > 0}">
+                <img th:src="@{${newProducts[0].previewImageUrl}}" th:alt="${newProducts[0].name}">
+            </div>
+            <div class="hero-img" th:if="${newProducts.size() > 1}">
+                <img th:src="@{${newProducts[1].previewImageUrl}}" th:alt="${newProducts[1].name}">
+            </div>
+            <div class="hero-img" th:if="${newProducts.size() > 2}">
+                <img th:src="@{${newProducts[2].previewImageUrl}}" th:alt="${newProducts[2].name}">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ STATS STRIP ═══════════════ -->
+<div class="stats-strip">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <span class="stat-icon">📦</span>
+            <div class="stat-text">
+                <div class="stat-value" th:text="${totalProducts} + '+'">10+</div>
+                <div class="stat-label" th:text="#{home.statProducts}">Товарів в наявності</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-icon">🚚</span>
+            <div class="stat-text">
+                <div class="stat-value">InPost &amp; NP</div>
+                <div class="stat-label" th:text="#{home.statDelivery}">Доставка по Польщі та Україні</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-icon">🔒</span>
+            <div class="stat-text">
+                <div class="stat-value">Stripe</div>
+                <div class="stat-label" th:text="#{home.statPayment}">Безпечна оплата</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-icon">⭐</span>
+            <div class="stat-text">
+                <div class="stat-value" th:text="${totalOrders} + '+'">0+</div>
+                <div class="stat-label" th:text="#{home.statOrders}">Успішних замовлень</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ NEW ARRIVALS ═══════════════ -->
+<section class="home-section container" th:if="${newProducts != null and !#lists.isEmpty(newProducts)}">
+    <div class="section-header">
+        <div>
+            <div class="section-label" th:text="#{home.newLabel}">Нові надходження</div>
+            <h2 class="section-title" th:text="#{home.newTitle}">За останні 10 днів</h2>
+        </div>
+        <a th:href="@{/store}" class="section-link" th:text="#{home.seeAll}">Дивитись усі →</a>
+    </div>
+
+    <div class="products-grid">
+        <div class="product-card" th:each="prod : ${newProducts}">
+            <div class="product-content">
+                <a th:href="@{/store/product/{id}(id=${prod.id})}" class="product-link">
+                    <div style="position:relative; overflow:hidden;">
+                        <img th:src="@{${prod.previewImageUrl}}"
+                             th:alt="${prod.name}"
+                             class="product-thumb-lg">
+                        <div class="new-badge" style="position:absolute; top:10px; left:10px;">
+                            ✦ NEW
+                        </div>
+                    </div>
+                </a>
+                <div class="product-info">
+                    <h3 th:text="${prod.name}">Назва товару</h3>
+                    <p class="price" th:text="${prod.price} + ' zł'">0 zł</p>
+
+                    <div class="sizes">
+                        <span class="size-label" th:text="#{page.sizesText}">Розміри:</span>
+                        <div class="size-list">
+                            <span th:each="s : ${prod.sizes}"
+                                  th:text="${s.name}"
+                                  th:classappend="${s.quantity > 0} ? ' size-available' : ' size-unavailable'">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="color-section" th:if="${prod.color != null}">
+                        <span class="color-label" th:text="#{page.colorText}">Колір:</span>
+                        <div class="color-display">
+                            <div class="color-circle" th:style="'background-color:' + ${prod.color.hexValue}"></div>
+                            <span class="color-name" th:text="${lang == 'uk' ? prod.color.nameUa : prod.color.namePl}"></span>
+                        </div>
+                    </div>
+
+                    <div class="material-section" th:if="${prod.material != null}">
+                        <span class="material-label" th:text="#{page.materialText}">Матеріал:</span>
+                        <span class="material-name" th:text="${lang == 'uk' ? prod.material.nameUa : prod.material.namePl}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a th:href="@{/store/product/{id}(id=${prod.id})}"
+                   class="btn-action btn-detail"
+                   th:text="#{page.productDetailsText}">Детальніше</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ CATEGORIES ═══════════════ -->
+<section class="home-section container" th:if="${categories != null and !#lists.isEmpty(categories)}">
+    <div class="section-header">
+        <div>
+            <div class="section-label" th:text="#{home.catLabel}">Асортимент</div>
+            <h2 class="section-title" th:text="#{home.catTitle}">Категорії товарів</h2>
+        </div>
+    </div>
+
+    <div class="cat-grid">
+        <a th:each="cat : ${categories}"
+           th:href="@{/store(categoryId=${cat.id})}"
+           class="cat-card">
+            <!-- Emoji по категории -->
+            <span class="cat-emoji"
+                  th:text="${cat.nameUa == 'Футболки' ? '👕' :
+                             cat.nameUa == 'Кроссовки' ? '👟' :
+                             cat.nameUa == 'Джинси' ? '👖' :
+                             cat.nameUa == 'Куртки' ? '🧥' :
+                             cat.nameUa == 'Шорти' ? '🩳' : '🛍'}">🛍</span>
+            <span class="cat-name" th:text="${lang == 'uk' ? cat.nameUa : cat.namePl}">Категорія</span>
+            <span class="cat-count" th:text="${cat.count} + ' ' + #{home.catItems}">0 товарів</span>
+        </a>
+    </div>
+</section>
+
+<!-- ═══════════════ PROMO BANNER ═══════════════ -->
+<section class="home-section container">
+    <div class="promo-banner">
+        <div>
+            <div class="promo-tag">✦ <span th:text="#{home.promoTag}">Спецпропозиція</span></div>
+            <h2 class="promo-title" th:utext="#{home.promoTitle}">
+                Реєструйся —<br><span>отримуй перше замовлення</span>
+            </h2>
+            <p class="promo-sub" th:text="#{home.promoSub}">
+                Створи акаунт та відстежуй всі свої замовлення в особистому кабінеті. Зручно, швидко, безпечно.
+            </p>
+            <div class="hero-actions">
+                <a sec:authorize="isAnonymous()" th:href="@{/auth}" class="hero-cta" th:text="#{home.promoBtn}">
+                    Зареєструватися
+                </a>
+                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="hero-cta-secondary" th:text="#{page.login}">
+                    Увійти
+                </a>
+                <a sec:authorize="isAuthenticated()" th:href="@{/store}" class="hero-cta" th:text="#{home.catalogBtn}">
+                    До каталогу →
+                </a>
+            </div>
+        </div>
+        <!-- decorative large price tag -->
+        <div style="font-size: clamp(60px, 10vw, 100px); opacity:.06; font-family: var(--font-head); color:#fff; pointer-events:none; user-select:none; line-height:1;">
+            SHOP
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ TRUST ═══════════════ -->
+<section class="home-section container">
+    <div class="section-header">
+        <div>
+            <div class="section-label" th:text="#{home.trustLabel}">Чому ми</div>
+            <h2 class="section-title" th:text="#{home.trustTitle}">Ваш комфорт — наш пріоритет</h2>
+        </div>
+    </div>
+
+    <div class="trust-strip">
+        <div class="trust-card">
+            <div class="trust-icon-wrap">🚀</div>
+            <div>
+                <h4 th:text="#{home.trust1Title}">Швидка доставка</h4>
+                <p th:text="#{home.trust1Sub}">InPost та Нова Пошта — забирай замовлення у зручному відділенні.</p>
+            </div>
+        </div>
+        <div class="trust-card">
+            <div class="trust-icon-wrap">🔒</div>
+            <div>
+                <h4 th:text="#{home.trust2Title}">Безпечна оплата</h4>
+                <p th:text="#{home.trust2Sub}">Оплата через Stripe — картка, Apple Pay або Google Pay.</p>
+            </div>
+        </div>
+        <div class="trust-card">
+            <div class="trust-icon-wrap">👕</div>
+            <div>
+                <h4 th:text="#{home.trust3Title}">Якісні матеріали</h4>
+                <p th:text="#{home.trust3Sub}">Бавовна, шкіра, нейлон — тільки перевірені тканини.</p>
+            </div>
+        </div>
+        <div class="trust-card">
+            <div class="trust-icon-wrap">📦</div>
+            <div>
+                <h4 th:text="#{home.trust4Title}">Зручне відстеження</h4>
+                <p th:text="#{home.trust4Sub}">Особистий кабінет з повною історією замовлень.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer">
+    <p th:text="#{page.copyright}"></p>
+</footer>
+
+<script th:src="@{/js/mobile-nav.js}"></script>
+</body>
+</html>

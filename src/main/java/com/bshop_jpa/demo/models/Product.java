@@ -3,8 +3,12 @@ package com.bshop_jpa.demo.models;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -84,5 +88,13 @@ public class Product {
         return "Product [id=" + id + ", name=" + name + ", description=" + description + ", price=" + price
                 + ", quantity=" + quantity + "]";
     }
+
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

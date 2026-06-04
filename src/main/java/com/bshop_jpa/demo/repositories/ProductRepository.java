@@ -12,6 +12,8 @@ import com.bshop_jpa.demo.DTO.ColorCountDTO;
 import com.bshop_jpa.demo.DTO.MaterialCountDTO;
 import com.bshop_jpa.demo.models.Category;
 import com.bshop_jpa.demo.models.Product;
+import java.time.LocalDateTime;
+
 
 @Repository
 public interface ProductRepository extends CrudRepository<Product, Long> {
@@ -46,4 +48,6 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
     List<Product> findAll();
 
     List<Product> findByNameContainingIgnoreCase(String name);
+
+    List<Product> findByCreatedAt(LocalDateTime createdAt);
 }

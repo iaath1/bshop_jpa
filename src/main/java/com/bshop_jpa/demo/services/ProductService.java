@@ -1,5 +1,6 @@
 package com.bshop_jpa.demo.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -266,6 +267,17 @@ public class ProductService {
         product.getTranslations().add(pt);
         productRepo.save(product);
         //ptService.saveTranslation(pt);
+    }
+
+    public List<Product> getNewProducts(int days) throws Exception {
+        List<Product> result = productRepo.findByCreatedAt(LocalDateTime.now().minusDays(days));
+
+        if(result.isEmpty()) {
+            throw new Exception("There is no new products for the last 10 days");
+        }
+
+        return result;
+        
     }
 
 }
