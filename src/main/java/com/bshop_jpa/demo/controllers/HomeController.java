@@ -25,7 +25,7 @@ public class HomeController {
     }
 
     @GetMapping
-    public String getHome(Model model, Locale locale) throws Exception {
+    public String getHome(Model model, Locale locale) {
         List<Product> products = productService.getNewProducts(10)
         .stream()
         .map(p -> productService.localizateProduct(productService.sortProductSizes(p), locale.getLanguage()))
