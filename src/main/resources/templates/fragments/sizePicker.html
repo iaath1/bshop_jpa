@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- Вызов: th:replace="~{fragments/sizePicker :: picker(prod=${prod}, lang=${lang})}" -->
+<div th:fragment="picker(prod, lang)" class="card-buy-wrap">
+    <button class="btn-buy-trigger"
+            th:attr="data-pid=${prod.id}"
+            th:text="#{page.orderText}"
+            onclick="togglePicker(event, this)">
+        Купити
+    </button>
+
+    <div class="size-picker" th:id="'picker-' + ${prod.id}">
+        <div class="size-picker-title" th:text="#{page.sizesText}">Розмір:</div>
+        <div class="size-picker-list">
+
+            <!-- Авторизованный -->
+            <th:block sec:authorize="isAuthenticated()">
+                <th:block th:each="s : ${prod.sizes}">
+                    <button th:if="${s.quantity > 0}"
+                            class="size-pick-btn"
+                            th:attr="data-product-id=${prod.id}, data-size-id=${s.id}"
+                            th:text="${s.name}"
+                            onclick="addToCart(event, this)">S</button>
+                    <span th:if="${s.quantity == 0}"
+                          class="size-pick-btn size-pick-btn--disabled"
+                          th:text="${s.name}">S</span>
+                </th:block>
+            </th:block>
+
+            <!-- Гость -->
+            <th:block sec:authorize="isAnonymous()">
+                <th:block th:each="s : ${prod.sizes}">
+                    <a th:if="${s.quantity > 0}"
+                       class="size-pick-btn"
+                       th:href="@{/order/{id}(id=${prod.id}, sizeId=${s.id})}"
+                       th:text="${s.name}">S</a>
+                    <span th:if="${s.quantity == 0}"
+                          class="size-pick-btn size-pick-btn--disabled"
+                          th:text="${s.name}">S</span>
+                </th:block>
+            </th:block>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -572,11 +572,13 @@
                     </div>
                 </div>
             </div>
-            <div class="card-actions">
-                <a th:href="@{/store/product/{id}(id=${prod.id})}"
-                   class="btn-action btn-detail"
-                   th:text="#{page.productDetailsText}">Детальніше</a>
-            </div>
+<div class="card-actions">
+    <a th:href="@{/store/product/{id}(id=${prod.id})}"
+       class="btn-action btn-detail"
+       th:text="#{page.productDetailsText}">Детальніше</a>
+
+    <div th:replace="~{fragments/sizePicker :: picker(prod=${prod}, lang=${lang})}"></div>
+</div>
         </div>
     </div>
 </section>
@@ -684,5 +686,6 @@
 </footer>
 
 <script th:src="@{/js/mobile-nav.js}"></script>
+<script th:src="@{/js/size-picker.js}"></script>  
 </body>
 </html>

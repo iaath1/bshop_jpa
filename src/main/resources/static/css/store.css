@@ -1317,3 +1317,104 @@ section > h1 {
         padding-inline: 0;
     }
 }
+
+/* ══════════════════════════════════════════
+   SIZE PICKER POPOVER
+   ══════════════════════════════════════════ */
+.card-buy-wrap { position: relative; }
+
+.btn-buy-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 9px 0;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 13px;
+    font-family: var(--font-body);
+    cursor: pointer;
+    border: none;
+    background: var(--dark);
+    color: #fff;
+    transition: background .2s;
+    min-height: 38px;
+}
+.btn-buy-trigger:hover { background: #4a3020; }
+
+.size-picker {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-lg);
+    z-index: 50;
+    min-width: 200px;
+    animation: popIn .15s ease;
+}
+.size-picker.open { display: block; }
+
+@keyframes popIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.size-picker::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px; height: 10px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    rotate: 45deg;
+}
+
+.size-picker-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.size-picker-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.size-pick-btn {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    color: var(--dark);
+    cursor: pointer;
+    transition: all .15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.size-pick-btn:hover:not(.size-pick-btn--disabled) {
+    background: var(--dark);
+    color: #fff;
+    border-color: var(--dark);
+}
+.size-pick-btn--disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
