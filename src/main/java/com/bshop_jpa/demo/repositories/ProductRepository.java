@@ -49,5 +49,5 @@ public interface ProductRepository extends CrudRepository<Product, Long> {
 
     List<Product> findByNameContainingIgnoreCase(String name);
 
-    List<Product> findByCreatedAt(LocalDateTime createdAt);
+    List<Product> findByCreatedAtAfter(LocalDateTime createdAt);
 }

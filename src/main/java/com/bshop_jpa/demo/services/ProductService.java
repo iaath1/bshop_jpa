@@ -269,11 +269,11 @@ public class ProductService {
         //ptService.saveTranslation(pt);
     }
 
-    public List<Product> getNewProducts(int days) throws Exception {
-        List<Product> result = productRepo.findByCreatedAt(LocalDateTime.now().minusDays(days));
+    public List<Product> getNewProducts(int days) {
+        List<Product> result = productRepo.findByCreatedAtAfter(LocalDateTime.now().minusDays(days));
 
         if(result.isEmpty()) {
-            throw new Exception("There is no new products for the last 10 days");
+            return productRepo.findAll().stream().limit(4).toList();
         }
 
         return result;
